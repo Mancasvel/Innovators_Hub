@@ -1,0 +1,56 @@
+{
+  "name": "innovators-hub",
+  "version": "1.0.0",
+  "description": "Community platform for digital nomads and innovators in Seville, Spain",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "setup-check": "node scripts/setup-check.js",
+    "create-organizer": "node scripts/create-organizer.js",
+    "seed-db": "node scripts/seed-database.js",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
+    "bcryptjs": "^2.4.3",
+    "framer-motion": "^11.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "next": "^15.0.0",
+    "next-auth": "^4.24.5",
+    "nodemailer": "^6.9.14",
+    "qrcode": "^1.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.2.3",
+    "sharp": "^0.33.1",
+    "stripe": "^17.3.1",
+    "uploadthing": "^6.13.3",
+    "@uploadthing/react": "^6.7.2",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.6",
+    "@types/nodemailer": "^6.4.16",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
+    "@types/uuid": "^9.0.7",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^15.0.0",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
