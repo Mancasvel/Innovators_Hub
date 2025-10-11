@@ -4,6 +4,20 @@
 
 Se ha agregado la capacidad para que los organizadores y administradores puedan ver una lista completa de personas que se han apuntado a sus eventos, incluyendo información detallada sobre cada ticket comprado.
 
+### 🚀 Nuevas Características Agregadas
+
+#### ✅ **Check-in Digital**
+- Botón "Check In" en cada asistente para marcar asistencia
+- Estado visual diferenciado (verde para check-in completado)
+- Indicadores de carga durante el proceso de check-in
+- Validación estricta (solo tickets válidos pueden hacer check-in)
+
+#### ✅ **Vista Móvil Optimizada**
+- Diseño de tarjetas responsivo para dispositivos móviles
+- Información esencial visible en pantallas pequeñas
+- Botones de check-in de tamaño completo en móvil
+- Ocultación inteligente de columnas menos críticas
+
 ## 🎯 Características Implementadas
 
 ### Botón de Acción
@@ -26,14 +40,14 @@ Se ha agregado la capacidad para que los organizadores y administradores puedan 
 
 ### Columnas de la Tabla
 
-| Columna | Descripción | Ejemplo |
-|---------|-------------|---------|
-| **Name** | Nombre completo del asistente | "Juan Pérez" |
-| **Email** | Correo electrónico del asistente | "juan@email.com" |
-| **Purchase Date** | Fecha y hora de compra del ticket | "15 Nov 2024, 14:30" |
-| **Status** | Estado actual del ticket | ✅ Valid / ✓ Used / ❌ Cancelled |
-| **Price** | Precio pagado por el ticket | "€15.00" o "Free (Member)" |
-| **Used** | Si el ticket ha sido utilizado | "✓ Used" o "Pending" |
+| Columna | Descripción | Ejemplo | Responsivo |
+|---------|-------------|---------|------------|
+| **Name** | Nombre completo del asistente | "Juan Pérez" | ✅ Siempre visible |
+| **Email** | Correo electrónico del asistente | "juan@email.com" | ❌ Oculto en móvil |
+| **Purchase Date** | Fecha y hora de compra del ticket | "15 Nov 2024, 14:30" | ❌ Oculto en móvil |
+| **Status** | Estado actual del ticket | ✅ Valid / ✓ Used / ❌ Cancelled | ✅ Siempre visible |
+| **Price** | Precio pagado por el ticket | "€15.00" o "Free (Member)" | ❌ Oculto en móvil |
+| **Check-in** | Botón para marcar asistencia | "Check In" / "✓ Checked" | ✅ Siempre visible |
 
 ### Estados de Ticket
 - ✅ **Valid** - Verde: Ticket activo y válido para usar
@@ -147,6 +161,11 @@ const canViewAttendants = session?.user && (
 - [ ] **Vista móvil optimizada** - Mejor experiencia en dispositivos móviles
 - [ ] **Accesos directos** - Enlaces rápidos a perfiles de usuario
 
+### ✅ **Navegación al Perfil Implementada**
+- ✅ **Enlace en navbar** - "Profile" agregado al menú de usuario autenticado
+- ✅ **Página de perfil completa** - `/user/profile` con formulario de edición
+- ✅ **Navegación directa** - Acceso rápido desde cualquier página de la aplicación
+
 ## ✅ Verificación
 
 ```bash
@@ -159,6 +178,9 @@ npm run build  # ✅ Compilación exitosa
 - ✅ **Interfaz responsiva** y accesible
 - ✅ **Seguridad implementada** correctamente
 - ✅ **Datos mostrados** de manera clara y organizada
+- ✅ **Check-in digital** funcionando correctamente
+- ✅ **Vista móvil optimizada** implementada
+- ✅ **Navegación al perfil** operativa
 
 ## 📚 Documentación Relacionada
 

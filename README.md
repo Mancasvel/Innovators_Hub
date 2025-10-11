@@ -20,7 +20,8 @@ A modern community platform for digital nomads and innovators in Seville, Spain.
 - 🌐 **Multi-language Support** ready (i18n infrastructure)
 - 📥 **QR Code Download** in ticket emails and user portal
 - 📅 **Calendar Integration** - Add events to external calendars (Google, Apple, Outlook)
-- 👥 **Event Attendants Management** - Organizers can view complete attendee lists with ticket details
+- 👥 **Event Attendants Management** - Organizers can view complete attendee lists with ticket details and digital check-in
+- 📱 **Mobile-Optimized Interface** - Responsive design for all devices with mobile-first approach
 
 ## 🛠️ Technology Stack
 

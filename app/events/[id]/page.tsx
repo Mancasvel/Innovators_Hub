@@ -66,6 +66,7 @@ export default function EventDetailPage() {
   const [showAttendants, setShowAttendants] = useState(false);
   const [attendants, setAttendants] = useState<any[]>([]);
   const [attendantsLoading, setAttendantsLoading] = useState(false);
+  const [checkingIn, setCheckingIn] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEvent();
@@ -98,6 +99,50 @@ export default function EventDetailPage() {
       });
     } finally {
       setAttendantsLoading(false);
+    }
+  };
+
+  const handleCheckIn = async (ticketId: string, userName: string) => {
+    setCheckingIn(ticketId);
+    try {
+      const response = await fetch(`/api/tickets/${ticketId}/checkin`, {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update the local state
+        setAttendants(prev => prev.map(attendant =>
+          attendant.ticketId === ticketId
+            ? { ...attendant, assisted: true }
+            : attendant
+        ));
+
+        setModal({
+          show: true,
+          type: 'success',
+          title: 'Check-in Successful',
+          message: `${userName} has been checked in successfully!`,
+        });
+      } else {
+        setModal({
+          show: true,
+          type: 'error',
+          title: 'Check-in Failed',
+          message: data.error || 'Failed to check in attendee',
+        });
+      }
+    } catch (error) {
+      console.error('Error during check-in:', error);
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to check in attendee. Please try again.',
+      });
+    } finally {
+      setCheckingIn(null);
     }
   };
 
@@ -338,40 +383,110 @@ export default function EventDetailPage() {
                       </div>
                     ) : (
                       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                        <div className="overflow-x-auto">
+                        {/* Mobile Card View - Show on small screens */}
+                        <div className="block md:hidden">
+                          {attendants.map((attendant, index) => (
+                            <div key={attendant.ticketId} className={`p-4 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-gray-100`}>
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900">{attendant.userName}</p>
+                                  <p className="text-sm text-gray-500">{attendant.userEmail}</p>
+                                </div>
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  attendant.ticketStatus === 'valid'
+                                    ? 'bg-green-100 text-green-800'
+                                    : attendant.ticketStatus === 'used'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : attendant.ticketStatus === 'cancelled'
+                                    ? 'bg-red-100 text-red-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {attendant.ticketStatus}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center text-sm text-gray-600">
+                                <span>
+                                  {new Date(attendant.purchaseDate).toLocaleDateString('es-ES', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </span>
+                                <span>
+                                  {attendant.purchasePrice === 0 ? (
+                                    <span className="text-green-600 font-medium">Free</span>
+                                  ) : (
+                                    `€${attendant.purchasePrice.toFixed(2)}`
+                                  )}
+                                  {attendant.purchasedWithMembership && (
+                                    <span className="ml-1 text-xs text-blue-600">(Member)</span>
+                                  )}
+                                </span>
+                              </div>
+                              <div className="mt-3">
+                                <button
+                                  onClick={() => handleCheckIn(attendant.ticketId, attendant.userName)}
+                                  disabled={checkingIn === attendant.ticketId || attendant.ticketStatus !== 'valid'}
+                                  className={`w-full inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md ${
+                                    attendant.assisted
+                                      ? 'bg-green-100 text-green-800'
+                                      : attendant.ticketStatus === 'valid'
+                                      ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  }`}
+                                >
+                                  {checkingIn === attendant.ticketId ? (
+                                    <div className="w-4 h-4 border border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                  ) : attendant.assisted ? (
+                                    '✓ Checked In'
+                                  ) : (
+                                    'Check In'
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Desktop Table View - Hide on small screens */}
+                        <div className="hidden md:block overflow-x-auto">
                           <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                               <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   Name
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                                   Email
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                                   Purchase Date
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   Status
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                                   Price
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  Used
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Check-in
                                 </th>
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                               {attendants.map((attendant, index) => (
-                                <tr key={attendant.ticketId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {attendant.userName}
+                                <tr key={attendant.ticketId} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-50`}>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <div className="flex items-center">
+                                      <span className="block sm:hidden font-medium">{attendant.userName}</span>
+                                      <span className="hidden sm:block">{attendant.userName}</span>
+                                    </div>
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                     {attendant.userEmail}
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                                     {new Date(attendant.purchaseDate).toLocaleDateString('es-ES', {
                                       year: 'numeric',
                                       month: 'short',
@@ -380,7 +495,7 @@ export default function EventDetailPage() {
                                       minute: '2-digit',
                                     })}
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap">
+                                  <td className="px-3 py-4 whitespace-nowrap">
                                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                       attendant.ticketStatus === 'valid'
                                         ? 'bg-green-100 text-green-800'
@@ -393,7 +508,7 @@ export default function EventDetailPage() {
                                       {attendant.ticketStatus}
                                     </span>
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                     {attendant.purchasePrice === 0 ? (
                                       <span className="text-green-600 font-medium">Free</span>
                                     ) : (
@@ -403,14 +518,26 @@ export default function EventDetailPage() {
                                       <span className="ml-1 text-xs text-blue-600">(Member)</span>
                                     )}
                                   </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {attendant.usedAt ? (
-                                      <span className="text-green-600">✓ Used</span>
-                                    ) : attendant.ticketStatus === 'valid' ? (
-                                      <span className="text-gray-400">Pending</span>
-                                    ) : (
-                                      <span className="text-gray-400">-</span>
-                                    )}
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button
+                                      onClick={() => handleCheckIn(attendant.ticketId, attendant.userName)}
+                                      disabled={checkingIn === attendant.ticketId || attendant.ticketStatus !== 'valid'}
+                                      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${
+                                        attendant.assisted
+                                          ? 'bg-green-100 text-green-800'
+                                          : attendant.ticketStatus === 'valid'
+                                          ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                      }`}
+                                    >
+                                      {checkingIn === attendant.ticketId ? (
+                                        <div className="w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin mr-1"></div>
+                                      ) : attendant.assisted ? (
+                                        '✓ Checked'
+                                      ) : (
+                                        'Check In'
+                                      )}
+                                    </button>
                                   </td>
                                 </tr>
                               ))}

@@ -69,6 +69,12 @@ export default function Navbar() {
 
                 {/* User Menu */}
                 <div className="flex items-center space-x-4">
+                  <Link
+                    href="/user/profile"
+                    className="text-sm text-gray-700 hover:text-seville-orange transition-colors"
+                  >
+                    Profile
+                  </Link>
                   <span className="text-sm text-gray-600">
                     {user?.name || user?.email}
                   </span>
