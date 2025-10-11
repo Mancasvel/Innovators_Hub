@@ -45,17 +45,47 @@ export default function ScanPage() {
       codeReaderRef.current = codeReader;
 
       const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
-      
+
       if (videoInputDevices.length === 0) {
         alert('No camera found on this device');
         setScanning(false);
         return;
       }
 
-      // Prefer back camera on mobile
-      const selectedDevice = videoInputDevices.find(
-        (device: MediaDeviceInfo) => device.label.toLowerCase().includes('back')
-      ) || videoInputDevices[0];
+      // Select back camera by default (more reliable method)
+      const selectBackCamera = (devices: MediaDeviceInfo[]) => {
+        // Common patterns for back camera labels
+        const backCameraPatterns = [
+          /back/i,
+          /rear/i,
+          /environment/i,
+          /facing back/i,
+          /camera2/i,
+          /1$/i, // Often back camera is the second one (index 1)
+        ];
+
+        // First try to find by label patterns
+        for (const device of devices) {
+          const label = device.label.toLowerCase();
+          if (backCameraPatterns.some(pattern => pattern.test(label))) {
+            return device;
+          }
+        }
+
+        // If no pattern matches, prefer the last device (often back camera on mobile)
+        // or use a more sophisticated heuristic
+        if (devices.length > 1) {
+          // On mobile devices, often the back camera is the second one or has higher resolution
+          const backCamera = devices.find((_, index) => index > 0) || devices[devices.length - 1];
+          return backCamera;
+        }
+
+        // Fallback to first device
+        return devices[0];
+      };
+
+      const selectedDevice = selectBackCamera(videoInputDevices);
+      console.log('📷 Selected camera:', selectedDevice.label, 'ID:', selectedDevice.deviceId);
 
       codeReader.decodeFromVideoDevice(
         selectedDevice.deviceId,
