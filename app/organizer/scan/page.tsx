@@ -27,6 +27,8 @@ export default function ScanPage() {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<ValidationResult | null>(null);
   const [validating, setValidating] = useState(false);
+  const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
+  const [selectedCameraIndex, setSelectedCameraIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
 
@@ -35,6 +37,75 @@ export default function ScanPage() {
       stopScanning();
     };
   }, []);
+
+  // Function to intelligently select back camera index
+  const selectBackCameraIndex = (devices: MediaDeviceInfo[]) => {
+    const backCameraPatterns = [
+      /back/i,
+      /rear/i,
+      /environment/i,
+      /facing back/i,
+      /camera2/i,
+      /1$/i,
+    ];
+
+    // First try to find by label patterns
+    for (let i = 0; i < devices.length; i++) {
+      const label = devices[i].label.toLowerCase();
+      if (backCameraPatterns.some(pattern => pattern.test(label))) {
+        return i;
+      }
+    }
+
+    // If no pattern matches, prefer the last device (often back camera on mobile)
+    if (devices.length > 1) {
+      return devices.length - 1;
+    }
+
+    // Fallback to first device
+    return 0;
+  };
+
+  // Function to change camera
+  const changeCamera = async () => {
+    if (availableCameras.length <= 1) return;
+
+    const nextIndex = (selectedCameraIndex + 1) % availableCameras.length;
+    setSelectedCameraIndex(nextIndex);
+
+    // Stop current scanning
+    stopScanning();
+
+    // Restart with new camera
+    setTimeout(() => {
+      startScanningWithCamera(availableCameras[nextIndex]);
+    }, 100);
+  };
+
+  // Helper function to start scanning with specific camera
+  const startScanningWithCamera = async (selectedDevice: MediaDeviceInfo) => {
+    try {
+      const codeReader = new BrowserMultiFormatReader();
+      codeReaderRef.current = codeReader;
+
+      console.log('📷 Switching to camera:', selectedDevice.label, 'ID:', selectedDevice.deviceId);
+
+      codeReader.decodeFromVideoDevice(
+        selectedDevice.deviceId,
+        videoRef.current!,
+        async (result, error) => {
+          if (result) {
+            const qrCode = result.getText();
+            await validateTicket(qrCode);
+            stopScanning();
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error switching camera:', error);
+      alert('Failed to switch camera. Please try again.');
+    }
+  };
 
   const startScanning = async () => {
     try {
@@ -45,6 +116,7 @@ export default function ScanPage() {
       codeReaderRef.current = codeReader;
 
       const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
+      setAvailableCameras(videoInputDevices);
 
       if (videoInputDevices.length === 0) {
         alert('No camera found on this device');
@@ -52,39 +124,13 @@ export default function ScanPage() {
         return;
       }
 
-      // Select back camera by default (more reliable method)
-      const selectBackCamera = (devices: MediaDeviceInfo[]) => {
-        // Common patterns for back camera labels
-        const backCameraPatterns = [
-          /back/i,
-          /rear/i,
-          /environment/i,
-          /facing back/i,
-          /camera2/i,
-          /1$/i, // Often back camera is the second one (index 1)
-        ];
+      // Initialize selected camera index to prefer back camera
+      if (selectedCameraIndex === 0) {
+        const backCameraIndex = selectBackCameraIndex(videoInputDevices);
+        setSelectedCameraIndex(backCameraIndex);
+      }
 
-        // First try to find by label patterns
-        for (const device of devices) {
-          const label = device.label.toLowerCase();
-          if (backCameraPatterns.some(pattern => pattern.test(label))) {
-            return device;
-          }
-        }
-
-        // If no pattern matches, prefer the last device (often back camera on mobile)
-        // or use a more sophisticated heuristic
-        if (devices.length > 1) {
-          // On mobile devices, often the back camera is the second one or has higher resolution
-          const backCamera = devices.find((_, index) => index > 0) || devices[devices.length - 1];
-          return backCamera;
-        }
-
-        // Fallback to first device
-        return devices[0];
-      };
-
-      const selectedDevice = selectBackCamera(videoInputDevices);
+      const selectedDevice = videoInputDevices[selectedCameraIndex];
       console.log('📷 Selected camera:', selectedDevice.label, 'ID:', selectedDevice.deviceId);
 
       codeReader.decodeFromVideoDevice(
@@ -117,6 +163,8 @@ export default function ScanPage() {
       codeReaderRef.current = null;
     }
     setScanning(false);
+    setAvailableCameras([]);
+    setSelectedCameraIndex(0);
   };
 
   const validateTicket = async (qrCode: string) => {
@@ -245,12 +293,22 @@ export default function ScanPage() {
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={stopScanning}
-                    className="w-full btn bg-red-600 text-white hover:bg-red-700"
-                  >
-                    Stop Scanning
-                  </button>
+                  <>
+                    <button
+                      onClick={stopScanning}
+                      className="flex-1 btn bg-red-600 text-white hover:bg-red-700"
+                    >
+                      Stop Scanning
+                    </button>
+                    {availableCameras.length > 1 && (
+                      <button
+                        onClick={changeCamera}
+                        className="flex-1 btn btn-secondary"
+                      >
+                        🔄 Change Camera ({selectedCameraIndex + 1}/{availableCameras.length})
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -309,7 +367,11 @@ export default function ScanPage() {
                   <button
                     onClick={() => {
                       setResult(null);
-                      startScanning();
+                      if (availableCameras.length > 0) {
+                        startScanningWithCamera(availableCameras[selectedCameraIndex]);
+                      } else {
+                        startScanning();
+                      }
                     }}
                     className="mt-6 w-full btn btn-primary"
                   >
@@ -328,6 +390,7 @@ export default function ScanPage() {
                   <li>The ticket will be validated automatically</li>
                   <li>Green = Valid, Red = Invalid or already used</li>
                   <li>Use "Manual Entry" if camera doesn't work</li>
+                  <li>Use "🔄 Change Camera" to switch between front/back cameras</li>
                 </ul>
               </div>
             </div>
