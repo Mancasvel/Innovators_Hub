@@ -262,7 +262,21 @@ Por defecto, los usuarios registrados tienen rol `user`. Para promover a `organi
 
 ## 📄 Licencia
 
-MIT License - Innovators Hub 2025
+Copyright (c) 2025 Manuel Castillejo
+
+This software is licensed under a Single Commercial Use License.
+
+This license grants the purchaser:
+  - The right to use this codebase in one (1) commercial or non-commercial project.
+  - The right to modify and deploy the code for that single project.
+
+This license explicitly forbids:
+  - Resale, redistribution, sublicensing, or making the code publicly available.
+  - Using the codebase to build competing templates, generators, or similar products.
+  - Sharing or publishing parts of the source code for others to use.
+
+Violations of this license may result in legal action.
+
 
 ## 👥 Contacto
 
