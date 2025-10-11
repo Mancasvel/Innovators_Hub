@@ -153,7 +153,7 @@ export default function EventsPage() {
               <div className="flex-1 relative">
                 <input
                   type="text"
-                  placeholder="Buscar eventos por título, descripción o ubicación..."
+                  placeholder="Search events by title, description or location..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full input pl-10"
@@ -174,7 +174,7 @@ export default function EventsPage() {
                 onClick={() => setShowFilters(!showFilters)}
                 className={`btn ${showFilters ? 'btn-primary' : 'btn-outline'} whitespace-nowrap relative`}
               >
-                🎛️ Filtros
+                🎛️ Filters
                 {activeFiltersCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-seville-orange text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
                     {activeFiltersCount}
@@ -192,13 +192,13 @@ export default function EventsPage() {
                 className="bg-white rounded-lg shadow-lg p-6 mb-4"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">Filtrar Eventos</h3>
+                  <h3 className="text-lg font-bold">Filter Events</h3>
                   {activeFiltersCount > 0 && (
                     <button
                       onClick={clearFilters}
                       className="text-sm text-seville-orange hover:underline"
                     >
-                      Limpiar filtros
+                      Clear filters
                     </button>
                   )}
                 </div>
@@ -214,48 +214,50 @@ export default function EventsPage() {
                         className="w-5 h-5 text-seville-orange rounded focus:ring-seville-orange"
                       />
                       <span className="text-sm font-medium">
-                        ⭐ Gratis para miembros
+                        ⭐ Free for members
                       </span>
                     </label>
                   </div>
 
                   {/* Category Filter */}
                   <div>
-                    <label className="label text-sm mb-1">Categoría</label>
+                    <label className="label text-sm mb-1">Category</label>
                     <select
                       value={filters.category}
                       onChange={(e) => handleFilterChange('category', e.target.value)}
                       className="input text-sm"
                     >
-                      <option value="">Todas</option>
+                      <option value="">All</option>
                       <option value="networking">Networking</option>
                       <option value="workshop">Workshop</option>
                       <option value="talk">Talk</option>
                       <option value="social">Social</option>
-                      <option value="other">Otro</option>
+                      <option value="other">Other</option>
                     </select>
                   </div>
 
-                  {/* Date From Filter */}
-                  <div>
-                    <label className="label text-sm mb-1">Desde</label>
-                    <input
-                      type="date"
-                      value={filters.dateFrom}
-                      onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                      className="input text-sm"
-                    />
-                  </div>
-
-                  {/* Date To Filter */}
-                  <div>
-                    <label className="label text-sm mb-1">Hasta</label>
-                    <input
-                      type="date"
-                      value={filters.dateTo}
-                      onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                      className="input text-sm"
-                    />
+                  {/* Date Filters */}
+                  <div className="md:col-span-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="label text-sm mb-1">From</label>
+                        <input
+                          type="date"
+                          value={filters.dateFrom}
+                          onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                          className="input text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="label text-sm mb-1">To</label>
+                        <input
+                          type="date"
+                          value={filters.dateTo}
+                          onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                          className="input text-sm"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -265,11 +267,11 @@ export default function EventsPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm text-gray-600">
               <p>
                 {loading ? (
-                  'Cargando eventos...'
+                  'Loading events...'
                 ) : (
                   <>
-                    Mostrando <span className="font-semibold text-seville-orange">{filteredEvents.length}</span> de{' '}
-                    <span className="font-semibold">{events.length}</span> eventos
+                    Showing <span className="font-semibold text-seville-orange">{filteredEvents.length}</span> of{' '}
+                    <span className="font-semibold">{events.length}</span> events
                   </>
                 )}
               </p>
@@ -293,15 +295,15 @@ export default function EventsPage() {
               <div className="text-6xl mb-4">🔍</div>
               <p className="text-gray-600 text-lg mb-2">
                 {searchQuery || activeFiltersCount > 0
-                  ? 'No se encontraron eventos con los criterios seleccionados'
-                  : 'No hay eventos próximos en este momento'}
+                  ? 'No events found with the selected criteria'
+                  : 'No upcoming events at the moment'}
               </p>
               {(searchQuery || activeFiltersCount > 0) && (
                 <button
                   onClick={clearFilters}
                   className="btn btn-primary mt-4"
                 >
-                  Ver todos los eventos
+                  View all events
                 </button>
               )}
             </div>

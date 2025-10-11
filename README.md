@@ -21,7 +21,7 @@ A modern community platform for digital nomads and innovators in Seville, Spain.
 - 📥 **QR Code Download** in ticket emails and user portal
 - 📅 **Calendar Integration** - Add events to external calendars (Google, Apple, Outlook)
 - 👥 **Event Attendants Management** - Organizers can view complete attendee lists with ticket details and digital check-in
-- 📱 **Mobile-Optimized Interface** - Responsive design for all devices with mobile-first approach
+- 📱 **Mobile-Optimized Interface** - Responsive design for all devices with mobile-first approach including optimized ticket cards
 
 ## 🛠️ Technology Stack
 

@@ -191,7 +191,7 @@ export default function EventDetailPage() {
             show: true,
             type: 'error',
             title: '❌ Error',
-            message: data.error || 'No se pudo reclamar la entrada. Por favor, inténtalo de nuevo.',
+            message: data.error || 'Failed to claim ticket. Please try again.',
           });
           setPurchasing(false);
         }
@@ -581,15 +581,15 @@ export default function EventDetailPage() {
                       )}
                       <div className="mt-2">
                         <p className="text-sm text-gray-600">
-                          {event.ticketsSold} / {event.capacity} entradas vendidas
+                          {event.ticketsSold} / {event.capacity} tickets sold
                         </p>
                         {event.ticketsSold >= event.capacity ? (
                           <p className="text-sm text-red-600 font-semibold">
-                            ⚠️ Agotado
+                            ⚠️ Sold Out
                           </p>
                         ) : (
                           <p className="text-sm text-green-600">
-                            ✓ {event.capacity - event.ticketsSold} entradas disponibles
+                            ✓ {event.capacity - event.ticketsSold} tickets available
                           </p>
                         )}
                       </div>
@@ -632,14 +632,14 @@ export default function EventDetailPage() {
                         href={`/auth/login?callbackUrl=/events/${id}`}
                         className="text-seville-orange hover:underline"
                       >
-                        Inicia sesión
+                        Sign in
                       </Link>{' '}
-                      para comprar entradas
+                      to buy tickets
                     </p>
                   )}
                   {isSoldOut && (
                     <p className="mt-4 text-sm text-red-600 text-center font-semibold">
-                      😔 Lo sentimos, este evento ha alcanzado su capacidad máxima
+                      😔 Sorry, this event has reached its maximum capacity
                     </p>
                   )}
                 </div>

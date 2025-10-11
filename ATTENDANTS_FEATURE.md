@@ -17,6 +17,7 @@ Se ha agregado la capacidad para que los organizadores y administradores puedan 
 - Información esencial visible en pantallas pequeñas
 - Botones de check-in de tamaño completo en móvil
 - Ocultación inteligente de columnas menos críticas
+- Aplicado también a la página de tickets del usuario
 
 ## 🎯 Características Implementadas
 
