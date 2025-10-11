@@ -365,19 +365,27 @@ export default function EditEventPage() {
                     id="membershipFree"
                     type="checkbox"
                     checked={formData.membershipFree}
+                    disabled={parseFloat(formData.price) === 0}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
                         membershipFree: e.target.checked,
                       })
                     }
-                    className="w-4 h-4 text-seville-orange border-gray-300 rounded focus:ring-seville-orange"
+                    className={`w-4 h-4 text-seville-orange border-gray-300 rounded focus:ring-seville-orange ${
+                      parseFloat(formData.price) === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   />
                   <label
                     htmlFor="membershipFree"
-                    className="ml-2 text-sm text-gray-700"
+                    className={`ml-2 text-sm ${
+                      parseFloat(formData.price) === 0 ? 'text-gray-500' : 'text-gray-700'
+                    }`}
                   >
-                    Free for premium members
+                    {parseFloat(formData.price) === 0
+                      ? 'Free for everyone (automatically enabled when price is €0)'
+                      : 'Free for premium members'
+                    }
                   </label>
                 </div>
 

@@ -358,18 +358,25 @@ export default function EventsPage() {
                       <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div className="flex-shrink-0">
                           {event.price === 0 ? (
-                            <span className="text-green-600 font-bold text-sm md:text-base">
-                              Free
-                            </span>
+                            <div>
+                              <span className="text-green-600 font-bold text-sm md:text-base">
+                                Free
+                              </span>
+                              <p className="text-xs text-gray-600 mt-0.5">
+                                🎉 Free for everyone
+                              </p>
+                            </div>
                           ) : (
-                            <span className="text-gray-900 font-bold text-sm md:text-base">
-                              €{formatPrice(event.price)}
-                            </span>
-                          )}
-                          {event.membershipFree && event.price > 0 && (
-                            <p className="text-xs text-seville-orange mt-0.5">
-                              Free for members
-                            </p>
+                            <div>
+                              <span className="text-gray-900 font-bold text-sm md:text-base">
+                                €{formatPrice(event.price)}
+                              </span>
+                              {event.membershipFree && (
+                                <p className="text-xs text-seville-orange mt-0.5">
+                                  Free for members
+                                </p>
+                              )}
+                            </div>
                           )}
                         </div>
                         <span className="text-xs text-gray-500 whitespace-nowrap">

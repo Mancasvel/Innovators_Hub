@@ -146,6 +146,11 @@ export async function PATCH(
     // Sanitize input
     const sanitizedData = sanitizeObject(validatedData);
 
+    // Apply free event logic: if price is 0, automatically set membershipFree to true
+    if (sanitizedData.price === 0) {
+      sanitizedData.membershipFree = true;
+    }
+
     // Prevent updating protected fields
     const protectedFields = ['createdBy', 'ticketsSold', '_id'];
     protectedFields.forEach(field => delete (sanitizedData as any)[field]);

@@ -148,8 +148,7 @@ export default function OrganizerEventsPage() {
                           <span>📅 {formatDate(event.date)}</span>
                           <span>📍 {event.location}</span>
                           <span>
-                            💰 €{formatPrice(event.price)}
-                            {event.membershipFree && ' (Free for members)'}
+                            💰 {event.price === 0 ? 'Free for everyone' : `€${formatPrice(event.price)}${event.membershipFree ? ' (Free for members)' : ''}`}
                           </span>
                           <span>
                             🎟️ {event.ticketsSold}/{event.capacity} sold

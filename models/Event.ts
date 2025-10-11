@@ -98,6 +98,28 @@ const EventSchema = new Schema<IEvent>(
   }
 );
 
+// Pre-save middleware to enforce free event logic
+EventSchema.pre('save', function(next) {
+  // If price is 0, event is automatically free for everyone
+  // This overrides any membershipFree setting
+  if (this.price === 0) {
+    this.membershipFree = true;
+  }
+  next();
+});
+
+// Pre-update middleware for findOneAndUpdate operations
+EventSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate() as any;
+
+  // If price is being set to 0, automatically set membershipFree to true
+  if (update.price === 0) {
+    update.membershipFree = true;
+  }
+
+  next();
+});
+
 // Indexes for performance
 EventSchema.index({ date: 1, status: 1 });
 EventSchema.index({ createdBy: 1 });

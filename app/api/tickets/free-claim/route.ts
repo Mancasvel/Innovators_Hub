@@ -52,20 +52,15 @@ export async function GET(req: Request) {
       );
     }
 
-    // Check if user is a member
-    if (!user.hasMembership) {
-      return NextResponse.json(
-        { error: 'Se requiere membresía activa para reclamar esta entrada', code: 'NO_MEMBERSHIP' },
-        { status: 403 }
-      );
-    }
+    // Check if event is free for everyone (price = 0) or free for members
+    const isFreeEvent = event.price === 0;
+    const isFreeForMember = event.membershipFree && user.hasMembership;
 
-    // Check if event is free for members
-    if (!event.membershipFree) {
-      return NextResponse.json(
-        { error: 'Este evento no es gratuito para miembros', code: 'NOT_FREE' },
-        { status: 400 }
-      );
+    if (!isFreeEvent && !isFreeForMember) {
+      return NextResponse.json({
+        error: isFreeForMember ? 'Este evento no es gratuito para miembros' : 'Se requiere membresía activa para reclamar esta entrada',
+        code: isFreeForMember ? 'NOT_FREE' : 'NO_MEMBERSHIP'
+      }, { status: 400 });
     }
 
     // Check if event has reached capacity
