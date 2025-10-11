@@ -37,6 +37,18 @@ interface Event {
   updatedAt: string;
 }
 
+interface Attendant {
+  ticketId: string;
+  userName: string;
+  userEmail: string;
+  purchaseDate: string;
+  ticketStatus: string;
+  purchasePrice: number;
+  purchasedWithMembership: boolean;
+  usedAt?: string;
+  assisted: boolean;
+}
+
 export default function EventDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -51,10 +63,43 @@ export default function EventDetailPage() {
     title: string;
     message: string;
   } | null>(null);
+  const [showAttendants, setShowAttendants] = useState(false);
+  const [attendants, setAttendants] = useState<any[]>([]);
+  const [attendantsLoading, setAttendantsLoading] = useState(false);
 
   useEffect(() => {
     fetchEvent();
   }, [id]);
+
+  const fetchAttendants = async () => {
+    setAttendantsLoading(true);
+    try {
+      const response = await fetch(`/api/events/${id}/attendants`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setAttendants(data.attendants);
+        setShowAttendants(true);
+      } else {
+        setModal({
+          show: true,
+          type: 'error',
+          title: 'Error',
+          message: data.error || 'Failed to load attendants',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching attendants:', error);
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load attendants. Please try again.',
+      });
+    } finally {
+      setAttendantsLoading(false);
+    }
+  };
 
   const fetchEvent = async () => {
     try {
@@ -187,6 +232,12 @@ export default function EventDetailPage() {
   const isFreeForMember = event.membershipFree && userIsMember;
   const effectivePrice = isFreeEvent || isFreeForMember ? 0 : event.price;
 
+  // Check if current user can view attendants (organizer or admin)
+  const canViewAttendants = session?.user && (
+    ((session.user as any).role === 'organizer' || (session.user as any).role === 'admin') &&
+    ((session.user as any).email === event.createdBy.email || (session.user as any).role === 'admin')
+  );
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -263,6 +314,114 @@ export default function EventDetailPage() {
                   </p>
                 </div>
 
+                {/* Attendants List */}
+                {showAttendants && (
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold text-gray-900 text-xl">
+                        Event Attendants ({attendants.length})
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setShowAttendants(false);
+                          setAttendants([]);
+                        }}
+                        className="text-sm text-gray-500 hover:text-gray-700"
+                      >
+                        ✕ Close
+                      </button>
+                    </div>
+
+                    {attendants.length === 0 ? (
+                      <div className="bg-gray-50 rounded-lg p-8 text-center">
+                        <p className="text-gray-600">No attendants yet for this event.</p>
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Name
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Email
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Purchase Date
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Status
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Price
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Used
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {attendants.map((attendant, index) => (
+                                <tr key={attendant.ticketId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {attendant.userName}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {attendant.userEmail}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {new Date(attendant.purchaseDate).toLocaleDateString('es-ES', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                      attendant.ticketStatus === 'valid'
+                                        ? 'bg-green-100 text-green-800'
+                                        : attendant.ticketStatus === 'used'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : attendant.ticketStatus === 'cancelled'
+                                        ? 'bg-red-100 text-red-800'
+                                        : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {attendant.ticketStatus}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {attendant.purchasePrice === 0 ? (
+                                      <span className="text-green-600 font-medium">Free</span>
+                                    ) : (
+                                      `€${attendant.purchasePrice.toFixed(2)}`
+                                    )}
+                                    {attendant.purchasedWithMembership && (
+                                      <span className="ml-1 text-xs text-blue-600">(Member)</span>
+                                    )}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {attendant.usedAt ? (
+                                      <span className="text-green-600">✓ Used</span>
+                                    ) : attendant.ticketStatus === 'valid' ? (
+                                      <span className="text-gray-400">Pending</span>
+                                    ) : (
+                                      <span className="text-gray-400">-</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="border-t border-gray-200 pt-6">
                   <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
@@ -308,6 +467,19 @@ export default function EventDetailPage() {
                         )}
                       </div>
                     </div>
+
+                    {/* Show Attendants button for organizers/admins */}
+                    {canViewAttendants && (
+                      <div className="flex-shrink-0">
+                        <button
+                          onClick={fetchAttendants}
+                          disabled={attendantsLoading}
+                          className="btn bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                          {attendantsLoading ? 'Loading...' : '👥 Show Attendants'}
+                        </button>
+                      </div>
+                    )}
 
                     <button
                       onClick={handlePurchase}
