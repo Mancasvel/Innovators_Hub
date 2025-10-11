@@ -125,6 +125,11 @@ export default function EventDetailPage() {
           title: 'Check-in Successful',
           message: `${userName} has been checked in successfully!`,
         });
+
+        // Auto-close modal after 3 seconds
+        setTimeout(() => {
+          setModal(null);
+        }, 3000);
       } else {
         setModal({
           show: true,
@@ -671,7 +676,7 @@ export default function EventDetailPage() {
               </p>
               {modal.type === 'success' ? (
                 <div className="text-sm text-gray-600">
-                  Redirigiendo a tus entradas...
+                  Check-in completed successfully!
                 </div>
               ) : (
                 <button

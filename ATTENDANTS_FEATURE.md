@@ -11,6 +11,7 @@ Se ha agregado la capacidad para que los organizadores y administradores puedan 
 - Estado visual diferenciado (verde para check-in completado)
 - Indicadores de carga durante el proceso de check-in
 - Validación estricta (solo tickets válidos pueden hacer check-in)
+- Modal de confirmación que se cierra automáticamente después de 3 segundos
 
 #### ✅ **Vista Móvil Optimizada**
 - Diseño de tarjetas responsivo para dispositivos móviles
