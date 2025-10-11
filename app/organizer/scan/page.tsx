@@ -85,6 +85,7 @@ export default function ScanPage() {
   // Helper function to start scanning with specific camera
   const startScanningWithCamera = async (selectedDevice: MediaDeviceInfo) => {
     try {
+      setScanning(true);
       const codeReader = new BrowserMultiFormatReader();
       codeReaderRef.current = codeReader;
 
@@ -96,14 +97,15 @@ export default function ScanPage() {
         async (result, error) => {
           if (result) {
             const qrCode = result.getText();
+            // Validate ticket (this will stop the camera automatically)
             await validateTicket(qrCode);
-            stopScanning();
           }
         }
       );
     } catch (error) {
       console.error('Error switching camera:', error);
       alert('Failed to switch camera. Please try again.');
+      setScanning(false);
     }
   };
 
@@ -139,8 +141,8 @@ export default function ScanPage() {
         async (result, error) => {
           if (result) {
             const qrCode = result.getText();
+            // Validate ticket (this will stop the camera automatically)
             await validateTicket(qrCode);
-            stopScanning();
           }
         }
       );
@@ -170,7 +172,16 @@ export default function ScanPage() {
   const validateTicket = async (qrCode: string) => {
     setValidating(true);
 
+    // Stop the video stream to freeze the camera
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+    }
+    setScanning(false);
+
     try {
+      console.log('🎫 Validating ticket with QR:', qrCode);
+      
       const response = await fetch('/api/tickets/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -178,8 +189,15 @@ export default function ScanPage() {
       });
 
       const data = await response.json();
+      
+      console.log('📡 API Response:', {
+        status: response.status,
+        ok: response.ok,
+        data: data
+      });
 
       if (response.ok) {
+        console.log('✅ Ticket validated successfully:', data.ticket);
         setResult({
           success: true,
           ticket: data.ticket,
@@ -187,6 +205,7 @@ export default function ScanPage() {
         // Play success sound (optional)
         playSound('success');
       } else {
+        console.log('❌ Ticket validation failed:', data.error, 'Code:', data.code);
         setResult({
           success: false,
           error: data.error,
@@ -196,7 +215,7 @@ export default function ScanPage() {
         playSound('error');
       }
     } catch (error) {
-      console.error('Validation error:', error);
+      console.error('❌ Validation error:', error);
       setResult({
         success: false,
         error: 'Failed to validate ticket. Please try again.',
@@ -248,7 +267,7 @@ export default function ScanPage() {
             <div className="card">
               {/* Scanner Area */}
               <div className="scanner-container mb-6">
-                {scanning ? (
+                {scanning && !result ? (
                   <div className="relative">
                     <video
                       ref={videoRef}
@@ -265,52 +284,54 @@ export default function ScanPage() {
                       </div>
                     )}
                   </div>
-                ) : (
+                ) : !result ? (
                   <div className="bg-gray-100 rounded-lg p-12 text-center">
                     <div className="text-6xl mb-4">📷</div>
                     <p className="text-gray-600 mb-6">
                       Click below to start scanning QR codes
                     </p>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Controls */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                {!scanning ? (
-                  <>
-                    <button
-                      onClick={startScanning}
-                      className="flex-1 btn btn-primary"
-                    >
-                      Start Scanning
-                    </button>
-                    <button
-                      onClick={handleManualEntry}
-                      className="flex-1 btn btn-secondary"
-                    >
-                      Manual Entry
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={stopScanning}
-                      className="flex-1 btn bg-red-600 text-white hover:bg-red-700"
-                    >
-                      Stop Scanning
-                    </button>
-                    {availableCameras.length > 1 && (
+              {!result && (
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {!scanning ? (
+                    <>
                       <button
-                        onClick={changeCamera}
+                        onClick={startScanning}
+                        className="flex-1 btn btn-primary"
+                      >
+                        Start Scanning
+                      </button>
+                      <button
+                        onClick={handleManualEntry}
                         className="flex-1 btn btn-secondary"
                       >
-                        🔄 Change Camera ({selectedCameraIndex + 1}/{availableCameras.length})
+                        Manual Entry
                       </button>
-                    )}
-                  </>
-                )}
-              </div>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={stopScanning}
+                        className="flex-1 btn bg-red-600 text-white hover:bg-red-700"
+                      >
+                        Stop Scanning
+                      </button>
+                      {availableCameras.length > 1 && (
+                        <button
+                          onClick={changeCamera}
+                          className="flex-1 btn btn-secondary"
+                        >
+                          🔄 Change Camera ({selectedCameraIndex + 1}/{availableCameras.length})
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* Validation Result */}
               {result && (
@@ -366,12 +387,16 @@ export default function ScanPage() {
                   )}
                   <button
                     onClick={() => {
+                      // Clear result first
                       setResult(null);
-                      if (availableCameras.length > 0) {
-                        startScanningWithCamera(availableCameras[selectedCameraIndex]);
-                      } else {
-                        startScanning();
-                      }
+                      // Small delay to allow UI to update
+                      setTimeout(() => {
+                        if (availableCameras.length > 0) {
+                          startScanningWithCamera(availableCameras[selectedCameraIndex]);
+                        } else {
+                          startScanning();
+                        }
+                      }, 100);
                     }}
                     className="mt-6 w-full btn btn-primary"
                   >

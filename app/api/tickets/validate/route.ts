@@ -122,7 +122,7 @@ export async function POST(req: Request) {
       timestamp: new Date().toISOString(),
     });
 
-    return NextResponse.json({
+    const responsePayload = {
       success: true,
       ticket: {
         id: updatedTicket._id,
@@ -132,7 +132,11 @@ export async function POST(req: Request) {
         eventDate: (updatedTicket.eventId as any).date,
         usedAt: updatedTicket.usedAt,
       },
-    });
+    };
+
+    console.log('📤 Sending success response:', responsePayload);
+
+    return NextResponse.json(responsePayload);
   } catch (error) {
     console.error('Ticket validation error:', error);
     return NextResponse.json(
