@@ -75,14 +75,6 @@ export default function Navbar() {
                   >
                     Profile
                   </Link>
-                  <span className="text-sm text-gray-600">
-                    {user?.name || user?.email}
-                  </span>
-                  {user?.hasMembership && (
-                    <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                      ⭐ Member
-                    </span>
-                  )}
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
                     className="text-sm text-gray-700 hover:text-red-600 transition-colors"
