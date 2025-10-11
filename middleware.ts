@@ -14,10 +14,6 @@ const intlMiddleware = createIntlMiddleware({
 
 export default withAuth(
   function middleware(req) {
-    // Apply internationalization middleware first
-    const intlResponse = intlMiddleware(req);
-    if (intlResponse) return intlResponse;
-
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
@@ -28,7 +24,7 @@ export default withAuth(
       }
     }
 
-    // Check if user is accessing admin routes (if you add any)
+    // Check if user is accessing admin routes
     if (path.startsWith('/admin')) {
       if (token?.role !== 'admin') {
         return NextResponse.redirect(new URL('/unauthorized', req.url));
@@ -50,12 +46,10 @@ export default withAuth(
 // Specify which routes should be protected
 export const config = {
   matcher: [
-    // Auth routes
+    // Only protect these specific routes
     '/user/:path*',
     '/organizer/:path*',
     '/admin/:path*',
-    // Exclude API routes and Next.js internals
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
 
