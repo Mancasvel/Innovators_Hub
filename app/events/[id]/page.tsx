@@ -26,7 +26,7 @@ interface Event {
   images?: string[];
   category?: string;
   ticketsSold: number;
-  capacity?: number;
+  capacity: number; // Now required
   status: 'draft' | 'published' | 'cancelled';
   createdBy: {
     name: string;
@@ -179,7 +179,7 @@ export default function EventDetailPage() {
     );
   }
 
-  const isSoldOut = Boolean(event.capacity && event.ticketsSold >= event.capacity);
+  const isSoldOut = event.ticketsSold >= event.capacity;
   const userIsMember = (session?.user as any)?.hasMembership;
   const effectivePrice =
     event.membershipFree && userIsMember ? 0 : event.price;
@@ -286,22 +286,20 @@ export default function EventDetailPage() {
                           )}
                         </div>
                       )}
-                      {event.capacity && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-600">
-                            {event.ticketsSold} / {event.capacity} entradas vendidas
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-600">
+                          {event.ticketsSold} / {event.capacity} entradas vendidas
+                        </p>
+                        {event.ticketsSold >= event.capacity ? (
+                          <p className="text-sm text-red-600 font-semibold">
+                            ⚠️ Agotado
                           </p>
-                          {event.ticketsSold >= event.capacity ? (
-                            <p className="text-sm text-red-600 font-semibold">
-                              ⚠️ Agotado
-                            </p>
-                          ) : (
-                            <p className="text-sm text-green-600">
-                              ✓ {event.capacity - event.ticketsSold} entradas disponibles
-                            </p>
-                          )}
-                        </div>
-                      )}
+                        ) : (
+                          <p className="text-sm text-green-600">
+                            ✓ {event.capacity - event.ticketsSold} entradas disponibles
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <button

@@ -22,7 +22,7 @@ interface Event {
   images?: string[];
   category?: string;
   ticketsSold: number;
-  capacity?: number;
+  capacity: number; // Now required
   status: 'draft' | 'published' | 'cancelled';
   createdBy: string;
   createdAt: string;
@@ -152,8 +152,7 @@ export default function OrganizerEventsPage() {
                             {event.membershipFree && ' (Free for members)'}
                           </span>
                           <span>
-                            🎟️ {event.ticketsSold}
-                            {event.capacity && `/${event.capacity}`} sold
+                            🎟️ {event.ticketsSold}/{event.capacity} sold
                           </span>
                         </div>
                       </div>

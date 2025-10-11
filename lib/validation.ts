@@ -39,7 +39,7 @@ export const createEventSchema = z.object({
     .number()
     .min(1, 'Capacity must be at least 1')
     .max(10000, 'Capacity cannot exceed 10,000')
-    .optional(),
+    .default(50), // Now required with default value
   category: z
     .enum(['networking', 'workshop', 'talk', 'social', 'other'])
     .optional()
@@ -143,6 +143,20 @@ export const eventQuerySchema = z.object({
     .enum(['asc', 'desc'])
     .nullish()
     .default('asc'),
+  dateFrom: z
+    .string()
+    .nullish()
+    .transform((val) => {
+      if (!val || val.trim() === '') return undefined;
+      return val;
+    }),
+  dateTo: z
+    .string()
+    .nullish()
+    .transform((val) => {
+      if (!val || val.trim() === '') return undefined;
+      return val;
+    }),
 });
 
 /**

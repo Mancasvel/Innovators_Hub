@@ -22,7 +22,7 @@ export default function CreateEventPage() {
     location: '',
     price: '',
     membershipFree: false,
-    capacity: '',
+    capacity: '50',
     category: 'other',
     images: [] as string[],
   });
@@ -39,6 +39,11 @@ export default function CreateEventPage() {
         throw new Error('Please enter a valid price');
       }
 
+      const capacity = parseInt(formData.capacity);
+      if (isNaN(capacity) || capacity < 1) {
+        throw new Error('Please enter a valid capacity (minimum 1)');
+      }
+
       // Convert datetime-local to ISO 8601 format
       const dateISO = new Date(formData.date).toISOString();
 
@@ -52,7 +57,7 @@ export default function CreateEventPage() {
             membershipFree: formData.membershipFree,
             category: formData.category,
             images: formData.images, // Send all images as array
-            ...(formData.capacity && { capacity: parseInt(formData.capacity) }),
+            capacity: capacity, // Capacity is now required
           };
 
       const response = await fetch('/api/events', {
@@ -222,20 +227,24 @@ export default function CreateEventPage() {
 
                   <div>
                     <label htmlFor="capacity" className="label">
-                      Capacity (optional)
+                      Capacity *
                     </label>
                     <input
                       id="capacity"
                       type="number"
+                      required
                       min="1"
                       value={formData.capacity}
                       onChange={(e) =>
                         setFormData({ ...formData, capacity: e.target.value })
                       }
                       className="input"
-                  placeholder="Unlimited"
-                />
-              </div>
+                      placeholder="50"
+                    />
+                    <p className="text-xs text-gray-600 mt-1">
+                      Número máximo de entradas disponibles para este evento
+                    </p>
+                  </div>
             </div>
 
             <div>

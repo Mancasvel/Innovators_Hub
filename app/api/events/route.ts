@@ -72,6 +72,22 @@ export async function GET(req: Request) {
       query.category = validatedParams.category;
     }
 
+    // Date range filters
+    if (validatedParams.dateFrom || validatedParams.dateTo) {
+      if (!query.date) query.date = {};
+      
+      if (validatedParams.dateFrom) {
+        query.date.$gte = new Date(validatedParams.dateFrom);
+      }
+      
+      if (validatedParams.dateTo) {
+        // Set to end of day for dateTo
+        const endDate = new Date(validatedParams.dateTo);
+        endDate.setHours(23, 59, 59, 999);
+        query.date.$lte = endDate;
+      }
+    }
+
     // Pagination
     const page = validatedParams.page;
     const limit = validatedParams.limit;

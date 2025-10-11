@@ -23,7 +23,7 @@ interface Event {
   images?: string[];
   category?: string;
   ticketsSold: number;
-  capacity?: number;
+  capacity: number; // Now required
   status: 'draft' | 'published' | 'cancelled';
   createdBy: string;
   createdAt: string;
@@ -33,14 +33,40 @@ interface Event {
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    membershipFree: false,
+    category: '',
+    dateFrom: '',
+    dateTo: '',
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   const fetchEvents = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/events?upcoming=true');
+      // Build query params
+      const params = new URLSearchParams({ upcoming: 'true' });
+      
+      if (filters.membershipFree) {
+        params.append('membershipFree', 'true');
+      }
+      if (filters.category) {
+        params.append('category', filters.category);
+      }
+      if (filters.dateFrom) {
+        params.append('dateFrom', filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        params.append('dateTo', filters.dateTo);
+      }
+
+      const response = await fetch(`/api/events?${params.toString()}`);
       const data = await response.json();
       setEvents(data.events);
     } catch (error) {
@@ -49,6 +75,37 @@ export default function EventsPage() {
       setLoading(false);
     }
   };
+
+  // Filter events by search query (client-side)
+  const filteredEvents = events.filter((event) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      event.title.toLowerCase().includes(query) ||
+      event.description.toLowerCase().includes(query) ||
+      event.location.toLowerCase().includes(query)
+    );
+  });
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      membershipFree: false,
+      category: '',
+      dateFrom: '',
+      dateTo: '',
+    });
+    setSearchQuery('');
+  };
+
+  const activeFiltersCount = 
+    (filters.membershipFree ? 1 : 0) +
+    (filters.category ? 1 : 0) +
+    (filters.dateFrom ? 1 : 0) +
+    (filters.dateTo ? 1 : 0);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -89,19 +146,168 @@ export default function EventsPage() {
         </div>
 
         <div className="container mx-auto px-4 py-12">
+          {/* Search and Filters */}
+          <div className="mb-8">
+            {/* Search Bar */}
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Buscar eventos por título, descripción o ubicación..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full input pl-10"
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  🔍
+                </span>
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`btn ${showFilters ? 'btn-primary' : 'btn-outline'} whitespace-nowrap relative`}
+              >
+                🎛️ Filtros
+                {activeFiltersCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-seville-orange text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Filters Panel */}
+            {showFilters && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-white rounded-lg shadow-lg p-6 mb-4"
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold">Filtrar Eventos</h3>
+                  {activeFiltersCount > 0 && (
+                    <button
+                      onClick={clearFilters}
+                      className="text-sm text-seville-orange hover:underline"
+                    >
+                      Limpiar filtros
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Membership Free Filter */}
+                  <div>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.membershipFree}
+                        onChange={(e) => handleFilterChange('membershipFree', e.target.checked)}
+                        className="w-5 h-5 text-seville-orange rounded focus:ring-seville-orange"
+                      />
+                      <span className="text-sm font-medium">
+                        ⭐ Gratis para miembros
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Category Filter */}
+                  <div>
+                    <label className="label text-sm mb-1">Categoría</label>
+                    <select
+                      value={filters.category}
+                      onChange={(e) => handleFilterChange('category', e.target.value)}
+                      className="input text-sm"
+                    >
+                      <option value="">Todas</option>
+                      <option value="networking">Networking</option>
+                      <option value="workshop">Workshop</option>
+                      <option value="talk">Talk</option>
+                      <option value="social">Social</option>
+                      <option value="other">Otro</option>
+                    </select>
+                  </div>
+
+                  {/* Date From Filter */}
+                  <div>
+                    <label className="label text-sm mb-1">Desde</label>
+                    <input
+                      type="date"
+                      value={filters.dateFrom}
+                      onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                      className="input text-sm"
+                    />
+                  </div>
+
+                  {/* Date To Filter */}
+                  <div>
+                    <label className="label text-sm mb-1">Hasta</label>
+                    <input
+                      type="date"
+                      value={filters.dateTo}
+                      onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                      className="input text-sm"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Results Info */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm text-gray-600">
+              <p>
+                {loading ? (
+                  'Cargando eventos...'
+                ) : (
+                  <>
+                    Mostrando <span className="font-semibold text-seville-orange">{filteredEvents.length}</span> de{' '}
+                    <span className="font-semibold">{events.length}</span> eventos
+                  </>
+                )}
+              </p>
+              {(searchQuery || activeFiltersCount > 0) && (
+                <button
+                  onClick={clearFilters}
+                  className="text-seville-orange hover:underline text-sm"
+                >
+                  Limpiar búsqueda y filtros
+                </button>
+              )}
+            </div>
+          </div>
+
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-seville-orange"></div>
             </div>
-          ) : events.length === 0 ? (
+          ) : filteredEvents.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">
-                No upcoming events at the moment. Check back soon!
+              <div className="text-6xl mb-4">🔍</div>
+              <p className="text-gray-600 text-lg mb-2">
+                {searchQuery || activeFiltersCount > 0
+                  ? 'No se encontraron eventos con los criterios seleccionados'
+                  : 'No hay eventos próximos en este momento'}
               </p>
+              {(searchQuery || activeFiltersCount > 0) && (
+                <button
+                  onClick={clearFilters}
+                  className="btn btn-primary mt-4"
+                >
+                  Ver todos los eventos
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {events.map((event, index) => (
+              {filteredEvents.map((event, index) => (
                 <motion.div
                   key={event._id}
                   initial={{ opacity: 0, y: 20 }}
@@ -163,13 +369,11 @@ export default function EventsPage() {
                             <p className="text-xs text-seville-orange">
                               Free for members
                             </p>
-                          )}
-                        </div>
-                        {event.capacity && (
-                          <span className="text-xs text-gray-500">
-                            {event.ticketsSold}/{event.capacity} sold
-                          </span>
                         )}
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {event.ticketsSold}/{event.capacity} sold
+                      </span>
                       </div>
                     </div>
                   </Link>

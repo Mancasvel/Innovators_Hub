@@ -8,7 +8,7 @@ export interface IEvent extends Document {
   location: string;
   price: number; // Price in cents for non-members (e.g., 2500 = €25.00)
   membershipFree: boolean; // If true, members attend for free
-  capacity?: number;
+  capacity: number; // Now required with default of 50
   ticketsSold: number;
   images?: string[];
   category?: string;
@@ -59,7 +59,9 @@ const EventSchema = new Schema<IEvent>(
     },
     capacity: {
       type: Number,
+      required: [true, 'Capacity is required'],
       min: [1, 'Capacity must be at least 1'],
+      default: 50,
     },
     ticketsSold: {
       type: Number,
