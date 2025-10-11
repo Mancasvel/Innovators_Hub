@@ -98,34 +98,44 @@ export const updateEventSchema = z.object({
 
 /**
  * Query parameters validation for GET /api/events
+ * All fields are optional and handle null values from URL search params
  */
 export const eventQuerySchema = z.object({
   membershipFree: z
     .string()
-    .transform((val) => val === 'true')
-    .optional(),
+    .nullish()
+    .transform((val) => val === 'true'),
   upcoming: z
     .string()
-    .transform((val) => val === 'true')
-    .optional(),
-  status: z.enum(['draft', 'published', 'cancelled']).optional(),
+    .nullish()
+    .transform((val) => val === 'true'),
+  status: z
+    .enum(['draft', 'published', 'cancelled'])
+    .nullish()
+    .default('published'),
   category: z
     .enum(['networking', 'workshop', 'talk', 'social', 'other'])
-    .optional(),
+    .nullish(),
   page: z
     .string()
-    .transform((val) => parseInt(val, 10))
-    .pipe(z.number().min(1))
-    .optional()
-    .default('1'),
+    .nullish()
+    .default('1')
+    .transform((val) => parseInt(val || '1', 10))
+    .pipe(z.number().min(1)),
   limit: z
     .string()
-    .transform((val) => parseInt(val, 10))
-    .pipe(z.number().min(1).max(100))
-    .optional()
-    .default('20'),
-  sortBy: z.enum(['date', 'createdAt', 'title', 'price']).optional().default('date'),
-  sortOrder: z.enum(['asc', 'desc']).optional().default('asc'),
+    .nullish()
+    .default('20')
+    .transform((val) => parseInt(val || '20', 10))
+    .pipe(z.number().min(1).max(100)),
+  sortBy: z
+    .enum(['date', 'createdAt', 'title', 'price'])
+    .nullish()
+    .default('date'),
+  sortOrder: z
+    .enum(['asc', 'desc'])
+    .nullish()
+    .default('asc'),
 });
 
 /**

@@ -78,7 +78,7 @@ export async function GET(req: Request) {
     const skip = (page - 1) * limit;
 
     // Sorting
-    const sortField = validatedParams.sortBy;
+    const sortField = validatedParams.sortBy || 'date';
     const sortOrder = validatedParams.sortOrder === 'asc' ? 1 : -1;
     const sort: { [key: string]: 1 | -1 } = { [sortField]: sortOrder };
 
