@@ -19,6 +19,7 @@ A modern community platform for digital nomads and innovators in Seville, Spain.
 - ✏️ **Editable User Profiles** with email and name updates
 - 🌐 **Multi-language Support** ready (i18n infrastructure)
 - 📥 **QR Code Download** in ticket emails and user portal
+- 📅 **Calendar Integration** - Add events to external calendars (Google, Apple, Outlook)
 
 ## 🛠️ Technology Stack
 

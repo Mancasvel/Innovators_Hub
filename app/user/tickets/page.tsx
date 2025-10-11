@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { createEvent as createICSEvent } from 'ics';
 
 /**
  * User tickets page
@@ -255,6 +256,50 @@ function TicketCard({
     }
   };
 
+  const addToCalendar = () => {
+    try {
+      const eventDate = new Date(ticket.eventId.date);
+
+      // Create ICS event
+      const icsEvent = {
+        title: ticket.eventId.title,
+        description: `Event at ${ticket.eventId.location}. You have a ticket for this event.`,
+        start: [
+          eventDate.getFullYear(),
+          eventDate.getMonth() + 1,
+          eventDate.getDate(),
+          eventDate.getHours(),
+          eventDate.getMinutes(),
+        ] as [number, number, number, number, number],
+        duration: { hours: 2 }, // Default 2 hours duration
+        location: ticket.eventId.location,
+        organizer: { name: 'Innovators Hub', email: 'hello@innovatorshub.com' },
+      };
+
+      createICSEvent(icsEvent, (error, value) => {
+        if (error) {
+          console.error('Error creating calendar event:', error);
+          alert('Failed to create calendar event');
+          return;
+        }
+
+        // Create download link for .ics file
+        const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `event-${ticket.eventId.title.replace(/\s+/g, '-')}.ics`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      });
+    } catch (error) {
+      console.error('Error adding to calendar:', error);
+      alert('Failed to add event to calendar');
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -312,12 +357,20 @@ function TicketCard({
       {ticket.status === 'valid' && !isPast && (
         <div className="border-t pt-4">
           {!showQR ? (
-            <button
-              onClick={() => setShowQR(true)}
-              className="w-full btn btn-primary"
-            >
-              Show QR Code
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowQR(true)}
+                className="flex-1 btn btn-primary"
+              >
+                Show QR Code
+              </button>
+              <button
+                onClick={addToCalendar}
+                className="flex-1 btn bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                📅 Add to Calendar
+              </button>
+            </div>
           ) : (
             <div className="bg-white p-4 rounded-lg border-2 border-seville-orange">
               <div className="bg-white p-2 rounded">
@@ -358,9 +411,15 @@ function TicketCard({
               alt="Ticket QR Code"
               className="w-32 h-32 mx-auto opacity-50"
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 mt-2 mb-3">
               {ticket.status === 'used' ? 'This ticket has been used' : 'Event has passed'}
             </p>
+            <button
+              onClick={addToCalendar}
+              className="btn bg-blue-600 hover:bg-blue-700 text-white text-sm opacity-75"
+            >
+              📅 Add to Calendar
+            </button>
           </div>
         </div>
       )}

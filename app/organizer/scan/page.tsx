@@ -181,7 +181,7 @@ export default function ScanPage() {
 
     try {
       console.log('🎫 Validating ticket with QR:', qrCode);
-      
+
       const response = await fetch('/api/tickets/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -189,7 +189,7 @@ export default function ScanPage() {
       });
 
       const data = await response.json();
-      
+
       console.log('📡 API Response:', {
         status: response.status,
         ok: response.ok,
@@ -204,6 +204,13 @@ export default function ScanPage() {
         });
         // Play success sound (optional)
         playSound('success');
+
+        // For successful validation, show result for 3 seconds before allowing next scan
+        if (response.ok) {
+          setTimeout(() => {
+            setResult(null);
+          }, 3000);
+        }
       } else {
         console.log('❌ Ticket validation failed:', data.error, 'Code:', data.code);
         setResult({
@@ -385,6 +392,11 @@ export default function ScanPage() {
                       </p>
                     </>
                   )}
+                  {result?.success && (
+                    <div className="text-center text-sm text-green-600 mt-4">
+                      ✅ Ticket validated successfully! Next scan available in a few seconds...
+                    </div>
+                  )}
                   <button
                     onClick={() => {
                       // Clear result first
@@ -399,8 +411,9 @@ export default function ScanPage() {
                       }, 100);
                     }}
                     className="mt-6 w-full btn btn-primary"
+                    disabled={result?.success}
                   >
-                    Scan Next Ticket
+                    {result?.success ? 'Please Wait...' : 'Scan Next Ticket'}
                   </button>
                 </motion.div>
               )}
