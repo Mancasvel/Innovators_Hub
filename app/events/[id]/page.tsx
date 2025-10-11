@@ -181,8 +181,11 @@ export default function EventDetailPage() {
 
   const isSoldOut = event.ticketsSold >= event.capacity;
   const userIsMember = (session?.user as any)?.hasMembership;
-  const effectivePrice =
-    event.membershipFree && userIsMember ? 0 : event.price;
+  
+  // Determine effective price: free if price is 0 OR if membership-free event and user is member
+  const isFreeEvent = event.price === 0;
+  const isFreeForMember = event.membershipFree && userIsMember;
+  const effectivePrice = isFreeEvent || isFreeForMember ? 0 : event.price;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -268,11 +271,15 @@ export default function EventDetailPage() {
                           <p className="text-3xl font-bold text-green-600">
                             Free
                           </p>
-                          {userIsMember && event.price > 0 && (
+                          {isFreeEvent ? (
+                            <p className="text-sm text-gray-600">
+                              🎉 Free for everyone
+                            </p>
+                          ) : isFreeForMember ? (
                             <p className="text-sm text-gray-600">
                               Free with your membership
                             </p>
-                          )}
+                          ) : null}
                         </div>
                       ) : (
                         <div>

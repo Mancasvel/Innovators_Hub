@@ -306,20 +306,21 @@ export default function EventsPage() {
               )}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredEvents.map((event, index) => (
                 <motion.div
                   key={event._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
+                  className="w-full"
                 >
-                  <Link href={`/events/${event._id}`}>
-                    <div className="card hover:scale-105 transition-transform duration-300 h-full flex flex-col">
+                  <Link href={`/events/${event._id}`} className="block h-full">
+                    <div className="card hover:scale-105 transition-transform duration-300 h-full flex flex-col p-4 md:p-6">
                       {/* Event Images */}
                       {event.images && event.images.length > 0 && (
-                        <div className="mb-4">
-                          <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                        <div className="mb-3 md:mb-4 -mx-4 md:-mx-6 -mt-4 md:-mt-6">
+                          <div className="aspect-video overflow-hidden bg-gray-100">
                             <Image
                               src={event.images[0]}
                               alt={event.title}
@@ -333,47 +334,47 @@ export default function EventsPage() {
 
                       <div className="flex-grow">
                         {event.category && (
-                          <span className="inline-block px-3 py-1 bg-seville-orange/10 text-seville-orange text-xs font-semibold rounded-full mb-3">
+                          <span className="inline-block px-2 md:px-3 py-1 bg-seville-orange/10 text-seville-orange text-xs font-semibold rounded-full mb-2 md:mb-3">
                             {event.category}
                           </span>
                         )}
-                        <h3 className="text-xl font-bold mb-2">
+                        <h3 className="text-lg md:text-xl font-bold mb-1 md:mb-2 line-clamp-2">
                           {event.title}
                         </h3>
-                        <p className="text-gray-600 mb-4 line-clamp-2">
+                        <p className="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">
                           {event.description}
                         </p>
-                        <div className="space-y-2 text-sm text-gray-600">
-                          <p className="flex items-center">
-                            <span className="mr-2">📅</span>
-                            {formatDate(event.date)}
+                        <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-gray-600">
+                          <p className="flex items-start md:items-center">
+                            <span className="mr-2 flex-shrink-0">📅</span>
+                            <span className="line-clamp-2">{formatDate(event.date)}</span>
                           </p>
-                          <p className="flex items-center">
-                            <span className="mr-2">📍</span>
-                            {event.location}
+                          <p className="flex items-start md:items-center">
+                            <span className="mr-2 flex-shrink-0">📍</span>
+                            <span className="line-clamp-1">{event.location}</span>
                           </p>
                         </div>
                       </div>
-                      <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                        <div>
+                      <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div className="flex-shrink-0">
                           {event.price === 0 ? (
-                            <span className="text-green-600 font-bold">
+                            <span className="text-green-600 font-bold text-sm md:text-base">
                               Free
                             </span>
                           ) : (
-                            <span className="text-gray-900 font-bold">
+                            <span className="text-gray-900 font-bold text-sm md:text-base">
                               €{formatPrice(event.price)}
                             </span>
                           )}
                           {event.membershipFree && event.price > 0 && (
-                            <p className="text-xs text-seville-orange">
+                            <p className="text-xs text-seville-orange mt-0.5">
                               Free for members
                             </p>
-                        )}
-                      </div>
-                      <span className="text-xs text-gray-500">
-                        {event.ticketsSold}/{event.capacity} sold
-                      </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {event.ticketsSold}/{event.capacity} sold
+                        </span>
                       </div>
                     </div>
                   </Link>

@@ -821,6 +821,51 @@ npm update
 - [ ] Two-factor authentication (2FA)
 - [ ] OAuth providers (Google, GitHub, etc.)
 
+## 🧪 Testing
+
+### Comprehensive Test Suite
+
+The project includes a robust test suite with **150+ test cases** covering:
+
+#### Test Categories
+- ✅ **Unit Tests**: Utility functions (validation, permissions, ticket verification)
+- ✅ **API Route Tests**: Authentication, events, tickets with security checks
+- ✅ **Component Tests**: Navbar, ImageUpload with user interactions
+- ✅ **Model Tests**: User, Event, Ticket schema validation
+- ✅ **Integration Tests**: Complete ticket flow and authentication flow
+
+#### Coverage Targets
+- **Branches**: 80%+
+- **Functions**: 80%+
+- **Lines**: 80%+
+- **Statements**: 80%+
+
+#### Running Tests
+
+```bash
+# Run all tests with coverage
+npm test
+
+# Watch mode for development
+npm run test:watch
+
+# CI environment
+npm run test:ci
+
+# View coverage report
+# Open coverage/lcov-report/index.html after running
+```
+
+#### Security Testing
+- ✅ Password hashing verification
+- ✅ QR code signature tampering detection
+- ✅ Role-based authorization
+- ✅ Input validation and sanitization
+- ✅ Atomic operations for race conditions
+- ✅ Duplicate prevention mechanisms
+
+See [TESTING.md](./TESTING.md) and [TEST_SUMMARY.md](./TEST_SUMMARY.md) for comprehensive documentation.
+
 ## 📄 License
 
 Copyright (c) 2025 Manuel Castillejo
