@@ -18,8 +18,9 @@ export async function GET(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.redirect(
-        new URL('/auth/login', process.env.NEXT_PUBLIC_APP_URL)
+      return NextResponse.json(
+        { error: 'No autorizado', code: 'UNAUTHORIZED' },
+        { status: 401 }
       );
     }
 
@@ -27,25 +28,34 @@ export async function GET(req: Request) {
     const eventId = searchParams.get('eventId');
 
     if (!eventId) {
-      return NextResponse.json({ error: 'Event ID required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'ID de evento requerido', code: 'INVALID_REQUEST' },
+        { status: 400 }
+      );
     }
 
     await connectDB();
 
     const event = await Event.findById(eventId);
     if (!event) {
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Evento no encontrado', code: 'NOT_FOUND' },
+        { status: 404 }
+      );
     }
 
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Usuario no encontrado', code: 'USER_NOT_FOUND' },
+        { status: 404 }
+      );
     }
 
     // Check if user is a member
     if (!user.hasMembership) {
       return NextResponse.json(
-        { error: 'Active membership required' },
+        { error: 'Se requiere membresía activa para reclamar esta entrada', code: 'NO_MEMBERSHIP' },
         { status: 403 }
       );
     }
@@ -53,27 +63,59 @@ export async function GET(req: Request) {
     // Check if event is free for members
     if (!event.membershipFree) {
       return NextResponse.json(
-        { error: 'This event is not free for members' },
+        { error: 'Este evento no es gratuito para miembros', code: 'NOT_FREE' },
         { status: 400 }
       );
     }
 
-    // Check if user already has a ticket
+    // Check if event has reached capacity
+    if (event.capacity && event.ticketsSold >= event.capacity) {
+      return NextResponse.json(
+        { error: 'Este evento ha alcanzado su capacidad máxima', code: 'SOLD_OUT' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already has a ticket for this event (1 ticket per user per event)
     const existingTicket = await Ticket.findOne({
       userId: user._id,
       eventId: event._id,
     });
 
     if (existingTicket) {
-      return NextResponse.redirect(
-        new URL('/user/tickets?error=already-claimed', process.env.NEXT_PUBLIC_APP_URL)
+      return NextResponse.json(
+        { error: 'Ya tienes una entrada para este evento', code: 'ALREADY_CLAIMED' },
+        { status: 400 }
       );
     }
 
     // Generate secure QR code
     const { qrCode, signature } = generateSecureQRCode();
 
-    // Create free ticket
+    // Create free ticket (atomic operation with capacity check)
+    const updatedEvent = await Event.findOneAndUpdate(
+      { 
+        _id: eventId,
+        $expr: {
+          $or: [
+            { $eq: ['$capacity', null] }, // No capacity limit
+            { $lt: ['$ticketsSold', '$capacity'] } // Still has capacity
+          ]
+        }
+      },
+      { $inc: { ticketsSold: 1 } },
+      { new: true }
+    );
+
+    if (!updatedEvent) {
+      // Race condition: event sold out between checks
+      return NextResponse.json(
+        { error: 'El evento se agotó mientras procesábamos tu solicitud', code: 'SOLD_OUT' },
+        { status: 400 }
+      );
+    }
+
+    // Create the ticket
     const ticket = await Ticket.create({
       userId: user._id,
       eventId: event._id,
@@ -85,19 +127,39 @@ export async function GET(req: Request) {
       purchasedWithMembership: true,
     });
 
-    // Increment tickets sold
-    await Event.findByIdAndUpdate(eventId, { $inc: { ticketsSold: 1 } });
+    console.log('✅ Free ticket claimed:', {
+      userId: user._id,
+      eventId: event._id,
+      ticketId: ticket._id,
+      ticketsSold: updatedEvent.ticketsSold,
+      capacity: updatedEvent.capacity,
+      userEmail: user.email,
+    });
 
-    // Send ticket email
-    await sendTicketEmail(user.email, user.name, event, ticket);
+    // Send ticket email with updated event data (includes the new ticket count)
+    try {
+      console.log('📧 Attempting to send ticket email to:', user.email);
+      await sendTicketEmail(user.email, user.name, updatedEvent, ticket);
+      console.log('✅ Ticket email sent successfully');
+    } catch (emailError) {
+      console.error('❌ Error sending ticket email:', emailError);
+      // Don't block the user flow if email fails
+    }
 
-    return NextResponse.redirect(
-      new URL('/user/tickets?success=true', process.env.NEXT_PUBLIC_APP_URL)
-    );
+    return NextResponse.json({
+      success: true,
+      message: '¡Entrada reclamada con éxito! Revisa tu email para el código QR.',
+      ticket: {
+        id: ticket._id,
+        qrCode: ticket.qrCode,
+        eventTitle: updatedEvent.title,
+      },
+    });
   } catch (error) {
     console.error('Free claim error:', error);
-    return NextResponse.redirect(
-      new URL('/user/tickets?error=claim-failed', process.env.NEXT_PUBLIC_APP_URL)
+    return NextResponse.json(
+      { error: 'Error al procesar la solicitud. Por favor, inténtalo de nuevo.', code: 'INTERNAL_ERROR' },
+      { status: 500 }
     );
   }
 }

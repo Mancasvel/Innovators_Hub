@@ -43,13 +43,19 @@ function TicketsContent() {
     const error = searchParams.get('error');
     
     if (success === 'true') {
-      setMessage({ type: 'success', text: '🎉 Ticket claimed successfully! Your QR code is ready.' });
+      setMessage({ type: 'success', text: '🎉 ¡Entrada reclamada con éxito! Tu código QR está listo.' });
       setTimeout(() => setMessage(null), 5000);
     } else if (error === 'already-claimed') {
-      setMessage({ type: 'error', text: '⚠️ You already have a ticket for this event.' });
+      setMessage({ type: 'error', text: '⚠️ Ya tienes una entrada para este evento.' });
+      setTimeout(() => setMessage(null), 5000);
+    } else if (error === 'sold-out') {
+      setMessage({ type: 'error', text: '😔 Este evento ha alcanzado su capacidad máxima. No hay más entradas disponibles.' });
+      setTimeout(() => setMessage(null), 5000);
+    } else if (error === 'not-free') {
+      setMessage({ type: 'error', text: '⚠️ Este evento no es gratuito para miembros.' });
       setTimeout(() => setMessage(null), 5000);
     } else if (error === 'claim-failed') {
-      setMessage({ type: 'error', text: '❌ Failed to claim ticket. Please try again.' });
+      setMessage({ type: 'error', text: '❌ Error al reclamar la entrada. Por favor, inténtalo de nuevo.' });
       setTimeout(() => setMessage(null), 5000);
     }
   }, [searchParams]);

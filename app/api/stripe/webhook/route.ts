@@ -110,8 +110,36 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       return;
     }
 
+    // Check capacity before creating ticket
+    if (event.capacity && event.ticketsSold >= event.capacity) {
+      console.error('⚠️ Event sold out, cannot create ticket');
+      // TODO: Refund the payment
+      return;
+    }
+
     // Generate secure QR code
     const { qrCode, signature } = generateSecureQRCode();
+
+    // Increment tickets sold atomically
+    const updatedEvent = await Event.findOneAndUpdate(
+      { 
+        _id: eventId,
+        $expr: {
+          $or: [
+            { $eq: ['$capacity', null] },
+            { $lt: ['$ticketsSold', '$capacity'] }
+          ]
+        }
+      },
+      { $inc: { ticketsSold: 1 } },
+      { new: true }
+    );
+
+    if (!updatedEvent) {
+      console.error('⚠️ Failed to increment ticketsSold - event may be sold out');
+      // TODO: Refund the payment
+      return;
+    }
 
     // Create ticket
     const ticket = await Ticket.create({
@@ -125,13 +153,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       purchasedWithMembership: false,
     });
 
-    // Increment tickets sold
-    await Event.findByIdAndUpdate(eventId, { $inc: { ticketsSold: 1 } });
+    // Send ticket email with updated event data (includes the new ticket count)
+    await sendTicketEmail(user.email, user.name, updatedEvent, ticket);
 
-    // Send ticket email
-    await sendTicketEmail(user.email, user.name, event, ticket);
-
-    console.log('✅ Ticket created and email sent:', ticket._id);
+    console.log('✅ Ticket created and email sent:', {
+      ticketId: ticket._id,
+      ticketsSold: updatedEvent.ticketsSold,
+      capacity: updatedEvent.capacity,
+    });
   }
 
   // Handle membership purchase

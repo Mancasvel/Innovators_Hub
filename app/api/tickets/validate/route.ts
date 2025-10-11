@@ -15,15 +15,21 @@ import { validateTicketFormat, checkRateLimit } from '@/lib/verifyTicket';
 
 export async function POST(req: Request) {
   try {
+    console.log('🎫 Ticket validation request received');
+    
     const session = await getServerSession(authOptions);
 
     // Check authentication and authorization
     if (!session?.user) {
+      console.log('❌ No session found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
+    console.log('👤 User role:', userRole);
+    
     if (userRole !== 'organizer' && userRole !== 'admin') {
+      console.log('❌ User is not organizer or admin');
       return NextResponse.json(
         { error: 'Only organizers can validate tickets' },
         { status: 403 }
@@ -35,6 +41,7 @@ export async function POST(req: Request) {
     const { allowed, remaining } = checkRateLimit(identifier, 50, 60000); // 50 requests per minute
 
     if (!allowed) {
+      console.log('❌ Rate limit exceeded');
       return NextResponse.json(
         { error: 'Too many requests. Please wait before scanning again.' },
         { status: 429 }
@@ -42,8 +49,10 @@ export async function POST(req: Request) {
     }
 
     const { qrCode } = await req.json();
+    console.log('🔍 Looking for ticket with QR code:', qrCode);
 
     if (!qrCode) {
+      console.log('❌ No QR code provided');
       return NextResponse.json(
         { error: 'QR code is required' },
         { status: 400 }
@@ -58,11 +67,19 @@ export async function POST(req: Request) {
       .populate('eventId', 'title date location');
 
     if (!ticket) {
+      console.log('❌ Ticket not found in database');
       return NextResponse.json(
         { error: 'Ticket not found', code: 'NOT_FOUND' },
         { status: 404 }
       );
     }
+
+    console.log('✅ Ticket found:', {
+      ticketId: ticket._id,
+      status: ticket.status,
+      userId: ticket.userId,
+      eventId: ticket.eventId,
+    });
 
     // Validate ticket format and signature
     if (!validateTicketFormat(ticket.qrCode, ticket.qrSignature)) {

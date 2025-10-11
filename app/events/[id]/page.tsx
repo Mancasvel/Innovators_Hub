@@ -45,6 +45,12 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
+  const [modal, setModal] = useState<{
+    show: boolean;
+    type: 'success' | 'error';
+    title: string;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchEvent();
@@ -71,6 +77,38 @@ export default function EventDetailPage() {
     setPurchasing(true);
 
     try {
+      // If it's free (for members), use the free-claim endpoint
+      if (effectivePrice === 0) {
+        const response = await fetch(`/api/tickets/free-claim?eventId=${id}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          // Success - show modal and redirect to tickets
+          setModal({
+            show: true,
+            type: 'success',
+            title: '🎉 ¡Entrada Reclamada!',
+            message: data.message || '¡Entrada reclamada con éxito! Revisa tu email para el código QR.',
+          });
+          
+          // Redirect after 2 seconds
+          setTimeout(() => {
+            router.push('/user/tickets');
+          }, 2000);
+        } else {
+          // Error - show modal with error message
+          setModal({
+            show: true,
+            type: 'error',
+            title: '❌ Error',
+            message: data.error || 'No se pudo reclamar la entrada. Por favor, inténtalo de nuevo.',
+          });
+          setPurchasing(false);
+        }
+        return;
+      }
+
+      // Otherwise, use Stripe checkout
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,11 +119,17 @@ export default function EventDetailPage() {
 
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
-      alert('Failed to process payment. Please try again.');
-    } finally {
+      setModal({
+        show: true,
+        type: 'error',
+        title: '❌ Error',
+        message: 'Error al procesar el pago. Por favor, inténtalo de nuevo.',
+      });
       setPurchasing(false);
     }
   };
@@ -243,39 +287,55 @@ export default function EventDetailPage() {
                         </div>
                       )}
                       {event.capacity && (
-                        <p className="text-sm text-gray-600 mt-2">
-                          {event.ticketsSold} / {event.capacity} tickets sold
-                        </p>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600">
+                            {event.ticketsSold} / {event.capacity} entradas vendidas
+                          </p>
+                          {event.ticketsSold >= event.capacity ? (
+                            <p className="text-sm text-red-600 font-semibold">
+                              ⚠️ Agotado
+                            </p>
+                          ) : (
+                            <p className="text-sm text-green-600">
+                              ✓ {event.capacity - event.ticketsSold} entradas disponibles
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
 
                     <button
                       onClick={handlePurchase}
                       disabled={purchasing || isSoldOut}
-                      className="btn btn-primary w-full md:w-auto"
+                      className={`btn w-full md:w-auto ${isSoldOut ? 'bg-gray-400 cursor-not-allowed' : 'btn-primary'}`}
                     >
                       {purchasing
-                        ? 'Processing...'
+                        ? 'Procesando...'
                         : isSoldOut
-                        ? 'Sold Out'
+                        ? '❌ Agotado'
                         : effectivePrice === 0
-                        ? 'Get Free Ticket'
-                        : 'Buy Ticket'}
+                        ? '🎟️ Reclamar Entrada Gratis'
+                        : `💳 Comprar Entrada - €${formatPrice(effectivePrice)}`}
                     </button>
 
                     {/* Calendar Integration */}
                     <CalendarIntegration event={event} className="mt-4 md:mt-0" />
                   </div>
 
-                  {!session && (
+                  {!session && !isSoldOut && (
                     <p className="mt-4 text-sm text-gray-600 text-center">
                       <Link
                         href={`/auth/login?callbackUrl=/events/${id}`}
                         className="text-seville-orange hover:underline"
                       >
-                        Sign in
+                        Inicia sesión
                       </Link>{' '}
-                      to purchase tickets
+                      para comprar entradas
+                    </p>
+                  )}
+                  {isSoldOut && (
+                    <p className="mt-4 text-sm text-red-600 text-center font-semibold">
+                      😔 Lo sentimos, este evento ha alcanzado su capacidad máxima
                     </p>
                   )}
                 </div>
@@ -284,6 +344,46 @@ export default function EventDetailPage() {
           </motion.div>
         </div>
       </main>
+
+      {/* Modal de resultado */}
+      {modal && modal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`bg-white rounded-xl shadow-2xl p-8 max-w-md w-full ${
+              modal.type === 'success' ? 'border-4 border-green-500' : 'border-4 border-red-500'
+            }`}
+          >
+            <div className="text-center">
+              <div className="text-6xl mb-4">{modal.type === 'success' ? '🎉' : '😔'}</div>
+              <h2 className={`text-2xl font-bold mb-4 ${
+                modal.type === 'success' ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {modal.title}
+              </h2>
+              <p className="text-gray-700 mb-6 text-lg">
+                {modal.message}
+              </p>
+              {modal.type === 'success' ? (
+                <div className="text-sm text-gray-600">
+                  Redirigiendo a tus entradas...
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setModal(null);
+                    setPurchasing(false);
+                  }}
+                  className="btn btn-primary"
+                >
+                  Cerrar
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <Footer />
     </div>
