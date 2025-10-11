@@ -51,7 +51,7 @@ export async function sendTicketEmail(
 ) {
   const ticketUrl = `${APP_URL}/user/tickets`;
   
-  const eventDate = new Date(event.date).toLocaleDateString('es-ES', {
+  const eventDate = new Date(event.date).toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -110,47 +110,47 @@ export async function sendTicketEmail(
       <body>
         <div class="container">
           <div class="header">
-            <h1>🎟️ ¡Tu Entrada Está Lista!</h1>
+            <h1>🎟️ Your Ticket is Ready!</h1>
           </div>
           
           <div class="content">
-            <p style="font-size: 16px; color: #333;">Hola <strong>${userName}</strong>,</p>
-            <p style="font-size: 16px; color: #555;">¡Gracias por registrarte! Aquí está tu entrada para:</p>
+            <p style="font-size: 16px; color: #333;">Hi <strong>${userName}</strong>,</p>
+            <p style="font-size: 16px; color: #555;">Thank you for registering! Here is your ticket for:</p>
             
             <div class="ticket">
               <h2>${event.title}</h2>
               <div class="ticket-info">
-                <p><strong>📅 Fecha:</strong> ${eventDate}</p>
-                <p><strong>📍 Ubicación:</strong> ${event.location}</p>
-                ${event.capacity ? `<p><strong>👥 Capacidad:</strong> ${event.ticketsSold}/${event.capacity} entradas vendidas</p>` : ''}
+                <p><strong>📅 Date:</strong> ${eventDate}</p>
+                <p><strong>📍 Location:</strong> ${event.location}</p>
+                ${event.capacity ? `<p><strong>👥 Capacity:</strong> ${event.ticketsSold}/${event.capacity} tickets sold</p>` : ''}
               </div>
             </div>
 
             <div class="qr-code">
-              <img src="${qrCodeDataUrl}" alt="QR Code del Ticket" style="display: block; margin: 0 auto;" />
-              <p><strong>Muestra este código QR en la entrada del evento</strong></p>
+              <img src="${qrCodeDataUrl}" alt="Ticket QR Code" style="display: block; margin: 0 auto;" />
+              <p><strong>Show this QR code at the event entrance</strong></p>
             </div>
 
             <div style="text-align: center;">
-              <a href="${ticketUrl}" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">Ver Mis Entradas</a>
+              <a href="${ticketUrl}" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">View My Tickets</a>
             </div>
 
             <div class="warning">
-              <strong>⚠️ Importante:</strong> Este código QR es único y sólo puede usarse una vez. 
-              Por favor, no compartas este email con otras personas.
+              <strong>⚠️ Important:</strong> This QR code is unique and can only be used once. 
+              Please do not share this email with others.
             </div>
 
             <p style="color: #555; font-size: 14px; margin-top: 30px;">
-              Si tienes alguna pregunta, no dudes en contactarnos respondiendo a este email.
+              If you have any questions, feel free to contact us by replying to this email.
             </p>
           </div>
           
           <div class="footer">
-            <p><strong>Innovators Hub</strong> - Sevilla, España 🇪🇸</p>
-            <p>Tu comunidad de nómadas digitales e innovadores</p>
+            <p><strong>Innovators Hub</strong> - Seville, Spain 🇪🇸</p>
+            <p>Your community for digital nomads and innovators</p>
             <p style="margin-top: 10px;">
-              <a href="${APP_URL}/events">Ver más eventos</a> | 
-              <a href="${APP_URL}/user/tickets">Mis entradas</a>
+              <a href="${APP_URL}/events">View more events</a> | 
+              <a href="${APP_URL}/user/tickets">My tickets</a>
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export async function sendTicketEmail(
     const info = await transporter.sendMail({
       from: `"Innovators Hub" <${FROM_EMAIL}>`,
       to,
-      subject: `🎟️ Tu entrada: ${event.title}`,
+      subject: `🎟️ Your Ticket: ${event.title}`,
       html,
     });
 
@@ -185,11 +185,11 @@ export async function sendWelcomeEmail(
 ) {
   const isOrganizerRequest = emailType === 'organizer-pending';
   const title = isOrganizerRequest
-    ? '¡Solicitud de Organizador Recibida! 🎯'
-    : '¡Bienvenido a Innovators Hub! 🎉';
+    ? 'Organizer Request Received! 🎯'
+    : 'Welcome to Innovators Hub! 🎉';
   const subtitle = isOrganizerRequest
-    ? 'Tu solicitud para ser organizador está siendo revisada'
-    : 'Estamos emocionados de tenerte en nuestra comunidad de nómadas digitales e innovadores en Sevilla!';
+    ? 'Your organizer request is being reviewed'
+    : 'We\'re excited to have you in our community of digital nomads and innovators in Seville!';
   const html = `
     <!DOCTYPE html>
     <html>
@@ -215,7 +215,7 @@ export async function sendWelcomeEmail(
           </div>
           
           <div class="content">
-            <p style="font-size: 18px;">Hola <strong>${userName}</strong>,</p>
+            <p style="font-size: 18px;">Hi <strong>${userName}</strong>,</p>
             <p style="font-size: 16px; color: #555;">
               ${subtitle}
             </p>
@@ -224,10 +224,10 @@ export async function sendWelcomeEmail(
               isOrganizerRequest
                 ? `
             <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 8px;">
-              <p style="margin: 0; color: #856404;"><strong>📋 Estado:</strong> Pendiente de revisión</p>
+              <p style="margin: 0; color: #856404;"><strong>📋 Status:</strong> Pending review</p>
               <p style="margin: 10px 0 0 0; color: #856404; font-size: 14px;">
-                Un administrador revisará tu solicitud y te contactaremos pronto con más información.
-                Mientras tanto, puedes explorar eventos y usar todas las funciones de usuario regular.
+                An administrator will review your request and we'll contact you soon with more information.
+                Meanwhile, you can explore events and use all regular user features.
               </p>
             </div>
             `
@@ -236,31 +236,31 @@ export async function sendWelcomeEmail(
             
             <div class="features">
               <div class="feature">
-                <strong>🎪 Eventos Exclusivos</strong>
-                <p style="margin: 5px 0 0 0; color: #666;">Networking, talleres, charlas y eventos sociales</p>
+                <strong>🎪 Exclusive Events</strong>
+                <p style="margin: 5px 0 0 0; color: #666;">Networking, workshops, talks and social events</p>
               </div>
               <div class="feature">
-                <strong>⭐ Membresía Premium</strong>
-                <p style="margin: 5px 0 0 0; color: #666;">Acceso gratuito a eventos seleccionados</p>
+                <strong>⭐ Premium Membership</strong>
+                <p style="margin: 5px 0 0 0; color: #666;">Free access to selected events</p>
               </div>
               <div class="feature">
-                <strong>🌟 Comunidad Activa</strong>
-                <p style="margin: 5px 0 0 0; color: #666;">Conecta con personas como tú</p>
+                <strong>🌟 Active Community</strong>
+                <p style="margin: 5px 0 0 0; color: #666;">Connect with people like you</p>
               </div>
             </div>
 
             <div style="text-align: center;">
-              <a href="${APP_URL}/events" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">Explorar Eventos</a>
+              <a href="${APP_URL}/events" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">Explore Events</a>
             </div>
 
             <p style="color: #555; margin-top: 30px;">
-              ¡Nos vemos pronto en Sevilla! ☀️
+              See you soon in Seville! ☀️
             </p>
-            <p style="color: #333; font-weight: bold;">El equipo de Innovators Hub</p>
+            <p style="color: #333; font-weight: bold;">The Innovators Hub Team</p>
           </div>
           
           <div class="footer">
-            <p><strong>Innovators Hub</strong> - Sevilla, España 🇪🇸</p>
+            <p><strong>Innovators Hub</strong> - Seville, Spain 🇪🇸</p>
           </div>
         </div>
       </body>
@@ -268,8 +268,8 @@ export async function sendWelcomeEmail(
   `;
 
   const subject = isOrganizerRequest
-    ? '🎯 Solicitud de Organizador Recibida'
-    : '¡Bienvenido a Innovators Hub! 🎉';
+    ? '🎯 Organizer Request Received'
+    : 'Welcome to Innovators Hub! 🎉';
 
   try {
     await transporter.sendMail({
@@ -292,7 +292,7 @@ export async function sendMembershipEmail(
   userName: string,
   expiresAt: Date
 ) {
-  const formattedDate = new Date(expiresAt).toLocaleDateString('es-ES', {
+  const formattedDate = new Date(expiresAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -321,54 +321,54 @@ export async function sendMembershipEmail(
       <body>
         <div class="container">
           <div class="header">
-            <h1 style="margin: 0; font-size: 32px;">⭐ ¡Bienvenido a Premium! ⭐</h1>
+            <h1 style="margin: 0; font-size: 32px;">⭐ Welcome to Premium! ⭐</h1>
           </div>
           
           <div class="content">
-            <p style="font-size: 18px;">Hola <strong>${userName}</strong>,</p>
+            <p style="font-size: 18px;">Hi <strong>${userName}</strong>,</p>
             <p style="font-size: 16px; color: #555;">
-              ¡Tu membresía anual ya está activa! Disfruta de acceso gratuito a eventos seleccionados.
+              Your annual membership is now active! Enjoy free access to selected events.
             </p>
             
             <div class="membership-card">
               <div style="font-size: 48px; margin-bottom: 10px;">⭐</div>
-              <h2>MIEMBRO PREMIUM</h2>
-              <p style="font-size: 18px; margin: 15px 0;"><strong>Válida hasta:</strong></p>
+              <h2>PREMIUM MEMBER</h2>
+              <p style="font-size: 18px; margin: 15px 0;"><strong>Valid until:</strong></p>
               <p style="font-size: 24px; font-weight: bold; margin: 5px 0;">${formattedDate}</p>
             </div>
 
             <div class="benefits">
-              <h3 style="color: #FF6B35; text-align: center;">Tus Beneficios Premium:</h3>
+              <h3 style="color: #FF6B35; text-align: center;">Your Premium Benefits:</h3>
               <div class="benefit">
-                <strong>🎟️ Entradas Gratuitas</strong>
-                <p style="margin: 5px 0 0 0; color: #666;">Acceso sin coste a todos los eventos marcados como "Free for members"</p>
+                <strong>🎟️ Free Tickets</strong>
+                <p style="margin: 5px 0 0 0; color: #666;">Free access to all events marked as "Free for members"</p>
               </div>
               <div class="benefit">
-                <strong>⚡ Reserva Prioritaria</strong>
-                <p style="margin: 5px 0 0 0; color: #666;">Sé el primero en reservar para eventos populares</p>
+                <strong>⚡ Priority Booking</strong>
+                <p style="margin: 5px 0 0 0; color: #666;">Be the first to book popular events</p>
               </div>
               <div class="benefit">
-                <strong>🎓 Contenido Exclusivo</strong>
-                <p style="margin: 5px 0 0 0; color: #666;">Acceso a talleres y workshops exclusivos para miembros</p>
+                <strong>🎓 Exclusive Content</strong>
+                <p style="margin: 5px 0 0 0; color: #666;">Access to workshops and exclusive content for members</p>
               </div>
               <div class="benefit">
-                <strong>🤝 Networking Premium</strong>
-                <p style="margin: 5px 0 0 0; color: #666;">Conecta con los mejores innovadores de Sevilla</p>
+                <strong>🤝 Premium Networking</strong>
+                <p style="margin: 5px 0 0 0; color: #666;">Connect with the best innovators in Seville</p>
               </div>
             </div>
 
             <div style="text-align: center;">
-              <a href="${APP_URL}/events?membershipFree=true" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">Ver Eventos Gratuitos</a>
+              <a href="${APP_URL}/events?membershipFree=true" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">View Free Events</a>
             </div>
 
             <p style="color: #555; margin-top: 30px; text-align: center;">
-              ¡Gracias por apoyar a Innovators Hub! 💛
+              Thank you for supporting Innovators Hub! 💛
             </p>
           </div>
           
           <div class="footer">
-            <p><strong>Innovators Hub</strong> - Sevilla, España 🇪🇸</p>
-            <p>Tu comunidad de nómadas digitales e innovadores</p>
+            <p><strong>Innovators Hub</strong> - Seville, Spain 🇪🇸</p>
+            <p>Your community for digital nomads and innovators</p>
           </div>
         </div>
       </body>
@@ -379,7 +379,7 @@ export async function sendMembershipEmail(
     await transporter.sendMail({
       from: `"Innovators Hub" <${FROM_EMAIL}>`,
       to,
-      subject: '⭐ ¡Tu Membresía Premium está Activa!',
+      subject: '⭐ Your Premium Membership is Active!',
       html,
     });
     console.log('✅ Membership email sent to:', to);
