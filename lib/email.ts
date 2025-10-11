@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import QRCode from 'qrcode';
 
 /**
  * Email service using Gmail SMTP
@@ -48,8 +49,7 @@ export async function sendTicketEmail(
   event: any,
   ticket: any
 ) {
-  const ticketUrl = `${APP_URL}/user/tickets/${ticket._id}`;
-  const qrImageUrl = `${APP_URL}/api/qr?code=${ticket.qrCode}`;
+  const ticketUrl = `${APP_URL}/user/tickets`;
   
   const eventDate = new Date(event.date).toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -60,28 +60,51 @@ export async function sendTicketEmail(
     minute: '2-digit',
   });
 
+  // Generate QR code as base64 data URL
+  let qrCodeDataUrl: string;
+  try {
+    qrCodeDataUrl = await QRCode.toDataURL(ticket.qrCode, {
+      width: 300,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF',
+      },
+    });
+  } catch (error) {
+    console.error('Error generating QR code:', error);
+    throw new Error('Failed to generate QR code for email');
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
           .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white; padding: 30px 20px; text-align: center; }
+          .header { background: #FF6B35; color: white; padding: 30px 20px; text-align: center; }
           .header h1 { margin: 0; font-size: 28px; }
           .content { padding: 30px; }
-          .ticket { background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%); padding: 25px; border-radius: 12px; margin: 25px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 4px solid #FF6B35; }
+          .ticket { background: #f9f9f9; padding: 25px; border-radius: 12px; margin: 25px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 4px solid #FF6B35; }
           .ticket h2 { color: #FF6B35; margin: 0 0 15px 0; font-size: 24px; }
           .ticket-info { margin: 10px 0; font-size: 16px; }
           .ticket-info strong { color: #333; }
           .qr-code { text-align: center; margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; }
-          .qr-code img { max-width: 220px; border: 3px solid #FF6B35; border-radius: 12px; padding: 15px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+          .qr-code img { max-width: 280px; width: 100%; height: auto; border: 3px solid #FF6B35; border-radius: 12px; padding: 15px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: block; margin: 0 auto; }
           .qr-code p { color: #666; font-size: 14px; margin-top: 15px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white !important; padding: 14px 35px; text-decoration: none; border-radius: 25px; margin: 20px 0; font-weight: bold; box-shadow: 0 4px 6px rgba(255,107,53,0.3); transition: transform 0.2s; }
-          .button:hover { transform: translateY(-2px); }
+          .button { display: inline-block; background-color: #FF6B35 !important; color: #FFFFFF !important; padding: 14px 35px; text-decoration: none; border-radius: 25px; margin: 20px 0; font-weight: bold; box-shadow: 0 4px 6px rgba(255,107,53,0.3); font-size: 16px; }
+          .button:hover { background-color: #F7931E !important; }
           .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 8px; color: #856404; font-size: 14px; }
           .footer { text-align: center; padding: 20px; background: #f9f9f9; color: #666; font-size: 13px; border-top: 1px solid #e0e0e0; }
           .footer a { color: #FF6B35; text-decoration: none; }
+          @media only screen and (max-width: 600px) {
+            .container { margin: 10px; }
+            .content { padding: 20px; }
+            .qr-code img { max-width: 220px; }
+          }
         </style>
       </head>
       <body>
@@ -104,12 +127,12 @@ export async function sendTicketEmail(
             </div>
 
             <div class="qr-code">
-              <img src="${qrImageUrl}" alt="QR Code" />
+              <img src="${qrCodeDataUrl}" alt="QR Code del Ticket" style="display: block; margin: 0 auto;" />
               <p><strong>Muestra este código QR en la entrada del evento</strong></p>
             </div>
 
             <div style="text-align: center;">
-              <a href="${ticketUrl}" class="button">Ver Entrada Completa</a>
+              <a href="${ticketUrl}" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">Ver Mis Entradas</a>
             </div>
 
             <div class="warning">
@@ -171,12 +194,15 @@ export async function sendWelcomeEmail(
     <!DOCTYPE html>
     <html>
       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-          body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
           .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white; padding: 40px 20px; text-align: center; }
+          .header { background: #FF6B35; color: white; padding: 40px 20px; text-align: center; }
           .content { padding: 30px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white !important; padding: 14px 35px; text-decoration: none; border-radius: 25px; margin: 20px 0; font-weight: bold; box-shadow: 0 4px 6px rgba(255,107,53,0.3); }
+          .button { display: inline-block; background-color: #FF6B35 !important; color: #FFFFFF !important; padding: 14px 35px; text-decoration: none; border-radius: 25px; margin: 20px 0; font-weight: bold; box-shadow: 0 4px 6px rgba(255,107,53,0.3); font-size: 16px; }
+          .button:hover { background-color: #F7931E !important; }
           .features { margin: 30px 0; }
           .feature { padding: 15px; margin: 10px 0; background: #f9f9f9; border-radius: 8px; border-left: 4px solid #FF6B35; }
           .footer { text-align: center; padding: 20px; background: #f9f9f9; color: #666; font-size: 13px; }
@@ -224,7 +250,7 @@ export async function sendWelcomeEmail(
             </div>
 
             <div style="text-align: center;">
-              <a href="${APP_URL}/events" class="button">Explorar Eventos</a>
+              <a href="${APP_URL}/events" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">Explorar Eventos</a>
             </div>
 
             <p style="color: #555; margin-top: 30px;">
@@ -276,14 +302,17 @@ export async function sendMembershipEmail(
     <!DOCTYPE html>
     <html>
       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-          body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
           .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #333; padding: 40px 20px; text-align: center; }
+          .header { background: #FFD700; color: #333; padding: 40px 20px; text-align: center; }
           .content { padding: 30px; }
-          .membership-card { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #333; padding: 25px; border-radius: 12px; margin: 25px 0; box-shadow: 0 8px 16px rgba(255,165,0,0.3); text-align: center; }
+          .membership-card { background: #FFD700; color: #333; padding: 25px; border-radius: 12px; margin: 25px 0; box-shadow: 0 8px 16px rgba(255,165,0,0.3); text-align: center; }
           .membership-card h2 { margin: 0 0 10px 0; font-size: 28px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white !important; padding: 14px 35px; text-decoration: none; border-radius: 25px; margin: 20px 0; font-weight: bold; box-shadow: 0 4px 6px rgba(255,107,53,0.3); }
+          .button { display: inline-block; background-color: #FF6B35 !important; color: #FFFFFF !important; padding: 14px 35px; text-decoration: none; border-radius: 25px; margin: 20px 0; font-weight: bold; box-shadow: 0 4px 6px rgba(255,107,53,0.3); font-size: 16px; }
+          .button:hover { background-color: #F7931E !important; }
           .benefits { margin: 30px 0; }
           .benefit { padding: 15px; margin: 10px 0; background: #f9f9f9; border-radius: 8px; border-left: 4px solid #FFD700; }
           .footer { text-align: center; padding: 20px; background: #f9f9f9; color: #666; font-size: 13px; }
@@ -329,7 +358,7 @@ export async function sendMembershipEmail(
             </div>
 
             <div style="text-align: center;">
-              <a href="${APP_URL}/events?membershipFree=true" class="button">Ver Eventos Gratuitos</a>
+              <a href="${APP_URL}/events?membershipFree=true" class="button" style="background-color: #FF6B35 !important; color: #FFFFFF !important;">Ver Eventos Gratuitos</a>
             </div>
 
             <p style="color: #555; margin-top: 30px; text-align: center;">
