@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -19,9 +20,14 @@ interface Event {
   location: string;
   price: number;
   membershipFree: boolean;
+  images?: string[];
   category?: string;
   ticketsSold: number;
   capacity?: number;
+  status: 'draft' | 'published' | 'cancelled';
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function EventsPage() {
@@ -104,6 +110,21 @@ export default function EventsPage() {
                 >
                   <Link href={`/events/${event._id}`}>
                     <div className="card hover:scale-105 transition-transform duration-300 h-full flex flex-col">
+                      {/* Event Images */}
+                      {event.images && event.images.length > 0 && (
+                        <div className="mb-4">
+                          <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                            <Image
+                              src={event.images[0]}
+                              alt={event.title}
+                              width={400}
+                              height={200}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex-grow">
                         {event.category && (
                           <span className="inline-block px-3 py-1 bg-seville-orange/10 text-seville-orange text-xs font-semibold rounded-full mb-3">

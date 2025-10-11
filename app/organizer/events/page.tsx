@@ -19,9 +19,14 @@ interface Event {
   location: string;
   price: number;
   membershipFree: boolean;
+  images?: string[];
+  category?: string;
   ticketsSold: number;
   capacity?: number;
-  status: string;
+  status: 'draft' | 'published' | 'cancelled';
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function OrganizerEventsPage() {

@@ -16,6 +16,7 @@ console.log('  UPLOADTHING_SECRET:', process.env.UPLOADTHING_SECRET ? 'Set' : 'N
 console.log('  UPLOADTHING_APP_ID:', process.env.UPLOADTHING_APP_ID ? 'Set' : 'NOT SET');
 
 const f = createUploadthing();
+console.log('✅ UploadThing client created successfully');
 
 /**
  * Uploadthing file router
@@ -24,9 +25,9 @@ const f = createUploadthing();
 export const ourFileRouter = {
   /**
    * Event image uploader
-   * Allows organizers and admins to upload event images
+   * Allows organizers and admins to upload event images (up to 10 images)
    */
-  eventImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+  eventImage: f({ image: { maxFileSize: "4MB", maxFileCount: 10 } })
     .middleware(async () => {
       // Authentication check
       const session = await getServerSession(authOptions);

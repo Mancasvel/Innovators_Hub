@@ -20,10 +20,14 @@ interface Event {
   location: string;
   price: number;
   membershipFree: boolean;
-  capacity?: number;
-  category: string;
   images?: string[];
-  status: string;
+  category?: string;
+  ticketsSold: number;
+  capacity?: number;
+  status: 'draft' | 'published' | 'cancelled';
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function EditEventPage() {

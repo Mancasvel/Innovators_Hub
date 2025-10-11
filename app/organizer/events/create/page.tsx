@@ -42,18 +42,18 @@ export default function CreateEventPage() {
       // Convert datetime-local to ISO 8601 format
       const dateISO = new Date(formData.date).toISOString();
 
-      // Prepare payload
-      const payload = {
-        title: formData.title,
-        description: formData.description,
-        date: dateISO,
-        location: formData.location,
-        price: price, // Send as decimal number (euros), not cents
-        membershipFree: formData.membershipFree,
-        category: formData.category,
-        image: formData.images.length > 0 ? formData.images[0] : undefined,
-        ...(formData.capacity && { capacity: parseInt(formData.capacity) }),
-      };
+          // Prepare payload
+          const payload = {
+            title: formData.title,
+            description: formData.description,
+            date: dateISO,
+            location: formData.location,
+            price: price, // Send as decimal number (euros), not cents
+            membershipFree: formData.membershipFree,
+            category: formData.category,
+            images: formData.images, // Send all images as array
+            ...(formData.capacity && { capacity: parseInt(formData.capacity) }),
+          };
 
       const response = await fetch('/api/events', {
         method: 'POST',

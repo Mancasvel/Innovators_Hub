@@ -23,11 +23,18 @@ interface Event {
   location: string;
   price: number;
   membershipFree: boolean;
+  images?: string[];
   category?: string;
   ticketsSold: number;
   capacity?: number;
-  images?: string[];
-  createdBy: { name: string };
+  status: 'draft' | 'published' | 'cancelled';
+  createdBy: {
+    name: string;
+    email: string;
+    image?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function EventDetailPage() {

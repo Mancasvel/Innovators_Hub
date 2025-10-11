@@ -44,7 +44,7 @@ export const createEventSchema = z.object({
     .enum(['networking', 'workshop', 'talk', 'social', 'other'])
     .optional()
     .default('other'),
-  image: z.string().url('Invalid image URL').optional(),
+  images: z.array(z.string().url('Invalid image URL')).optional().default([]),
 });
 
 /**
@@ -120,8 +120,8 @@ export const eventQuerySchema = z.object({
     .enum(['networking', 'workshop', 'talk', 'social', 'other'])
     .nullish()
     .transform((val) => {
-      if (val === null || val === undefined || val === '') return undefined;
-      return val;
+      if (!val || val.trim() === '') return undefined;
+      return val as 'networking' | 'workshop' | 'talk' | 'social' | 'other';
     }),
   page: z
     .string()
