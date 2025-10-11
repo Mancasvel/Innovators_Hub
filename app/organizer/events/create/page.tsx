@@ -24,7 +24,7 @@ export default function CreateEventPage() {
     membershipFree: false,
     capacity: '',
     category: 'other',
-    image: '',
+    images: [] as string[],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -208,13 +208,15 @@ export default function CreateEventPage() {
             </div>
 
             <div>
-              <label htmlFor="image" className="label">
-                Event Image (optional)
+              <label htmlFor="images" className="label">
+                Event Images (optional)
               </label>
               <ImageUpload
-                value={formData.image}
-                onChange={(url) => setFormData({ ...formData, image: url })}
+                value={formData.images}
+                    onChange={(urls: string | string[]) => setFormData({ ...formData, images: urls as string[] })}
                 disabled={loading}
+                multiple={true}
+                maxImages={10}
               />
             </div>
 

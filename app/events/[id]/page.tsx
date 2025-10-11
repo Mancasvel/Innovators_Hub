@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import CalendarIntegration from '@/components/CalendarIntegration';
 
 /**
  * Event detail page
@@ -24,6 +26,7 @@ interface Event {
   category?: string;
   ticketsSold: number;
   capacity?: number;
+  images?: string[];
   createdBy: { name: string };
 }
 
@@ -162,6 +165,24 @@ export default function EventDetailPage() {
                 </p>
               </div>
 
+              {/* Event Images Gallery */}
+              {event.images && event.images.length > 0 && (
+                <div className="p-8 border-b border-gray-200">
+                  <div className={`grid gap-4 ${event.images.length === 1 ? 'grid-cols-1' : event.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}>
+                    {event.images.map((imageUrl, index) => (
+                      <div key={index} className="relative aspect-video rounded-lg overflow-hidden">
+                        <Image
+                          src={imageUrl}
+                          alt={`${event.title} - Image ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="p-8">
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
                   <div>
@@ -233,6 +254,9 @@ export default function EventDetailPage() {
                         ? 'Get Free Ticket'
                         : 'Buy Ticket'}
                     </button>
+
+                    {/* Calendar Integration */}
+                    <CalendarIntegration event={event} className="mt-4 md:mt-0" />
                   </div>
 
                   {!session && (

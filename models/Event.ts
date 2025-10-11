@@ -10,7 +10,7 @@ export interface IEvent extends Document {
   membershipFree: boolean; // If true, members attend for free
   capacity?: number;
   ticketsSold: number;
-  image?: string;
+  images?: string[];
   category?: string;
   createdBy: mongoose.Types.ObjectId;
   status: 'draft' | 'published' | 'cancelled';
@@ -66,8 +66,14 @@ const EventSchema = new Schema<IEvent>(
       default: 0,
       min: 0,
     },
-    image: {
-      type: String,
+    images: {
+      type: [String],
+      validate: {
+        validator: function (images: string[]) {
+          return images.length <= 10; // Max 10 images per event
+        },
+        message: 'Cannot have more than 10 images per event',
+      },
     },
     category: {
       type: String,

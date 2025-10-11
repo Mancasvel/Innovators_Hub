@@ -74,9 +74,8 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-// Indexes for performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ stripeCustomerId: 1 });
+// Indexes are already created via unique: true and index: true in schema
+// No need to add duplicate indexes here
 
 // Prevent model recompilation in Next.js hot reload
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

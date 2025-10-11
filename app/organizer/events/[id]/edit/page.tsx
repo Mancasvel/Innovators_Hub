@@ -22,7 +22,7 @@ interface Event {
   membershipFree: boolean;
   capacity?: number;
   category: string;
-  image?: string;
+  images?: string[];
   status: string;
 }
 
@@ -43,7 +43,7 @@ export default function EditEventPage() {
     membershipFree: false,
     capacity: '',
     category: 'other',
-    image: '',
+    images: [] as string[],
     status: 'published',
   });
 
@@ -79,7 +79,7 @@ export default function EditEventPage() {
         membershipFree: evt.membershipFree || false,
         capacity: evt.capacity?.toString() || '',
         category: evt.category || 'other',
-        image: evt.image || '',
+        images: evt.images || [],
         status: evt.status || 'published',
       });
     } catch (err: any) {
@@ -116,7 +116,7 @@ export default function EditEventPage() {
         updates.capacity = parseInt(formData.capacity);
       }
       if (formData.category !== event?.category) updates.category = formData.category;
-      if (formData.image !== event?.image) updates.image = formData.image;
+      if (JSON.stringify(formData.images) !== JSON.stringify(event?.images)) updates.images = formData.images;
       if (formData.status !== event?.status) updates.status = formData.status;
 
       const response = await fetch(`/api/events/${id}`, {
@@ -326,13 +326,15 @@ export default function EditEventPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="image" className="label">
-                    Event Image
+                  <label htmlFor="images" className="label">
+                    Event Images
                   </label>
                   <ImageUpload
-                    value={formData.image}
-                    onChange={(url) => setFormData({ ...formData, image: url })}
+                    value={formData.images}
+                    onChange={(urls: string | string[]) => setFormData({ ...formData, images: urls as string[] })}
                     disabled={loading}
+                    multiple={true}
+                    maxImages={10}
                   />
                 </div>
 

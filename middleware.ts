@@ -1,13 +1,23 @@
+import createIntlMiddleware from 'next-intl/middleware';
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 
 /**
- * Middleware for route protection and role-based access control
+ * Middleware for route protection, role-based access control, and internationalization
  * Protects /user/** and /organizer/** routes
  */
 
+const intlMiddleware = createIntlMiddleware({
+  locales: ['es', 'en'],
+  defaultLocale: 'es',
+});
+
 export default withAuth(
   function middleware(req) {
+    // Apply internationalization middleware first
+    const intlResponse = intlMiddleware(req);
+    if (intlResponse) return intlResponse;
+
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
@@ -39,7 +49,14 @@ export default withAuth(
 
 // Specify which routes should be protected
 export const config = {
-  matcher: ['/user/:path*', '/organizer/:path*', '/admin/:path*'],
+  matcher: [
+    // Auth routes
+    '/user/:path*',
+    '/organizer/:path*',
+    '/admin/:path*',
+    // Exclude API routes and Next.js internals
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 };
 
 

@@ -51,34 +51,38 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-light-gray py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-light-gray to-white py-8 sm:py-12 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full"
       >
-        <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-seville-orange">
+        <div className="text-center mb-6 sm:mb-8">
+          <Link href="/" className="text-2xl sm:text-3xl font-bold text-seville-orange hover:text-orange-600 transition-colors">
             Innovators Hub
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900">
             Welcome back
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-sm sm:text-base text-gray-600">
             Sign in to your account
           </p>
         </div>
 
-        <div className="bg-white py-8 px-6 shadow-lg rounded-xl">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white py-6 sm:py-8 px-6 sm:px-8 shadow-2xl rounded-2xl">
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 text-red-600 p-3 sm:p-4 rounded-lg text-sm"
+              >
                 {error}
-              </div>
+              </motion.div>
             )}
 
             <div>
-              <label htmlFor="email" className="label">
+              <label htmlFor="email" className="label text-sm sm:text-base">
                 Email
               </label>
               <input
@@ -87,13 +91,14 @@ function LoginContent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input"
+                className="input text-sm sm:text-base"
                 placeholder="you@example.com"
+                autoComplete="email"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="label">
+              <label htmlFor="password" className="label text-sm sm:text-base">
                 Password
               </label>
               <input
@@ -102,17 +107,28 @@ function LoginContent() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input"
+                className="input text-sm sm:text-base"
                 placeholder="••••••••"
+                autoComplete="current-password"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn btn-primary"
+              className="w-full btn btn-primary text-sm sm:text-base py-3 sm:py-3.5"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </span>
+              ) : (
+                'Sign in'
+              )}
             </button>
           </form>
 
@@ -133,9 +149,9 @@ function LoginContent() {
 
                 <button
                   onClick={handleGoogleSignIn}
-                  className="mt-6 w-full btn btn-secondary flex items-center justify-center"
+                  className="mt-6 w-full btn btn-secondary flex items-center justify-center text-sm sm:text-base py-3 sm:py-3.5"
                 >
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -159,16 +175,31 @@ function LoginContent() {
             </>
           )}
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-xs sm:text-sm text-gray-600">
             Don't have an account?{' '}
             <Link
               href="/auth/register"
-              className="font-medium text-seville-orange hover:text-orange-600"
+              className="font-medium text-seville-orange hover:text-orange-600 transition-colors"
             >
               Sign up
             </Link>
           </p>
         </div>
+
+        {/* Quick Feature Highlights */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mt-6 sm:mt-8 text-center space-y-2"
+        >
+          <p className="text-xs sm:text-sm text-gray-600">Join our community of innovators</p>
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700">
+            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">🎪 Events</span>
+            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">🤝 Networking</span>
+            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">⭐ Membership</span>
+          </div>
+        </motion.div>
       </motion.div>
     </div>
   );

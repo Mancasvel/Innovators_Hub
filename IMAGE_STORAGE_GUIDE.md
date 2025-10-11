@@ -24,17 +24,14 @@ Guía completa para manejar imágenes en la plataforma.
 
 En el dashboard de Uploadthing:
 1. Ve a "API Keys"
-2. Copia:
-   - `UPLOADTHING_SECRET` (sk_live_...)
-   - `UPLOADTHING_APP_ID` (tu ID de app)
+2. Copia el `UPLOADTHING_TOKEN` (ut_token_...)
 
 ### 3. Configurar variables de entorno
 
 Añade a tu `.env`:
 
 ```bash
-UPLOADTHING_SECRET=sk_live_your_secret_here
-UPLOADTHING_APP_ID=your_app_id_here
+UPLOADTHING_TOKEN=ut_token_your_token_here
 ```
 
 ### 4. Instalar dependencias
@@ -313,7 +310,7 @@ Solo asegúrate de configurar las variables de entorno.
 ## ✅ Checklist Final
 
 - [x] Cuenta de Uploadthing creada
-- [x] API keys configuradas en `.env`
+- [x] UPLOADTHING_TOKEN configurado en `.env`
 - [x] Componente `ImageUpload` implementado
 - [x] Dominio `utfs.io` añadido a `next.config.js`
 - [x] Middleware de autenticación configurado

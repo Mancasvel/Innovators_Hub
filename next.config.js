@@ -13,7 +13,7 @@ const nextConfig = {
   // Enable experimental features for App Router
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'innovatorshub.com'],
+      allowedOrigins: ['localhost:3001', 'innovatorshub.com'],
     },
   },
 }

@@ -153,8 +153,20 @@ export async function sendTicketEmail(
 
 /**
  * Send welcome email to new users
+ * @param emailType - 'standard' for regular users, 'organizer-pending' for organizer requests
  */
-export async function sendWelcomeEmail(to: string, userName: string) {
+export async function sendWelcomeEmail(
+  to: string,
+  userName: string,
+  emailType: 'standard' | 'organizer-pending' = 'standard'
+) {
+  const isOrganizerRequest = emailType === 'organizer-pending';
+  const title = isOrganizerRequest
+    ? '¡Solicitud de Organizador Recibida! 🎯'
+    : '¡Bienvenido a Innovators Hub! 🎉';
+  const subtitle = isOrganizerRequest
+    ? 'Tu solicitud para ser organizador está siendo revisada'
+    : 'Estamos emocionados de tenerte en nuestra comunidad de nómadas digitales e innovadores en Sevilla!';
   const html = `
     <!DOCTYPE html>
     <html>
@@ -173,14 +185,28 @@ export async function sendWelcomeEmail(to: string, userName: string) {
       <body>
         <div class="container">
           <div class="header">
-            <h1 style="margin: 0; font-size: 32px;">¡Bienvenido a Innovators Hub! 🎉</h1>
+            <h1 style="margin: 0; font-size: 32px;">${title}</h1>
           </div>
           
           <div class="content">
             <p style="font-size: 18px;">Hola <strong>${userName}</strong>,</p>
             <p style="font-size: 16px; color: #555;">
-              ¡Estamos emocionados de tenerte en nuestra comunidad de nómadas digitales e innovadores en Sevilla!
+              ${subtitle}
             </p>
+            
+            ${
+              isOrganizerRequest
+                ? `
+            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 8px;">
+              <p style="margin: 0; color: #856404;"><strong>📋 Estado:</strong> Pendiente de revisión</p>
+              <p style="margin: 10px 0 0 0; color: #856404; font-size: 14px;">
+                Un administrador revisará tu solicitud y te contactaremos pronto con más información.
+                Mientras tanto, puedes explorar eventos y usar todas las funciones de usuario regular.
+              </p>
+            </div>
+            `
+                : ''
+            }
             
             <div class="features">
               <div class="feature">
@@ -215,11 +241,15 @@ export async function sendWelcomeEmail(to: string, userName: string) {
     </html>
   `;
 
+  const subject = isOrganizerRequest
+    ? '🎯 Solicitud de Organizador Recibida'
+    : '¡Bienvenido a Innovators Hub! 🎉';
+
   try {
     await transporter.sendMail({
       from: `"Innovators Hub" <${FROM_EMAIL}>`,
       to,
-      subject: '¡Bienvenido a Innovators Hub! 🎉',
+      subject,
       html,
     });
     console.log('✅ Welcome email sent to:', to);
