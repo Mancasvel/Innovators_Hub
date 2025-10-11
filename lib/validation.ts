@@ -104,7 +104,10 @@ export const eventQuerySchema = z.object({
   membershipFree: z
     .string()
     .nullish()
-    .transform((val) => val === 'true'),
+    .transform((val) => {
+      if (val === null || val === undefined || val === '') return undefined;
+      return val === 'true';
+    }),
   upcoming: z
     .string()
     .nullish()
@@ -115,7 +118,11 @@ export const eventQuerySchema = z.object({
     .default('published'),
   category: z
     .enum(['networking', 'workshop', 'talk', 'social', 'other'])
-    .nullish(),
+    .nullish()
+    .transform((val) => {
+      if (val === null || val === undefined || val === '') return undefined;
+      return val;
+    }),
   page: z
     .string()
     .nullish()

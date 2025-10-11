@@ -3,6 +3,18 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { isOrganizerOrAdmin } from "@/lib/permissions";
 
+/**
+ * Initialize UploadThing
+ * Uses UPLOADTHING_TOKEN from environment variables (new auth mode)
+ * Make sure UPLOADTHING_TOKEN is set in your .env.local file
+ */
+
+// Debug UploadThing configuration
+console.log('🔧 UploadThing Configuration:');
+console.log('  UPLOADTHING_TOKEN:', process.env.UPLOADTHING_TOKEN ? 'Set (length: ' + process.env.UPLOADTHING_TOKEN.length + ')' : 'NOT SET');
+console.log('  UPLOADTHING_SECRET:', process.env.UPLOADTHING_SECRET ? 'Set' : 'NOT SET');
+console.log('  UPLOADTHING_APP_ID:', process.env.UPLOADTHING_APP_ID ? 'Set' : 'NOT SET');
+
 const f = createUploadthing();
 
 /**

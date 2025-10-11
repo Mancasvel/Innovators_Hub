@@ -3,11 +3,12 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { connectDB } from '@/lib/db';
 import Event from '@/models/Event';
-import { 
-  createEventSchema, 
-  eventQuerySchema, 
+import User from '@/models/User';
+import {
+  createEventSchema,
+  eventQuerySchema,
   formatZodErrors,
-  sanitizeObject 
+  sanitizeObject
 } from '@/lib/validation';
 import { 
   isOrganizerOrAdmin, 
@@ -52,23 +53,22 @@ export async function GET(req: Request) {
     // Build query
     const query: any = {};
 
-    // Status filter (default: published)
-    if (validatedParams.status) {
-      query.status = validatedParams.status;
-    }
+    // Status filter (default: published for public access)
+    // Always apply status filter unless explicitly requesting other statuses
+    query.status = validatedParams.status || 'published';
 
     // Upcoming events filter
     if (validatedParams.upcoming) {
       query.date = { $gte: new Date() };
     }
 
-    // Membership free filter
+    // Membership free filter (only apply if explicitly set)
     if (validatedParams.membershipFree !== undefined) {
       query.membershipFree = validatedParams.membershipFree;
     }
 
-    // Category filter
-    if (validatedParams.category) {
+    // Category filter (only apply if explicitly set)
+    if (validatedParams.category !== undefined) {
       query.category = validatedParams.category;
     }
 
@@ -82,6 +82,32 @@ export async function GET(req: Request) {
     const sortOrder = validatedParams.sortOrder === 'asc' ? 1 : -1;
     const sort: { [key: string]: 1 | -1 } = { [sortField]: sortOrder };
 
+    // Debug: Log query
+    console.log('🔍 Events API Query:', JSON.stringify(query));
+    console.log('📊 Sort:', sort, 'Skip:', skip, 'Limit:', limit);
+    console.log('🌐 MONGODB_URI from env:', process.env.MONGODB_URI ? 'Set' : 'NOT SET');
+
+    // Debug: Check collection name and total documents
+    const collectionName = Event.collection.name;
+    const allDocsCount = await Event.countDocuments({});
+    const publishedCount = await Event.countDocuments({ status: 'published' });
+    const upcomingCount = await Event.countDocuments({ date: { $gte: new Date() } });
+
+    console.log('📂 Collection name:', collectionName);
+    console.log('📚 Total documents in collection:', allDocsCount);
+    console.log('✅ Published events:', publishedCount);
+    console.log('⏰ Upcoming events:', upcomingCount);
+
+    // Log sample documents
+    const sampleEvents = await Event.find({}).limit(3).lean();
+    console.log('📋 Sample events in DB:', sampleEvents.map(e => ({ id: e._id, title: e.title, status: e.status, date: e.date })));
+
+    // Check users in the same database
+    const userCount = await User.countDocuments({});
+    const organizerUsers = await User.countDocuments({ role: { $in: ['organizer', 'admin'] } });
+    console.log('👥 Total users in DB:', userCount);
+    console.log('👑 Organizer/Admin users:', organizerUsers);
+
     // Execute query with pagination
     const [events, totalCount] = await Promise.all([
       Event.find(query)
@@ -92,6 +118,14 @@ export async function GET(req: Request) {
         .lean(),
       Event.countDocuments(query),
     ]);
+
+    console.log('📦 Found events matching query:', totalCount, '| events returned:', events.length);
+    if (events.length > 0) {
+      console.log('📋 First event:', events[0].title, '| Status:', events[0].status);
+    } else {
+      console.log('⚠️ No events found with current query');
+      console.log('🔍 Query details:', JSON.stringify(query, null, 2));
+    }
 
     // Calculate pagination metadata
     const totalPages = Math.ceil(totalCount / limit);

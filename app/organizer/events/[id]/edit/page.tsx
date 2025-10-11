@@ -75,7 +75,7 @@ export default function EditEventPage() {
         description: evt.description || '',
         date: localDateTime,
         location: evt.location || '',
-        price: (evt.price / 100).toString(),
+        price: evt.price.toString(), // Price is already in euros
         membershipFree: evt.membershipFree || false,
         capacity: evt.capacity?.toString() || '',
         category: evt.category || 'other',
@@ -96,8 +96,8 @@ export default function EditEventPage() {
     setLoading(true);
 
     try {
-      // Convert price to cents
-      const priceInCents = Math.round(parseFloat(formData.price) * 100);
+      // Parse price (already in euros, not cents)
+      const price = parseFloat(formData.price);
 
       // Build update payload (only changed fields)
       const updates: any = {};
@@ -110,7 +110,7 @@ export default function EditEventPage() {
         if (newDate !== oldDate) updates.date = newDate;
       }
       if (formData.location !== event?.location) updates.location = formData.location;
-      if (priceInCents !== event?.price) updates.price = priceInCents;
+      if (price !== event?.price) updates.price = price;
       if (formData.membershipFree !== event?.membershipFree) updates.membershipFree = formData.membershipFree;
       if (formData.capacity && parseInt(formData.capacity) !== event?.capacity) {
         updates.capacity = parseInt(formData.capacity);

@@ -197,7 +197,7 @@ async function exportEvents(format: string) {
       `"${event.description.replace(/"/g, '""')}"`, // Escape quotes
       new Date(event.date).toLocaleDateString(),
       `"${event.location}"`,
-      (event.price / 100).toFixed(2),
+      event.price.toFixed(2), // Price is already in euros
       event.membershipFree ? 'Yes' : 'No',
       event.capacity || 'Unlimited',
       event.ticketsSold,

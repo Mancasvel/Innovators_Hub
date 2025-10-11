@@ -76,7 +76,8 @@ export default function OrganizerEventsPage() {
   };
 
   const formatPrice = (price: number) => {
-    return (price / 100).toFixed(2);
+    // Price is already in euros (not cents)
+    return price.toFixed(2);
   };
 
   return (

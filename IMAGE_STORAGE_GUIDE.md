@@ -24,7 +24,10 @@ Guía completa para manejar imágenes en la plataforma.
 
 En el dashboard de Uploadthing:
 1. Ve a "API Keys"
-2. Copia el `UPLOADTHING_TOKEN` (ut_token_...)
+2. **Nuevo método (recomendado):** Copia el `UPLOADTHING_TOKEN` (empieza con `ut_token_...`)
+3. **Método legacy (obsoleto):** Si usas versión antigua, necesitas `UPLOADTHING_SECRET` y `UPLOADTHING_APP_ID`
+
+**Nota:** UploadThing detecta automáticamente qué método usar basándose en las variables de entorno disponibles. Si tienes `UPLOADTHING_TOKEN`, usará el nuevo método.
 
 ### 3. Configurar variables de entorno
 

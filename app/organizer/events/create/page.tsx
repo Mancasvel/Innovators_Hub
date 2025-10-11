@@ -33,27 +33,48 @@ export default function CreateEventPage() {
     setLoading(true);
 
     try {
-      // Convert price to cents
-      const priceInCents = Math.round(parseFloat(formData.price) * 100);
+      // Validate and prepare data
+      const price = parseFloat(formData.price);
+      if (isNaN(price) || price < 0) {
+        throw new Error('Please enter a valid price');
+      }
+
+      // Convert datetime-local to ISO 8601 format
+      const dateISO = new Date(formData.date).toISOString();
+
+      // Prepare payload
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        date: dateISO,
+        location: formData.location,
+        price: price, // Send as decimal number (euros), not cents
+        membershipFree: formData.membershipFree,
+        category: formData.category,
+        image: formData.images.length > 0 ? formData.images[0] : undefined,
+        ...(formData.capacity && { capacity: parseInt(formData.capacity) }),
+      };
 
       const response = await fetch('/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          price: priceInCents,
-          capacity: formData.capacity ? parseInt(formData.capacity) : undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        // Show detailed validation errors if available
+        if (data.details && Array.isArray(data.details)) {
+          const errorMessages = data.details.map((d: any) => `${d.field}: ${d.message}`).join(', ');
+          throw new Error(errorMessages);
+        }
         throw new Error(data.error || 'Failed to create event');
       }
 
       router.push('/organizer/events');
     } catch (err: any) {
+      console.error('Event creation error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -75,9 +96,19 @@ export default function CreateEventPage() {
 
             <form onSubmit={handleSubmit} className="card">
               {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6">
-                  {error}
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-50 border-l-4 border-red-600 text-red-700 p-4 rounded-lg mb-6"
+                >
+                  <div className="flex items-start">
+                    <span className="text-2xl mr-3">⚠️</span>
+                    <div>
+                      <p className="font-semibold mb-1">Validation Error</p>
+                      <p className="text-sm">{error}</p>
+                    </div>
+                  </div>
+                </motion.div>
               )}
 
               <div className="space-y-6">

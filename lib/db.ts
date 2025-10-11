@@ -21,6 +21,11 @@ declare global {
   var mongooseCache: MongooseCache | undefined;
 }
 
+// Clear cache on module reload in development
+if (process.env.NODE_ENV === 'development') {
+  global.mongooseCache = undefined;
+}
+
 let cached: MongooseCache = global.mongooseCache || {
   conn: null,
   promise: null,
@@ -40,10 +45,13 @@ export async function connectDB() {
   }
 
   if (cached.conn) {
+    console.log('🔄 Using cached MongoDB connection');
     return cached.conn;
   }
 
   if (!cached.promise) {
+    console.log('🔗 Creating new MongoDB connection...');
+    console.log('📊 MONGODB_URI ends with:', MONGODB_URI?.split('/').pop());
     const opts = {
       bufferCommands: false,
     };
