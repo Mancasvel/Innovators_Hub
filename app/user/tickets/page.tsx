@@ -194,7 +194,7 @@ function TicketsContent() {
                     <h2 className="text-2xl font-bold mb-6">
                       Upcoming Events ({upcomingTickets.length})
                     </h2>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                       {upcomingTickets.map((ticket, index) => (
                         <TicketCard key={ticket._id} ticket={ticket} index={index} />
                       ))}
@@ -208,7 +208,7 @@ function TicketsContent() {
                     <h2 className="text-2xl font-bold mb-6">
                       Past Events ({pastTickets.length})
                     </h2>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                       {pastTickets.map((ticket, index) => (
                         <TicketCard key={ticket._id} ticket={ticket} index={index} isPast />
                       ))}
@@ -357,143 +357,24 @@ function TicketCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className={`card ${isPast ? 'opacity-60' : ''}`}
+      className={`card hover:scale-105 transition-transform duration-300 h-full flex flex-col ${isPast ? 'opacity-60' : ''}`}
     >
-      {/* Mobile Card View - Show on small screens */}
-      <div className="block md:hidden">
-        {/* Event Image for Mobile */}
-        {ticket.eventId.images && ticket.eventId.images.length > 0 && (
-          <div className="relative w-full h-32 mb-3 -mt-6 -mx-6 rounded-t-lg overflow-hidden">
+      {/* Event Images */}
+      {ticket.eventId.images && ticket.eventId.images.length > 0 && (
+        <div className="mb-3 md:mb-4 -mx-4 md:-mx-6 -mt-4 md:-mt-6">
+          <div className="aspect-video overflow-hidden bg-gray-100">
             <Image
               src={ticket.eventId.images[0]}
               alt={ticket.eventId.title}
-              fill
-              className="object-cover"
+              width={400}
+              height={200}
+              className="w-full h-full object-cover"
             />
           </div>
-        )}
-
-        <div className="p-4">
-          <div className="flex justify-between items-start mb-3">
-            <div className="flex-1">
-              <h3 className="font-bold text-lg text-gray-900 mb-1">{ticket.eventId.title}</h3>
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ticket.status)}`}>
-                  {getStatusText(ticket.status)}
-                </span>
-                {ticket.purchasedWithMembership && (
-                  <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                    🎟️ FREE (Member)
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2 text-sm text-gray-600 mb-4">
-            <div className="flex items-center">
-              <span className="mr-2">📅</span>
-              <span>{formatDate(ticket.eventId.date)}</span>
-            </div>
-            <div className="flex items-center">
-              <span className="mr-2">📍</span>
-              <span>{ticket.eventId.location}</span>
-            </div>
-            {ticket.usedAt && (
-              <div className="flex items-center text-gray-500">
-                <span className="mr-2">✓</span>
-                <span>Used on {formatDate(ticket.usedAt)}</span>
-              </div>
-            )}
-          </div>
-
-          {/* QR Code Section for Mobile */}
-          {ticket.status === 'valid' && !isPast && (
-            <div className="border-t pt-4">
-              {!showQR ? (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowQR(true)}
-                    className="flex-1 btn btn-primary text-sm"
-                  >
-                    Show QR Code
-                  </button>
-                  <button
-                    onClick={addToCalendar}
-                    className="flex-1 btn bg-blue-600 hover:bg-blue-700 text-white text-sm"
-                  >
-                    📅 Calendar
-                  </button>
-                </div>
-              ) : (
-                <div className="bg-white p-3 rounded-lg border-2 border-seville-orange">
-                  <div className="bg-white p-2 rounded">
-                    <img
-                      src={`/api/qr?code=${ticket.qrCode}`}
-                      alt="Ticket QR Code"
-                      className="w-full h-auto mx-auto"
-                    />
-                  </div>
-                  <p className="text-xs text-center text-gray-600 mt-2 mb-3">
-                    Show this QR code at the entrance
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setShowQR(false)}
-                      className="flex-1 btn btn-secondary text-sm"
-                    >
-                      Hide
-                    </button>
-                    <button
-                      onClick={downloadQR}
-                      className="flex-1 btn btn-primary text-sm"
-                    >
-                      📥 Download
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Used or Past Ticket - Show greyed out QR for mobile */}
-          {(ticket.status === 'used' || isPast) && (
-            <div className="border-t pt-4 opacity-50">
-              <div className="bg-gray-100 p-3 rounded-lg text-center">
-                <img
-                  src={`/api/qr?code=${ticket.qrCode}`}
-                  alt="Ticket QR Code"
-                  className="w-24 h-24 mx-auto opacity-50 mb-2"
-                />
-                <p className="text-xs text-gray-500">
-                  {ticket.status === 'used' ? 'This ticket has been used' : 'Event has passed'}
-                </p>
-                <button
-                  onClick={addToCalendar}
-                  className="btn bg-blue-600 hover:bg-blue-700 text-white text-sm opacity-75 mt-2"
-                >
-                  📅 Add to Calendar
-                </button>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
-      {/* Desktop Card View - Hide on small screens */}
-      <div className="hidden md:block">
-        {/* Event Image */}
-        {ticket.eventId.images && ticket.eventId.images.length > 0 && (
-          <div className="relative w-full h-48 mb-4 -mt-6 -mx-6 rounded-t-lg overflow-hidden">
-            <Image
-              src={ticket.eventId.images[0]}
-              alt={ticket.eventId.title}
-              fill
-              className="object-cover"
-            />
-          </div>
-        )}
-
+      <div className="flex-grow">
         <div className="mb-4 flex items-center justify-between">
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
@@ -509,93 +390,89 @@ function TicketCard({
           )}
         </div>
 
-        <h3 className="text-xl font-bold mb-3">{ticket.eventId.title}</h3>
+        <h3 className="text-lg md:text-xl font-bold mb-1 md:mb-2 line-clamp-2">
+          {ticket.eventId.title}
+        </h3>
 
-        <div className="space-y-2 text-sm text-gray-600 mb-4">
-          <p className="flex items-center">
-            <span className="mr-2">📅</span>
-            {formatDate(ticket.eventId.date)}
+        <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-gray-600">
+          <p className="flex items-start md:items-center">
+            <span className="mr-2 flex-shrink-0">📅</span>
+            <span className="line-clamp-2">{formatDate(ticket.eventId.date)}</span>
           </p>
-          <p className="flex items-center">
-            <span className="mr-2">📍</span>
-            {ticket.eventId.location}
+          <p className="flex items-start md:items-center">
+            <span className="mr-2 flex-shrink-0">📍</span>
+            <span className="line-clamp-1">{ticket.eventId.location}</span>
           </p>
           {ticket.usedAt && (
-            <p className="flex items-center text-gray-500">
-              <span className="mr-2">✓</span>
-              Used on {formatDate(ticket.usedAt)}
+            <p className="flex items-start md:items-center text-gray-500">
+              <span className="mr-2 flex-shrink-0">✓</span>
+              <span className="line-clamp-2">Used on {ticket.usedAt ? formatDate(ticket.usedAt) : ''}</span>
             </p>
           )}
         </div>
+      </div>
 
-        {/* QR Code Section */}
-        {ticket.status === 'valid' && !isPast && (
-          <div className="border-t pt-4">
-            {!showQR ? (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowQR(true)}
-                  className="flex-1 btn btn-primary"
-                >
-                  Show QR Code
-                </button>
-                <button
-                  onClick={addToCalendar}
-                  className="flex-1 btn bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  📅 Add to Calendar
-                </button>
-              </div>
-            ) : (
-              <div className="bg-white p-4 rounded-lg border-2 border-seville-orange">
-                <div className="bg-white p-2 rounded">
-                  <img
-                    src={`/api/qr?code=${ticket.qrCode}`}
-                    alt="Ticket QR Code"
-                    className="w-full h-auto mx-auto"
-                  />
-                </div>
-                <p className="text-xs text-center text-gray-600 mt-2 mb-3">
-                  Show this QR code at the entrance
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowQR(false)}
-                    className="flex-1 btn btn-secondary text-sm"
-                  >
-                    Hide
-                  </button>
-                  <button
-                    onClick={downloadQR}
-                    className="flex-1 btn btn-primary text-sm"
-                  >
-                    📥 Download
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Used or Past Ticket - Show greyed out QR */}
-        {(ticket.status === 'used' || isPast) && (
-          <div className="border-t pt-4 opacity-50">
-            <div className="bg-gray-100 p-4 rounded-lg text-center">
-              <img
-                src={`/api/qr?code=${ticket.qrCode}`}
-                alt="Ticket QR Code"
-                className="w-32 h-32 mx-auto opacity-50"
-              />
-              <p className="text-xs text-gray-500 mt-2 mb-3">
-                {ticket.status === 'used' ? 'This ticket has been used' : 'Event has passed'}
-              </p>
+      <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        {ticket.status === 'valid' && !isPast ? (
+          !showQR ? (
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
+              <button
+                onClick={() => setShowQR(true)}
+                className="flex-1 btn btn-primary text-sm"
+              >
+                Show QR Code
+              </button>
               <button
                 onClick={addToCalendar}
-                className="btn bg-blue-600 hover:bg-blue-700 text-white text-sm opacity-75"
+                className="flex-1 btn bg-blue-600 hover:bg-blue-700 text-white text-sm"
               >
                 📅 Add to Calendar
               </button>
             </div>
+          ) : (
+            <div className="bg-white p-4 rounded-lg border-2 border-seville-orange w-full">
+              <div className="bg-white p-2 rounded">
+                <img
+                  src={`/api/qr?code=${ticket.qrCode}`}
+                  alt="Ticket QR Code"
+                  className="w-full h-auto mx-auto"
+                />
+              </div>
+              <p className="text-xs text-center text-gray-600 mt-2 mb-3">
+                Show this QR code at the entrance
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowQR(false)}
+                  className="flex-1 btn btn-secondary text-sm"
+                >
+                  Hide
+                </button>
+                <button
+                  onClick={downloadQR}
+                  className="flex-1 btn btn-primary text-sm"
+                >
+                  📥 Download
+                </button>
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="bg-gray-100 p-4 rounded-lg text-center opacity-75 w-full">
+            <img
+              src={`/api/qr?code=${ticket.qrCode}`}
+              alt="Ticket QR Code"
+              className="w-24 h-24 mx-auto opacity-50 mb-2"
+            />
+            <p className="text-xs text-gray-500 mb-3">
+              {ticket.status === 'used' ? 'This ticket has been used' : 'Event has passed'}
+            </p>
+            <button
+              onClick={addToCalendar}
+              className="btn bg-blue-600 hover:bg-blue-700 text-white text-sm"
+            >
+              📅 Add to Calendar
+            </button>
           </div>
         )}
       </div>
