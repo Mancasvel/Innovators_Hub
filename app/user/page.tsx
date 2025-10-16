@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 /**
  * User dashboard home
@@ -26,12 +26,12 @@ export default function UserDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/user/tickets');
+      const response = await fetch("/api/user/tickets");
       const data = await response.json();
       const tickets = data.tickets;
 
       const upcoming = tickets.filter(
-        (t: any) => new Date(t.eventId.date) > new Date()
+        (t: any) => new Date(t.eventId.date) > new Date(),
       );
 
       setStats({
@@ -39,7 +39,7 @@ export default function UserDashboardPage() {
         upcomingEvents: upcoming.length,
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ export default function UserDashboardPage() {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl font-bold mb-2">
-              Welcome back, {user?.name || 'User'}!
+              Welcome back, {user?.name || "User"}!
             </h1>
             <p className="text-gray-600 mb-8">
               Manage your tickets and membership
@@ -67,18 +67,16 @@ export default function UserDashboardPage() {
             {/* Quick Stats */}
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="card bg-gradient-orange text-white">
-                <h3 className="text-lg font-semibold mb-2">
-                  Upcoming Events
-                </h3>
+                <h3 className="text-lg font-semibold mb-2">Upcoming Events</h3>
                 <p className="text-4xl font-bold">
-                  {loading ? '...' : stats.upcomingEvents}
+                  {loading ? "..." : stats.upcomingEvents}
                 </p>
               </div>
 
               <div className="card">
                 <h3 className="text-lg font-semibold mb-2">Total Tickets</h3>
                 <p className="text-4xl font-bold text-seville-orange">
-                  {loading ? '...' : stats.totalTickets}
+                  {loading ? "..." : stats.totalTickets}
                 </p>
               </div>
 
@@ -116,9 +114,7 @@ export default function UserDashboardPage() {
                 <div className="card hover:shadow-xl transition-shadow cursor-pointer">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xl font-bold mb-2">
-                        ⭐ Membership
-                      </h3>
+                      <h3 className="text-xl font-bold mb-2">⭐ Membership</h3>
                       <p className="text-gray-600">
                         Manage your premium membership
                       </p>
@@ -132,7 +128,9 @@ export default function UserDashboardPage() {
                 <div className="card hover:shadow-xl transition-shadow cursor-pointer">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xl font-bold mb-2">📅 Browse Events</h3>
+                      <h3 className="text-xl font-bold mb-2">
+                        📅 Browse Events
+                      </h3>
                       <p className="text-gray-600">
                         Discover upcoming events and workshops
                       </p>
@@ -191,6 +189,3 @@ export default function UserDashboardPage() {
     </div>
   );
 }
-
-
-

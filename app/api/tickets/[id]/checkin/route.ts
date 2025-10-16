@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@/lib/db';
-import Ticket from '@/models/Ticket';
-import Event from '@/models/Event';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
+import Ticket from "@/models/Ticket";
+import Event from "@/models/Event";
 import {
   canModifyResource,
   isOrganizerOrAdmin,
-  AuthErrors
-} from '@/lib/permissions';
-import mongoose from 'mongoose';
+  AuthErrors,
+} from "@/lib/permissions";
+import mongoose from "mongoose";
 
 /**
  * POST /api/tickets/[id]/checkin - Mark ticket as checked in (assisted)
@@ -21,25 +21,19 @@ import mongoose from 'mongoose';
  */
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json(
-        AuthErrors.UNAUTHORIZED,
-        { status: 401 }
-      );
+      return NextResponse.json(AuthErrors.UNAUTHORIZED, { status: 401 });
     }
 
     // Check authorization (organizer or admin only)
     if (!isOrganizerOrAdmin(session)) {
-      return NextResponse.json(
-        AuthErrors.INVALID_ROLE,
-        { status: 403 }
-      );
+      return NextResponse.json(AuthErrors.INVALID_ROLE, { status: 403 });
     }
 
     const { id } = await params;
@@ -47,8 +41,8 @@ export async function POST(
     // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { error: 'Invalid ticket ID format' },
-        { status: 400 }
+        { error: "Invalid ticket ID format" },
+        { status: 400 },
       );
     }
 
@@ -58,17 +52,14 @@ export async function POST(
     const ticket = await Ticket.findById(id);
 
     if (!ticket) {
-      return NextResponse.json(
-        { error: 'Ticket not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
     }
 
     // Check if ticket is valid and not already used
-    if (ticket.status !== 'valid') {
+    if (ticket.status !== "valid") {
       return NextResponse.json(
-        { error: 'Ticket is not valid for check-in' },
-        { status: 400 }
+        { error: "Ticket is not valid for check-in" },
+        { status: 400 },
       );
     }
 
@@ -76,18 +67,12 @@ export async function POST(
     const event = await Event.findById(ticket.eventId);
 
     if (!event) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     // Check ownership (organizers can only check-in their own events)
     if (!canModifyResource(session, event.createdBy.toString())) {
-      return NextResponse.json(
-        AuthErrors.NOT_OWNER,
-        { status: 403 }
-      );
+      return NextResponse.json(AuthErrors.NOT_OWNER, { status: 403 });
     }
 
     // Update ticket as assisted (checked in)
@@ -97,14 +82,14 @@ export async function POST(
         assisted: true,
         updatedAt: new Date(),
       },
-      { new: true }
+      { new: true },
     );
 
     console.log(`✅ Ticket ${id} checked in by ${session.user.email}`);
 
     return NextResponse.json({
       success: true,
-      message: 'Attendee checked in successfully',
+      message: "Attendee checked in successfully",
       ticket: {
         id: updatedTicket?._id,
         assisted: updatedTicket?.assisted,
@@ -112,10 +97,10 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error('❌ Error during ticket check-in:', error);
+    console.error("❌ Error during ticket check-in:", error);
     return NextResponse.json(
-      { error: 'Failed to check in attendee. Please try again.' },
-      { status: 500 }
+      { error: "Failed to check in attendee. Please try again." },
+      { status: 500 },
     );
   }
 }

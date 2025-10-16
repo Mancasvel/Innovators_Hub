@@ -155,6 +155,7 @@ Tu Innovators Hub está funcionando. Ahora puedes:
 ## 📚 Siguiente Paso
 
 Lee la documentación completa:
+
 - [README.md](README.md) - Overview completo
 - [SETUP_GUIDE.md](SETUP_GUIDE.md) - Setup detallado
 - [DEPLOYMENT.md](DEPLOYMENT.md) - Despliegue a producción
@@ -162,15 +163,19 @@ Lee la documentación completa:
 ## 🆘 Problemas Comunes
 
 ### "Please define MONGODB_URI"
+
 → Verifica que el archivo `.env` existe y tiene la variable
 
 ### "Failed to connect to MongoDB"
+
 → Verifica que tu IP está en Network Access de MongoDB Atlas
 
 ### Webhook no recibe eventos
+
 → Asegura que Stripe CLI está corriendo: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
 
 ### QR Scanner no funciona
+
 → Permite permisos de cámara en el navegador, o usa "Manual Entry"
 
 ## 💡 Tips
@@ -190,6 +195,3 @@ Lee la documentación completa:
 ---
 
 ¿Necesitas ayuda? Revisa [SETUP_GUIDE.md](SETUP_GUIDE.md) para instrucciones detalladas.
-
-
-

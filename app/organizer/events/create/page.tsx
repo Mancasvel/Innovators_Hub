@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import ImageUpload from '@/components/ImageUpload';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ImageUpload from "@/components/ImageUpload";
 
 /**
  * Create event page for organizers
@@ -14,55 +14,55 @@ import ImageUpload from '@/components/ImageUpload';
 export default function CreateEventPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    date: '',
-    location: '',
-    price: '',
+    title: "",
+    description: "",
+    date: "",
+    location: "",
+    price: "",
     membershipFree: false,
-    capacity: '50',
-    category: 'other',
+    capacity: "50",
+    category: "other",
     images: [] as string[],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       // Validate and prepare data
       const price = parseFloat(formData.price);
       if (isNaN(price) || price < 0) {
-        throw new Error('Please enter a valid price');
+        throw new Error("Please enter a valid price");
       }
 
       const capacity = parseInt(formData.capacity);
       if (isNaN(capacity) || capacity < 1) {
-        throw new Error('Please enter a valid capacity (minimum 1)');
+        throw new Error("Please enter a valid capacity (minimum 1)");
       }
 
       // Convert datetime-local to ISO 8601 format
       const dateISO = new Date(formData.date).toISOString();
 
-          // Prepare payload
-          const payload = {
-            title: formData.title,
-            description: formData.description,
-            date: dateISO,
-            location: formData.location,
-            price: price, // Send as decimal number (euros), not cents
-            membershipFree: formData.membershipFree,
-            category: formData.category,
-            images: formData.images, // Send all images as array
-            capacity: capacity, // Capacity is now required
-          };
+      // Prepare payload
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        date: dateISO,
+        location: formData.location,
+        price: price, // Send as decimal number (euros), not cents
+        membershipFree: formData.membershipFree,
+        category: formData.category,
+        images: formData.images, // Send all images as array
+        capacity: capacity, // Capacity is now required
+      };
 
-      const response = await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -71,15 +71,17 @@ export default function CreateEventPage() {
       if (!response.ok) {
         // Show detailed validation errors if available
         if (data.details && Array.isArray(data.details)) {
-          const errorMessages = data.details.map((d: any) => `${d.field}: ${d.message}`).join(', ');
+          const errorMessages = data.details
+            .map((d: any) => `${d.field}: ${d.message}`)
+            .join(", ");
           throw new Error(errorMessages);
         }
-        throw new Error(data.error || 'Failed to create event');
+        throw new Error(data.error || "Failed to create event");
       }
 
-      router.push('/organizer/events');
+      router.push("/organizer/events");
     } catch (err: any) {
-      console.error('Event creation error:', err);
+      console.error("Event creation error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -245,22 +247,24 @@ export default function CreateEventPage() {
                       Número máximo de entradas disponibles para este evento
                     </p>
                   </div>
-            </div>
+                </div>
 
-            <div>
-              <label htmlFor="images" className="label">
-                Event Images (optional)
-              </label>
-              <ImageUpload
-                value={formData.images}
-                    onChange={(urls: string | string[]) => setFormData({ ...formData, images: urls as string[] })}
-                disabled={loading}
-                multiple={true}
-                maxImages={10}
-              />
-            </div>
+                <div>
+                  <label htmlFor="images" className="label">
+                    Event Images (optional)
+                  </label>
+                  <ImageUpload
+                    value={formData.images}
+                    onChange={(urls: string | string[]) =>
+                      setFormData({ ...formData, images: urls as string[] })
+                    }
+                    disabled={loading}
+                    multiple={true}
+                    maxImages={10}
+                  />
+                </div>
 
-            <div className="flex items-center">
+                <div className="flex items-center">
                   <input
                     id="membershipFree"
                     type="checkbox"
@@ -273,19 +277,22 @@ export default function CreateEventPage() {
                       })
                     }
                     className={`w-4 h-4 text-seville-orange border-gray-300 rounded focus:ring-seville-orange ${
-                      parseFloat(formData.price) === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                      parseFloat(formData.price) === 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
                     }`}
                   />
                   <label
                     htmlFor="membershipFree"
                     className={`ml-2 text-sm ${
-                      parseFloat(formData.price) === 0 ? 'text-gray-500' : 'text-gray-700'
+                      parseFloat(formData.price) === 0
+                        ? "text-gray-500"
+                        : "text-gray-700"
                     }`}
                   >
                     {parseFloat(formData.price) === 0
-                      ? 'Free for everyone (automatically enabled when price is €0)'
-                      : 'Free for premium members'
-                    }
+                      ? "Free for everyone (automatically enabled when price is €0)"
+                      : "Free for premium members"}
                   </label>
                 </div>
 
@@ -295,7 +302,7 @@ export default function CreateEventPage() {
                     disabled={loading}
                     className="flex-1 btn btn-primary"
                   >
-                    {loading ? 'Creating...' : 'Create Event'}
+                    {loading ? "Creating..." : "Create Event"}
                   </button>
                   <button
                     type="button"
@@ -315,6 +322,3 @@ export default function CreateEventPage() {
     </div>
   );
 }
-
-
-

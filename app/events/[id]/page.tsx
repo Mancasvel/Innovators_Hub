@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import Link from 'next/link';
-import CalendarIntegration from '@/components/CalendarIntegration';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useParams } from "next/navigation";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Link from "next/link";
+import CalendarIntegration from "@/components/CalendarIntegration";
 
 /**
  * Event detail page
@@ -27,7 +27,7 @@ interface Event {
   category?: string;
   ticketsSold: number;
   capacity: number; // Now required
-  status: 'draft' | 'published' | 'cancelled';
+  status: "draft" | "published" | "cancelled";
   createdBy: {
     name: string;
     email: string;
@@ -59,7 +59,7 @@ export default function EventDetailPage() {
   const [purchasing, setPurchasing] = useState(false);
   const [modal, setModal] = useState<{
     show: boolean;
-    type: 'success' | 'error';
+    type: "success" | "error";
     title: string;
     message: string;
   } | null>(null);
@@ -84,18 +84,18 @@ export default function EventDetailPage() {
       } else {
         setModal({
           show: true,
-          type: 'error',
-          title: 'Error',
-          message: data.error || 'Failed to load attendants',
+          type: "error",
+          title: "Error",
+          message: data.error || "Failed to load attendants",
         });
       }
     } catch (error) {
-      console.error('Error fetching attendants:', error);
+      console.error("Error fetching attendants:", error);
       setModal({
         show: true,
-        type: 'error',
-        title: 'Error',
-        message: 'Failed to load attendants. Please try again.',
+        type: "error",
+        title: "Error",
+        message: "Failed to load attendants. Please try again.",
       });
     } finally {
       setAttendantsLoading(false);
@@ -106,23 +106,25 @@ export default function EventDetailPage() {
     setCheckingIn(ticketId);
     try {
       const response = await fetch(`/api/tickets/${ticketId}/checkin`, {
-        method: 'POST',
+        method: "POST",
       });
 
       const data = await response.json();
 
       if (response.ok) {
         // Update the local state
-        setAttendants(prev => prev.map(attendant =>
-          attendant.ticketId === ticketId
-            ? { ...attendant, assisted: true }
-            : attendant
-        ));
+        setAttendants((prev) =>
+          prev.map((attendant) =>
+            attendant.ticketId === ticketId
+              ? { ...attendant, assisted: true }
+              : attendant,
+          ),
+        );
 
         setModal({
           show: true,
-          type: 'success',
-          title: 'Check-in Successful',
+          type: "success",
+          title: "Check-in Successful",
           message: `${userName} has been checked in successfully!`,
         });
 
@@ -133,18 +135,18 @@ export default function EventDetailPage() {
       } else {
         setModal({
           show: true,
-          type: 'error',
-          title: 'Check-in Failed',
-          message: data.error || 'Failed to check in attendee',
+          type: "error",
+          title: "Check-in Failed",
+          message: data.error || "Failed to check in attendee",
         });
       }
     } catch (error) {
-      console.error('Error during check-in:', error);
+      console.error("Error during check-in:", error);
       setModal({
         show: true,
-        type: 'error',
-        title: 'Error',
-        message: 'Failed to check in attendee. Please try again.',
+        type: "error",
+        title: "Error",
+        message: "Failed to check in attendee. Please try again.",
       });
     } finally {
       setCheckingIn(null);
@@ -157,7 +159,7 @@ export default function EventDetailPage() {
       const data = await response.json();
       setEvent(data.event);
     } catch (error) {
-      console.error('Error fetching event:', error);
+      console.error("Error fetching event:", error);
     } finally {
       setLoading(false);
     }
@@ -181,22 +183,24 @@ export default function EventDetailPage() {
           // Success - show modal and redirect to tickets
           setModal({
             show: true,
-            type: 'success',
-            title: '🎉 ¡Entrada Reclamada!',
-            message: data.message || '¡Entrada reclamada con éxito! Revisa tu email para el código QR.',
+            type: "success",
+            title: "🎉 ¡Entrada Reclamada!",
+            message:
+              data.message ||
+              "¡Entrada reclamada con éxito! Revisa tu email para el código QR.",
           });
-          
+
           // Redirect after 2 seconds
           setTimeout(() => {
-            router.push('/user/tickets');
+            router.push("/user/tickets");
           }, 2000);
         } else {
           // Error - show modal with error message
           setModal({
             show: true,
-            type: 'error',
-            title: '❌ Error',
-            message: data.error || 'Failed to claim ticket. Please try again.',
+            type: "error",
+            title: "❌ Error",
+            message: data.error || "Failed to claim ticket. Please try again.",
           });
           setPurchasing(false);
         }
@@ -204,10 +208,10 @@ export default function EventDetailPage() {
       }
 
       // Otherwise, use Stripe checkout
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId: id, type: 'ticket' }),
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: id, type: "ticket" }),
       });
 
       const data = await response.json();
@@ -215,28 +219,28 @@ export default function EventDetailPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
-      console.error('Error creating checkout:', error);
+      console.error("Error creating checkout:", error);
       setModal({
         show: true,
-        type: 'error',
-        title: '❌ Error',
-        message: 'Error al procesar el pago. Por favor, inténtalo de nuevo.',
+        type: "error",
+        title: "❌ Error",
+        message: "Error al procesar el pago. Por favor, inténtalo de nuevo.",
       });
       setPurchasing(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -276,17 +280,19 @@ export default function EventDetailPage() {
 
   const isSoldOut = event.ticketsSold >= event.capacity;
   const userIsMember = (session?.user as any)?.hasMembership;
-  
+
   // Determine effective price: free if price is 0 OR if membership-free event and user is member
   const isFreeEvent = event.price === 0;
   const isFreeForMember = event.membershipFree && userIsMember;
   const effectivePrice = isFreeEvent || isFreeForMember ? 0 : event.price;
 
   // Check if current user can view attendants (organizer or admin)
-  const canViewAttendants = session?.user && (
-    ((session.user as any).role === 'organizer' || (session.user as any).role === 'admin') &&
-    ((session.user as any).email === event.createdBy.email || (session.user as any).role === 'admin')
-  );
+  const canViewAttendants =
+    session?.user &&
+    ((session.user as any).role === "organizer" ||
+      (session.user as any).role === "admin") &&
+    ((session.user as any).email === event.createdBy.email ||
+      (session.user as any).role === "admin");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -324,9 +330,14 @@ export default function EventDetailPage() {
               {/* Event Images Gallery */}
               {event.images && event.images.length > 0 && (
                 <div className="p-8 border-b border-gray-200">
-                  <div className={`grid gap-4 ${event.images.length === 1 ? 'grid-cols-1' : event.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}>
+                  <div
+                    className={`grid gap-4 ${event.images.length === 1 ? "grid-cols-1" : event.images.length === 2 ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3"}`}
+                  >
                     {event.images.map((imageUrl, index) => (
-                      <div key={index} className="relative aspect-video rounded-lg overflow-hidden">
+                      <div
+                        key={index}
+                        className="relative aspect-video rounded-lg overflow-hidden"
+                      >
                         <Image
                           src={imageUrl}
                           alt={`${event.title} - Image ${index + 1}`}
@@ -384,69 +395,94 @@ export default function EventDetailPage() {
 
                     {attendants.length === 0 ? (
                       <div className="bg-gray-50 rounded-lg p-8 text-center">
-                        <p className="text-gray-600">No attendants yet for this event.</p>
+                        <p className="text-gray-600">
+                          No attendants yet for this event.
+                        </p>
                       </div>
                     ) : (
                       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                         {/* Mobile Card View - Show on small screens */}
                         <div className="block md:hidden">
                           {attendants.map((attendant, index) => (
-                            <div key={attendant.ticketId} className={`p-4 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-gray-100`}>
+                            <div
+                              key={attendant.ticketId}
+                              className={`p-4 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} border-b border-gray-100`}
+                            >
                               <div className="flex justify-between items-start mb-2">
                                 <div className="flex-1">
-                                  <p className="font-medium text-gray-900">{attendant.userName}</p>
-                                  <p className="text-sm text-gray-500">{attendant.userEmail}</p>
+                                  <p className="font-medium text-gray-900">
+                                    {attendant.userName}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {attendant.userEmail}
+                                  </p>
                                 </div>
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                  attendant.ticketStatus === 'valid'
-                                    ? 'bg-green-100 text-green-800'
-                                    : attendant.ticketStatus === 'used'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : attendant.ticketStatus === 'cancelled'
-                                    ? 'bg-red-100 text-red-800'
-                                    : 'bg-gray-100 text-gray-800'
-                                }`}>
+                                <span
+                                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    attendant.ticketStatus === "valid"
+                                      ? "bg-green-100 text-green-800"
+                                      : attendant.ticketStatus === "used"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : attendant.ticketStatus === "cancelled"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-gray-100 text-gray-800"
+                                  }`}
+                                >
                                   {attendant.ticketStatus}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center text-sm text-gray-600">
                                 <span>
-                                  {new Date(attendant.purchaseDate).toLocaleDateString('es-ES', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
+                                  {new Date(
+                                    attendant.purchaseDate,
+                                  ).toLocaleDateString("es-ES", {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
                                   })}
                                 </span>
                                 <span>
                                   {attendant.purchasePrice === 0 ? (
-                                    <span className="text-green-600 font-medium">Free</span>
+                                    <span className="text-green-600 font-medium">
+                                      Free
+                                    </span>
                                   ) : (
                                     `€${attendant.purchasePrice.toFixed(2)}`
                                   )}
                                   {attendant.purchasedWithMembership && (
-                                    <span className="ml-1 text-xs text-blue-600">(Member)</span>
+                                    <span className="ml-1 text-xs text-blue-600">
+                                      (Member)
+                                    </span>
                                   )}
                                 </span>
                               </div>
                               <div className="mt-3">
                                 <button
-                                  onClick={() => handleCheckIn(attendant.ticketId, attendant.userName)}
-                                  disabled={checkingIn === attendant.ticketId || attendant.ticketStatus !== 'valid'}
+                                  onClick={() =>
+                                    handleCheckIn(
+                                      attendant.ticketId,
+                                      attendant.userName,
+                                    )
+                                  }
+                                  disabled={
+                                    checkingIn === attendant.ticketId ||
+                                    attendant.ticketStatus !== "valid"
+                                  }
                                   className={`w-full inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md ${
                                     attendant.assisted
-                                      ? 'bg-green-100 text-green-800'
-                                      : attendant.ticketStatus === 'valid'
-                                      ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                      ? "bg-green-100 text-green-800"
+                                      : attendant.ticketStatus === "valid"
+                                        ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                   }`}
                                 >
                                   {checkingIn === attendant.ticketId ? (
                                     <div className="w-4 h-4 border border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
                                   ) : attendant.assisted ? (
-                                    '✓ Checked In'
+                                    "✓ Checked In"
                                   ) : (
-                                    'Check In'
+                                    "Check In"
                                   )}
                                 </button>
                               </div>
@@ -481,66 +517,90 @@ export default function EventDetailPage() {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                               {attendants.map((attendant, index) => (
-                                <tr key={attendant.ticketId} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-50`}>
+                                <tr
+                                  key={attendant.ticketId}
+                                  className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-50`}
+                                >
                                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     <div className="flex items-center">
-                                      <span className="block sm:hidden font-medium">{attendant.userName}</span>
-                                      <span className="hidden sm:block">{attendant.userName}</span>
+                                      <span className="block sm:hidden font-medium">
+                                        {attendant.userName}
+                                      </span>
+                                      <span className="hidden sm:block">
+                                        {attendant.userName}
+                                      </span>
                                     </div>
                                   </td>
                                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                     {attendant.userEmail}
                                   </td>
                                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
-                                    {new Date(attendant.purchaseDate).toLocaleDateString('es-ES', {
-                                      year: 'numeric',
-                                      month: 'short',
-                                      day: 'numeric',
-                                      hour: '2-digit',
-                                      minute: '2-digit',
+                                    {new Date(
+                                      attendant.purchaseDate,
+                                    ).toLocaleDateString("es-ES", {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
                                     })}
                                   </td>
                                   <td className="px-3 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                      attendant.ticketStatus === 'valid'
-                                        ? 'bg-green-100 text-green-800'
-                                        : attendant.ticketStatus === 'used'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : attendant.ticketStatus === 'cancelled'
-                                        ? 'bg-red-100 text-red-800'
-                                        : 'bg-gray-100 text-gray-800'
-                                    }`}>
+                                    <span
+                                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                        attendant.ticketStatus === "valid"
+                                          ? "bg-green-100 text-green-800"
+                                          : attendant.ticketStatus === "used"
+                                            ? "bg-blue-100 text-blue-800"
+                                            : attendant.ticketStatus ===
+                                                "cancelled"
+                                              ? "bg-red-100 text-red-800"
+                                              : "bg-gray-100 text-gray-800"
+                                      }`}
+                                    >
                                       {attendant.ticketStatus}
                                     </span>
                                   </td>
                                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                     {attendant.purchasePrice === 0 ? (
-                                      <span className="text-green-600 font-medium">Free</span>
+                                      <span className="text-green-600 font-medium">
+                                        Free
+                                      </span>
                                     ) : (
                                       `€${attendant.purchasePrice.toFixed(2)}`
                                     )}
                                     {attendant.purchasedWithMembership && (
-                                      <span className="ml-1 text-xs text-blue-600">(Member)</span>
+                                      <span className="ml-1 text-xs text-blue-600">
+                                        (Member)
+                                      </span>
                                     )}
                                   </td>
                                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <button
-                                      onClick={() => handleCheckIn(attendant.ticketId, attendant.userName)}
-                                      disabled={checkingIn === attendant.ticketId || attendant.ticketStatus !== 'valid'}
+                                      onClick={() =>
+                                        handleCheckIn(
+                                          attendant.ticketId,
+                                          attendant.userName,
+                                        )
+                                      }
+                                      disabled={
+                                        checkingIn === attendant.ticketId ||
+                                        attendant.ticketStatus !== "valid"
+                                      }
                                       className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${
                                         attendant.assisted
-                                          ? 'bg-green-100 text-green-800'
-                                          : attendant.ticketStatus === 'valid'
-                                          ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                          ? "bg-green-100 text-green-800"
+                                          : attendant.ticketStatus === "valid"
+                                            ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                       }`}
                                     >
                                       {checkingIn === attendant.ticketId ? (
                                         <div className="w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin mr-1"></div>
                                       ) : attendant.assisted ? (
-                                        '✓ Checked'
+                                        "✓ Checked"
                                       ) : (
-                                        'Check In'
+                                        "Check In"
                                       )}
                                     </button>
                                   </td>
@@ -594,7 +654,8 @@ export default function EventDetailPage() {
                           </p>
                         ) : (
                           <p className="text-sm text-green-600">
-                            ✓ {event.capacity - event.ticketsSold} tickets available
+                            ✓ {event.capacity - event.ticketsSold} tickets
+                            available
                           </p>
                         )}
                       </div>
@@ -608,7 +669,9 @@ export default function EventDetailPage() {
                           disabled={attendantsLoading}
                           className="btn bg-indigo-600 hover:bg-indigo-700 text-white"
                         >
-                          {attendantsLoading ? 'Loading...' : '👥 Show Attendants'}
+                          {attendantsLoading
+                            ? "Loading..."
+                            : "👥 Show Attendants"}
                         </button>
                       </div>
                     )}
@@ -616,19 +679,22 @@ export default function EventDetailPage() {
                     <button
                       onClick={handlePurchase}
                       disabled={purchasing || isSoldOut}
-                      className={`btn w-full md:w-auto ${isSoldOut ? 'bg-gray-400 cursor-not-allowed' : 'btn-primary'}`}
+                      className={`btn w-full md:w-auto ${isSoldOut ? "bg-gray-400 cursor-not-allowed" : "btn-primary"}`}
                     >
                       {purchasing
-                        ? 'Procesando...'
+                        ? "Procesando..."
                         : isSoldOut
-                        ? '❌ Agotado'
-                        : effectivePrice === 0
-                        ? '🎟️ Reclamar Entrada Gratis'
-                        : `💳 Comprar Entrada - €${formatPrice(effectivePrice)}`}
+                          ? "❌ Agotado"
+                          : effectivePrice === 0
+                            ? "🎟️ Reclamar Entrada Gratis"
+                            : `💳 Comprar Entrada - €${formatPrice(effectivePrice)}`}
                     </button>
 
                     {/* Calendar Integration */}
-                    <CalendarIntegration event={event} className="mt-4 md:mt-0" />
+                    <CalendarIntegration
+                      event={event}
+                      className="mt-4 md:mt-0"
+                    />
                   </div>
 
                   {!session && !isSoldOut && (
@@ -638,7 +704,7 @@ export default function EventDetailPage() {
                         className="text-seville-orange hover:underline"
                       >
                         Sign in
-                      </Link>{' '}
+                      </Link>{" "}
                       to buy tickets
                     </p>
                   )}
@@ -661,20 +727,24 @@ export default function EventDetailPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className={`bg-white rounded-xl shadow-2xl p-8 max-w-md w-full ${
-              modal.type === 'success' ? 'border-4 border-green-500' : 'border-4 border-red-500'
+              modal.type === "success"
+                ? "border-4 border-green-500"
+                : "border-4 border-red-500"
             }`}
           >
             <div className="text-center">
-              <div className="text-6xl mb-4">{modal.type === 'success' ? '🎉' : '😔'}</div>
-              <h2 className={`text-2xl font-bold mb-4 ${
-                modal.type === 'success' ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <div className="text-6xl mb-4">
+                {modal.type === "success" ? "🎉" : "😔"}
+              </div>
+              <h2
+                className={`text-2xl font-bold mb-4 ${
+                  modal.type === "success" ? "text-green-600" : "text-red-600"
+                }`}
+              >
                 {modal.title}
               </h2>
-              <p className="text-gray-700 mb-6 text-lg">
-                {modal.message}
-              </p>
-              {modal.type === 'success' ? (
+              <p className="text-gray-700 mb-6 text-lg">{modal.message}</p>
+              {modal.type === "success" ? (
                 <div className="text-sm text-gray-600">
                   Check-in completed successfully!
                 </div>
@@ -698,6 +768,3 @@ export default function EventDetailPage() {
     </div>
   );
 }
-
-
-

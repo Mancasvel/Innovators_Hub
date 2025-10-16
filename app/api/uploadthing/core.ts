@@ -10,13 +10,24 @@ import { isOrganizerOrAdmin } from "@/lib/permissions";
  */
 
 // Debug UploadThing configuration
-console.log('🔧 UploadThing Configuration:');
-console.log('  UPLOADTHING_TOKEN:', process.env.UPLOADTHING_TOKEN ? 'Set (length: ' + process.env.UPLOADTHING_TOKEN.length + ')' : 'NOT SET');
-console.log('  UPLOADTHING_SECRET:', process.env.UPLOADTHING_SECRET ? 'Set' : 'NOT SET');
-console.log('  UPLOADTHING_APP_ID:', process.env.UPLOADTHING_APP_ID ? 'Set' : 'NOT SET');
+console.log("🔧 UploadThing Configuration:");
+console.log(
+  "  UPLOADTHING_TOKEN:",
+  process.env.UPLOADTHING_TOKEN
+    ? "Set (length: " + process.env.UPLOADTHING_TOKEN.length + ")"
+    : "NOT SET",
+);
+console.log(
+  "  UPLOADTHING_SECRET:",
+  process.env.UPLOADTHING_SECRET ? "Set" : "NOT SET",
+);
+console.log(
+  "  UPLOADTHING_APP_ID:",
+  process.env.UPLOADTHING_APP_ID ? "Set" : "NOT SET",
+);
 
 const f = createUploadthing();
-console.log('✅ UploadThing client created successfully');
+console.log("✅ UploadThing client created successfully");
 
 /**
  * Uploadthing file router
@@ -31,7 +42,7 @@ export const ourFileRouter = {
     .middleware(async () => {
       // Authentication check
       const session = await getServerSession(authOptions);
-      
+
       if (!session?.user) {
         throw new Error("Unauthorized");
       }
@@ -42,17 +53,22 @@ export const ourFileRouter = {
       }
 
       // Return metadata to be available in onUploadComplete
-      return { 
+      return {
         userId: (session.user as any).id,
         userName: session.user.name,
       };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // Log upload for auditing
-      console.log("✅ Event image uploaded:", file.url, "by", metadata.userName);
+      console.log(
+        "✅ Event image uploaded:",
+        file.url,
+        "by",
+        metadata.userName,
+      );
 
       // Return data to client
-      return { 
+      return {
         url: file.url,
         uploadedBy: metadata.userId,
       };
@@ -65,21 +81,25 @@ export const ourFileRouter = {
   profileImage: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
     .middleware(async () => {
       const session = await getServerSession(authOptions);
-      
+
       if (!session?.user) {
         throw new Error("Unauthorized");
       }
 
-      return { 
+      return {
         userId: (session.user as any).id,
       };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("✅ Profile image uploaded:", file.url, "by", metadata.userId);
-      
+      console.log(
+        "✅ Profile image uploaded:",
+        file.url,
+        "by",
+        metadata.userId,
+      );
+
       return { url: file.url };
     }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
-

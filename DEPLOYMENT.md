@@ -7,6 +7,7 @@ Vercel es la plataforma oficial de Next.js y ofrece la mejor experiencia de desp
 ### Preparación
 
 1. **Push tu código a GitHub**
+
    ```bash
    git init
    git add .
@@ -34,7 +35,7 @@ Vercel es la plataforma oficial de Next.js y ofrece la mejor experiencia de desp
    - Vercel detectará automáticamente Next.js
 
 3. **Configurar variables de entorno**
-   
+
    En la sección "Environment Variables", añade:
 
    ```
@@ -82,6 +83,7 @@ Vercel es la plataforma oficial de Next.js y ofrece la mejor experiencia de desp
 ### Continuous Deployment
 
 Vercel automáticamente despliega cuando haces push a GitHub:
+
 - Push a `main` → Producción
 - Push a otras ramas → Preview deployments
 
@@ -97,6 +99,7 @@ git push
 Si prefieres un VPS como DigitalOcean o AWS EC2:
 
 ### Requisitos
+
 - Ubuntu 22.04 LTS
 - Node.js 18+
 - PM2 para process management
@@ -106,22 +109,26 @@ Si prefieres un VPS como DigitalOcean o AWS EC2:
 ### Instalación
 
 1. **Conectar al servidor**
+
    ```bash
    ssh root@tu-servidor-ip
    ```
 
 2. **Instalar Node.js**
+
    ```bash
    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
    sudo apt-get install -y nodejs
    ```
 
 3. **Instalar PM2**
+
    ```bash
    npm install -g pm2
    ```
 
 4. **Clonar repositorio**
+
    ```bash
    cd /var/www
    git clone https://github.com/tu-usuario/innovators-hub.git
@@ -130,6 +137,7 @@ Si prefieres un VPS como DigitalOcean o AWS EC2:
    ```
 
 5. **Configurar variables de entorno**
+
    ```bash
    nano .env
    # Pega todas tus variables de entorno
@@ -137,6 +145,7 @@ Si prefieres un VPS como DigitalOcean o AWS EC2:
    ```
 
 6. **Build y start**
+
    ```bash
    npm run build
    pm2 start npm --name "innovators-hub" -- start
@@ -145,11 +154,13 @@ Si prefieres un VPS como DigitalOcean o AWS EC2:
    ```
 
 7. **Configurar Nginx**
+
    ```bash
    sudo nano /etc/nginx/sites-available/innovatorshub
    ```
 
    Pega esta configuración:
+
    ```nginx
    server {
        listen 80;
@@ -167,6 +178,7 @@ Si prefieres un VPS como DigitalOcean o AWS EC2:
    ```
 
    Habilita el sitio:
+
    ```bash
    sudo ln -s /etc/nginx/sites-available/innovatorshub /etc/nginx/sites-enabled/
    sudo nginx -t
@@ -174,6 +186,7 @@ Si prefieres un VPS como DigitalOcean o AWS EC2:
    ```
 
 8. **Configurar SSL con Let's Encrypt**
+
    ```bash
    sudo apt install certbot python3-certbot-nginx
    sudo certbot --nginx -d innovatorshub.com -d www.innovatorshub.com
@@ -198,11 +211,13 @@ pm2 restart innovators-hub
 ## Monitorización
 
 ### Vercel
+
 - Dashboard automático con logs y analytics
 - Error tracking integrado
 - Performance metrics
 
 ### VPS con PM2
+
 ```bash
 # Ver logs
 pm2 logs innovators-hub
@@ -220,11 +235,13 @@ pm2 restart innovators-hub
 ## Backup
 
 ### MongoDB Atlas
+
 - Backups automáticos incluidos en el plan gratuito
 - Se guardan durante 7 días
 - Puedes restaurar desde el dashboard
 
 ### Manual Backup
+
 ```bash
 # Exportar colección de usuarios
 mongodump --uri="tu-mongodb-uri" --collection=users --out=./backup
@@ -236,20 +253,24 @@ mongorestore --uri="tu-mongodb-uri" --drop ./backup
 ## Troubleshooting
 
 ### Error: "Application error"
+
 1. Vercel: Revisa los logs en Dashboard → Deployments → View Function Logs
 2. VPS: `pm2 logs innovators-hub`
 
 ### Webhook no funciona
+
 1. Verifica que la URL es accesible públicamente
 2. Comprueba el signing secret en variables de entorno
 3. Revisa logs del webhook en Stripe Dashboard
 
 ### Build falla
+
 1. Verifica que todas las dependencias están en package.json
 2. Asegura que no hay errores de TypeScript: `npm run build` localmente
 3. Revisa que todas las variables de entorno estén configuradas
 
 ### Base de datos no conecta
+
 1. Verifica IP whitelist en MongoDB Atlas (0.0.0.0/0 para permitir todo)
 2. Comprueba que MONGODB_URI está correctamente configurado
 3. Verifica que el cluster está activo
@@ -289,6 +310,7 @@ mongorestore --uri="tu-mongodb-uri" --drop ./backup
 ## Costos Estimados
 
 ### Setup Gratuito (para empezar)
+
 - **Vercel:** Free tier (100 GB bandwidth, 100 deploys/day)
 - **MongoDB Atlas:** Free tier (512 MB storage)
 - **Stripe:** Gratis (comisión solo por transacción)
@@ -296,6 +318,7 @@ mongorestore --uri="tu-mongodb-uri" --drop ./backup
 - **Total:** €0/mes
 
 ### Producción Pequeña (~1000 usuarios)
+
 - **Vercel Pro:** $20/mes
 - **MongoDB M10:** $10/mes
 - **Resend Pro:** $20/mes (50,000 emails)
@@ -303,6 +326,7 @@ mongorestore --uri="tu-mongodb-uri" --drop ./backup
 - **Total:** ~€50/mes + comisiones
 
 ### Escalado (10,000+ usuarios)
+
 - Considera VPS dedicado
 - MongoDB M30 o superior
 - Redis para caché y rate limiting
@@ -311,6 +335,3 @@ mongorestore --uri="tu-mongodb-uri" --drop ./backup
 ---
 
 ¿Necesitas ayuda con el despliegue? Contacta: hello@innovatorshub.com
-
-
-

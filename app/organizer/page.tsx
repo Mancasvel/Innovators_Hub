@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 /**
  * Organizer dashboard home
@@ -28,11 +28,11 @@ export default function OrganizerDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/organizer/stats');
+      const response = await fetch("/api/organizer/stats");
       const data = await response.json();
       setStats(data.stats);
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export default function OrganizerDashboardPage() {
               <div className="card bg-gradient-orange text-white">
                 <h3 className="text-lg font-semibold mb-2">Total Events</h3>
                 <p className="text-4xl font-bold">
-                  {loading ? '...' : stats.totalEvents}
+                  {loading ? "..." : stats.totalEvents}
                 </p>
                 <p className="text-white/80 text-sm mt-2">
                   {stats.upcomingEvents} upcoming
@@ -79,7 +79,7 @@ export default function OrganizerDashboardPage() {
               <div className="card">
                 <h3 className="text-lg font-semibold mb-2">Total Tickets</h3>
                 <p className="text-4xl font-bold text-seville-orange">
-                  {loading ? '...' : stats.totalTickets}
+                  {loading ? "..." : stats.totalTickets}
                 </p>
                 <p className="text-gray-600 text-sm mt-2">
                   {stats.validTickets} valid, {stats.usedTickets} used
@@ -89,7 +89,7 @@ export default function OrganizerDashboardPage() {
               <div className="card">
                 <h3 className="text-lg font-semibold mb-2">Total Revenue</h3>
                 <p className="text-4xl font-bold text-green-600">
-                  {loading ? '...' : `€${formatRevenue(stats.totalRevenue)}`}
+                  {loading ? "..." : `€${formatRevenue(stats.totalRevenue)}`}
                 </p>
                 <p className="text-gray-600 text-sm mt-2">From ticket sales</p>
               </div>
@@ -141,6 +141,3 @@ export default function OrganizerDashboardPage() {
     </div>
   );
 }
-
-
-

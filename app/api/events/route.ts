@@ -1,25 +1,21 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@/lib/db';
-import Event from '@/models/Event';
-import User from '@/models/User';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
+import Event from "@/models/Event";
+import User from "@/models/User";
 import {
   createEventSchema,
   eventQuerySchema,
   formatZodErrors,
-  sanitizeObject
-} from '@/lib/validation';
-import { 
-  isOrganizerOrAdmin, 
-  getUserId, 
-  AuthErrors 
-} from '@/lib/permissions';
+  sanitizeObject,
+} from "@/lib/validation";
+import { isOrganizerOrAdmin, getUserId, AuthErrors } from "@/lib/permissions";
 
 /**
  * GET /api/events - List events with filtering, pagination, and sorting
  * Public endpoint - no authentication required
- * 
+ *
  * Query parameters:
  * - membershipFree: boolean (filter events free for members)
  * - upcoming: boolean (filter future events only)
@@ -37,14 +33,14 @@ export async function GET(req: Request) {
     // Parse and validate query parameters
     const { searchParams } = new URL(req.url);
     const queryParams = {
-      membershipFree: searchParams.get('membershipFree'),
-      upcoming: searchParams.get('upcoming'),
-      status: searchParams.get('status') || 'published',
-      category: searchParams.get('category'),
-      page: searchParams.get('page') || '1',
-      limit: searchParams.get('limit') || '20',
-      sortBy: searchParams.get('sortBy') || 'date',
-      sortOrder: searchParams.get('sortOrder') || 'asc',
+      membershipFree: searchParams.get("membershipFree"),
+      upcoming: searchParams.get("upcoming"),
+      status: searchParams.get("status") || "published",
+      category: searchParams.get("category"),
+      page: searchParams.get("page") || "1",
+      limit: searchParams.get("limit") || "20",
+      sortBy: searchParams.get("sortBy") || "date",
+      sortOrder: searchParams.get("sortOrder") || "asc",
     };
 
     // Validate query parameters
@@ -55,7 +51,7 @@ export async function GET(req: Request) {
 
     // Status filter (default: published for public access)
     // Always apply status filter unless explicitly requesting other statuses
-    query.status = validatedParams.status || 'published';
+    query.status = validatedParams.status || "published";
 
     // Upcoming events filter
     if (validatedParams.upcoming) {
@@ -75,11 +71,11 @@ export async function GET(req: Request) {
     // Date range filters
     if (validatedParams.dateFrom || validatedParams.dateTo) {
       if (!query.date) query.date = {};
-      
+
       if (validatedParams.dateFrom) {
         query.date.$gte = new Date(validatedParams.dateFrom);
       }
-      
+
       if (validatedParams.dateTo) {
         // Set to end of day for dateTo
         const endDate = new Date(validatedParams.dateTo);
@@ -94,35 +90,50 @@ export async function GET(req: Request) {
     const skip = (page - 1) * limit;
 
     // Sorting
-    const sortField = validatedParams.sortBy || 'date';
-    const sortOrder = validatedParams.sortOrder === 'asc' ? 1 : -1;
+    const sortField = validatedParams.sortBy || "date";
+    const sortOrder = validatedParams.sortOrder === "asc" ? 1 : -1;
     const sort: { [key: string]: 1 | -1 } = { [sortField]: sortOrder };
 
     // Debug: Log query
-    console.log('🔍 Events API Query:', JSON.stringify(query));
-    console.log('📊 Sort:', sort, 'Skip:', skip, 'Limit:', limit);
-    console.log('🌐 MONGODB_URI from env:', process.env.MONGODB_URI ? 'Set' : 'NOT SET');
+    console.log("🔍 Events API Query:", JSON.stringify(query));
+    console.log("📊 Sort:", sort, "Skip:", skip, "Limit:", limit);
+    console.log(
+      "🌐 MONGODB_URI from env:",
+      process.env.MONGODB_URI ? "Set" : "NOT SET",
+    );
 
     // Debug: Check collection name and total documents
     const collectionName = Event.collection.name;
     const allDocsCount = await Event.countDocuments({});
-    const publishedCount = await Event.countDocuments({ status: 'published' });
-    const upcomingCount = await Event.countDocuments({ date: { $gte: new Date() } });
+    const publishedCount = await Event.countDocuments({ status: "published" });
+    const upcomingCount = await Event.countDocuments({
+      date: { $gte: new Date() },
+    });
 
-    console.log('📂 Collection name:', collectionName);
-    console.log('📚 Total documents in collection:', allDocsCount);
-    console.log('✅ Published events:', publishedCount);
-    console.log('⏰ Upcoming events:', upcomingCount);
+    console.log("📂 Collection name:", collectionName);
+    console.log("📚 Total documents in collection:", allDocsCount);
+    console.log("✅ Published events:", publishedCount);
+    console.log("⏰ Upcoming events:", upcomingCount);
 
     // Log sample documents
     const sampleEvents = await Event.find({}).limit(3).lean();
-    console.log('📋 Sample events in DB:', sampleEvents.map(e => ({ id: e._id, title: e.title, status: e.status, date: e.date })));
+    console.log(
+      "📋 Sample events in DB:",
+      sampleEvents.map((e) => ({
+        id: e._id,
+        title: e.title,
+        status: e.status,
+        date: e.date,
+      })),
+    );
 
     // Check users in the same database
     const userCount = await User.countDocuments({});
-    const organizerUsers = await User.countDocuments({ role: { $in: ['organizer', 'admin'] } });
-    console.log('👥 Total users in DB:', userCount);
-    console.log('👑 Organizer/Admin users:', organizerUsers);
+    const organizerUsers = await User.countDocuments({
+      role: { $in: ["organizer", "admin"] },
+    });
+    console.log("👥 Total users in DB:", userCount);
+    console.log("👑 Organizer/Admin users:", organizerUsers);
 
     // Execute query with pagination
     const [events, totalCount] = await Promise.all([
@@ -130,17 +141,27 @@ export async function GET(req: Request) {
         .sort(sort)
         .skip(skip)
         .limit(limit)
-        .populate('createdBy', 'name email')
+        .populate("createdBy", "name email")
         .lean(),
       Event.countDocuments(query),
     ]);
 
-    console.log('📦 Found events matching query:', totalCount, '| events returned:', events.length);
+    console.log(
+      "📦 Found events matching query:",
+      totalCount,
+      "| events returned:",
+      events.length,
+    );
     if (events.length > 0) {
-      console.log('📋 First event:', events[0].title, '| Status:', events[0].status);
+      console.log(
+        "📋 First event:",
+        events[0].title,
+        "| Status:",
+        events[0].status,
+      );
     } else {
-      console.log('⚠️ No events found with current query');
-      console.log('🔍 Query details:', JSON.stringify(query, null, 2));
+      console.log("⚠️ No events found with current query");
+      console.log("🔍 Query details:", JSON.stringify(query, null, 2));
     }
 
     // Calculate pagination metadata
@@ -160,18 +181,15 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error('Error fetching events:', error);
+    console.error("Error fetching events:", error);
 
-    if (error instanceof Error && 'issues' in error) {
-      return NextResponse.json(
-        formatZodErrors(error as any),
-        { status: 400 }
-      );
+    if (error instanceof Error && "issues" in error) {
+      return NextResponse.json(formatZodErrors(error as any), { status: 400 });
     }
 
     return NextResponse.json(
-      { error: 'Failed to fetch events' },
-      { status: 500 }
+      { error: "Failed to fetch events" },
+      { status: 500 },
     );
   }
 }
@@ -179,7 +197,7 @@ export async function GET(req: Request) {
 /**
  * POST /api/events - Create new event
  * Requires authentication: organizer or admin role
- * 
+ *
  * Request body: CreateEventInput (validated with Zod)
  * Response: 201 Created with event object
  * Errors: 401 Unauthorized, 403 Forbidden, 422 Unprocessable Entity
@@ -190,31 +208,22 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json(
-        AuthErrors.UNAUTHORIZED,
-        { status: 401 }
-      );
+      return NextResponse.json(AuthErrors.UNAUTHORIZED, { status: 401 });
     }
 
     // Check authorization (organizer or admin only)
     if (!isOrganizerOrAdmin(session)) {
-      return NextResponse.json(
-        AuthErrors.INVALID_ROLE,
-        { status: 403 }
-      );
+      return NextResponse.json(AuthErrors.INVALID_ROLE, { status: 403 });
     }
 
     // Parse and validate request body
     const body = await req.json();
-    
+
     let validatedData;
     try {
       validatedData = createEventSchema.parse(body);
     } catch (error) {
-      return NextResponse.json(
-        formatZodErrors(error as any),
-        { status: 422 }
-      );
+      return NextResponse.json(formatZodErrors(error as any), { status: 422 });
     }
 
     // Sanitize input
@@ -227,40 +236,37 @@ export async function POST(req: Request) {
     const event = await Event.create({
       ...sanitizedData,
       createdBy: getUserId(session),
-      status: 'published',
+      status: "published",
       ticketsSold: 0,
     });
 
     // Populate createdBy for response
-    await event.populate('createdBy', 'name email');
+    await event.populate("createdBy", "name email");
 
-    console.log('✅ Event created:', event._id, 'by', getUserId(session));
+    console.log("✅ Event created:", event._id, "by", getUserId(session));
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         event,
-        message: 'Event created successfully',
+        message: "Event created successfully",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
-    console.error('❌ Error creating event:', error);
+    console.error("❌ Error creating event:", error);
 
     // Handle duplicate key error
     if ((error as any).code === 11000) {
       return NextResponse.json(
-        { error: 'An event with similar details already exists' },
-        { status: 409 }
+        { error: "An event with similar details already exists" },
+        { status: 409 },
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create event. Please try again.' },
-      { status: 500 }
+      { error: "Failed to create event. Please try again." },
+      { status: 500 },
     );
   }
 }
-
-
-

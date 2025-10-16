@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface Event {
   _id: string;
@@ -16,7 +16,10 @@ interface CalendarIntegrationProps {
   className?: string;
 }
 
-export default function CalendarIntegration({ event, className = '' }: CalendarIntegrationProps) {
+export default function CalendarIntegration({
+  event,
+  className = "",
+}: CalendarIntegrationProps) {
   const [showDropdown, setShowDropdown] = useState(false);
 
   // Format event data for calendar integration
@@ -39,9 +42,9 @@ export default function CalendarIntegration({ event, className = '' }: CalendarI
   const generateGoogleCalendarUrl = () => {
     const eventData = formatEventForCalendar();
     const params = new URLSearchParams({
-      action: 'TEMPLATE',
+      action: "TEMPLATE",
       text: eventData.title,
-      dates: `${eventData.start.replace(/[-:]/g, '').split('.')[0]}Z/${eventData.end.replace(/[-:]/g, '').split('.')[0]}Z`,
+      dates: `${eventData.start.replace(/[-:]/g, "").split(".")[0]}Z/${eventData.end.replace(/[-:]/g, "").split(".")[0]}Z`,
       details: eventData.description,
       location: eventData.location,
     });
@@ -53,8 +56,8 @@ export default function CalendarIntegration({ event, className = '' }: CalendarI
   const generateOutlookCalendarUrl = () => {
     const eventData = formatEventForCalendar();
     const params = new URLSearchParams({
-      path: '/calendar/action/compose',
-      rru: 'addevent',
+      path: "/calendar/action/compose",
+      rru: "addevent",
       subject: eventData.title,
       body: `${eventData.description}\n\nLocation: ${eventData.location}`,
       startdt: eventData.start,
@@ -68,19 +71,19 @@ export default function CalendarIntegration({ event, className = '' }: CalendarI
   // Generate iCalendar (.ics) file content
   const generateICalendarContent = () => {
     const eventData = formatEventForCalendar();
-    const startDate = eventData.start.replace(/[-:]/g, '').split('.')[0] + 'Z';
-    const endDate = eventData.end.replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const startDate = eventData.start.replace(/[-:]/g, "").split(".")[0] + "Z";
+    const endDate = eventData.end.replace(/[-:]/g, "").split(".")[0] + "Z";
 
     return `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Innovators Hub//Event Calendar//EN
 BEGIN:VEVENT
 UID:${event._id}@innovatorshub.com
-DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z
 DTSTART:${startDate}
 DTEND:${endDate}
 SUMMARY:${eventData.title}
-DESCRIPTION:${eventData.description.replace(/\n/g, '\\n')}
+DESCRIPTION:${eventData.description.replace(/\n/g, "\\n")}
 LOCATION:${eventData.location}
 STATUS:CONFIRMED
 END:VEVENT
@@ -90,11 +93,11 @@ END:VCALENDAR`;
   // Download iCalendar file
   const downloadICalendar = () => {
     const icsContent = generateICalendarContent();
-    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const blob = new Blob([icsContent], { type: "text/calendar" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `${event.title.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
+    link.download = `${event.title.replace(/[^a-zA-Z0-9]/g, "_")}.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -107,8 +110,18 @@ END:VCALENDAR`;
         onClick={() => setShowDropdown(!showDropdown)}
         className="flex items-center gap-2 px-4 py-2 bg-seville-orange text-white rounded-lg hover:bg-orange-600 transition-colors"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
         </svg>
         Add to Calendar
       </button>
@@ -127,7 +140,7 @@ END:VCALENDAR`;
           <div className="py-2">
             <button
               onClick={() => {
-                window.open(generateGoogleCalendarUrl(), '_blank');
+                window.open(generateGoogleCalendarUrl(), "_blank");
                 setShowDropdown(false);
               }}
               className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3"
@@ -143,7 +156,7 @@ END:VCALENDAR`;
 
             <button
               onClick={() => {
-                window.open(generateOutlookCalendarUrl(), '_blank');
+                window.open(generateOutlookCalendarUrl(), "_blank");
                 setShowDropdown(false);
               }}
               className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3"
@@ -165,13 +178,25 @@ END:VCALENDAR`;
               className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3"
             >
               <div className="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l4-4m-4 4l-4-4m8 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 10v6m0 0l4-4m-4 4l-4-4m8 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div>
                 <div className="font-medium text-gray-900">Download .ics</div>
-                <div className="text-xs text-gray-500">For any calendar app</div>
+                <div className="text-xs text-gray-500">
+                  For any calendar app
+                </div>
               </div>
             </button>
           </div>

@@ -1,20 +1,21 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { SessionProvider } from '@/components/SessionProvider';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { SessionProvider } from "@/components/SessionProvider";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Innovators Hub - Seville',
-  description: 'Community platform for digital nomads and innovators in Seville, Spain',
-  keywords: ['coworking', 'digital nomads', 'seville', 'events', 'networking'],
-  authors: [{ name: 'Innovators Hub' }],
+  title: "Innovators Hub - Seville",
+  description:
+    "Community platform for digital nomads and innovators in Seville, Spain",
+  keywords: ["coworking", "digital nomads", "seville", "events", "networking"],
+  authors: [{ name: "Innovators Hub" }],
   openGraph: {
-    title: 'Innovators Hub - Seville',
-    description: 'Join our community of digital nomads and innovators',
-    type: 'website',
-    locale: 'es_ES',
+    title: "Innovators Hub - Seville",
+    description: "Join our community of digital nomads and innovators",
+    type: "website",
+    locale: "es_ES",
   },
 };
 
@@ -31,6 +32,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
-

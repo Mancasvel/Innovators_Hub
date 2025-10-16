@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import QRCode from 'qrcode';
+import nodemailer from "nodemailer";
+import QRCode from "qrcode";
 
 /**
  * Email service using Gmail SMTP
@@ -8,8 +8,8 @@ import QRCode from 'qrcode';
 
 // SMTP Configuration
 const SMTP_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT || "587"),
   secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USER,
@@ -19,26 +19,28 @@ const SMTP_CONFIG = {
 
 // Verify SMTP configuration
 if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-  console.warn('⚠️ SMTP credentials not configured. Email functionality will be disabled.');
-  console.warn('⚠️ Please set SMTP_USER and SMTP_PASS in your .env file');
+  console.warn(
+    "⚠️ SMTP credentials not configured. Email functionality will be disabled.",
+  );
+  console.warn("⚠️ Please set SMTP_USER and SMTP_PASS in your .env file");
 }
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport(SMTP_CONFIG);
 
 // Verify connection on startup (optional, for debugging)
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   transporter.verify((error, success) => {
     if (error) {
-      console.error('❌ SMTP connection error:', error);
+      console.error("❌ SMTP connection error:", error);
     } else {
-      console.log('✅ SMTP server is ready to send emails');
+      console.log("✅ SMTP server is ready to send emails");
     }
   });
 }
 
-const FROM_EMAIL = process.env.SMTP_FROM || 'noreply@unsent.app';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+const FROM_EMAIL = process.env.SMTP_FROM || "noreply@unsent.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 /**
  * Send ticket email with QR code
@@ -47,17 +49,17 @@ export async function sendTicketEmail(
   to: string,
   userName: string,
   event: any,
-  ticket: any
+  ticket: any,
 ) {
   const ticketUrl = `${APP_URL}/user/tickets`;
-  
-  const eventDate = new Date(event.date).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+
+  const eventDate = new Date(event.date).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   // Generate QR code as base64 data URL
@@ -67,13 +69,13 @@ export async function sendTicketEmail(
       width: 300,
       margin: 2,
       color: {
-        dark: '#000000',
-        light: '#FFFFFF',
+        dark: "#000000",
+        light: "#FFFFFF",
       },
     });
   } catch (error) {
-    console.error('Error generating QR code:', error);
-    throw new Error('Failed to generate QR code for email');
+    console.error("Error generating QR code:", error);
+    throw new Error("Failed to generate QR code for email");
   }
 
   const html = `
@@ -122,7 +124,7 @@ export async function sendTicketEmail(
               <div class="ticket-info">
                 <p><strong>📅 Date:</strong> ${eventDate}</p>
                 <p><strong>📍 Location:</strong> ${event.location}</p>
-                ${event.capacity ? `<p><strong>👥 Capacity:</strong> ${event.ticketsSold}/${event.capacity} tickets sold</p>` : ''}
+                ${event.capacity ? `<p><strong>👥 Capacity:</strong> ${event.ticketsSold}/${event.capacity} tickets sold</p>` : ""}
               </div>
             </div>
 
@@ -166,10 +168,10 @@ export async function sendTicketEmail(
       html,
     });
 
-    console.log('✅ Ticket email sent via SMTP:', info.messageId);
+    console.log("✅ Ticket email sent via SMTP:", info.messageId);
     return info;
   } catch (error) {
-    console.error('❌ Error sending ticket email:', error);
+    console.error("❌ Error sending ticket email:", error);
     throw error;
   }
 }
@@ -181,15 +183,15 @@ export async function sendTicketEmail(
 export async function sendWelcomeEmail(
   to: string,
   userName: string,
-  emailType: 'standard' | 'organizer-pending' = 'standard'
+  emailType: "standard" | "organizer-pending" = "standard",
 ) {
-  const isOrganizerRequest = emailType === 'organizer-pending';
+  const isOrganizerRequest = emailType === "organizer-pending";
   const title = isOrganizerRequest
-    ? 'Organizer Request Received! 🎯'
-    : 'Welcome to Innovators Hub! 🎉';
+    ? "Organizer Request Received! 🎯"
+    : "Welcome to Innovators Hub! 🎉";
   const subtitle = isOrganizerRequest
-    ? 'Your organizer request is being reviewed'
-    : 'We\'re excited to have you in our community of digital nomads and innovators in Seville!';
+    ? "Your organizer request is being reviewed"
+    : "We're excited to have you in our community of digital nomads and innovators in Seville!";
   const html = `
     <!DOCTYPE html>
     <html>
@@ -231,7 +233,7 @@ export async function sendWelcomeEmail(
               </p>
             </div>
             `
-                : ''
+                : ""
             }
             
             <div class="features">
@@ -268,8 +270,8 @@ export async function sendWelcomeEmail(
   `;
 
   const subject = isOrganizerRequest
-    ? '🎯 Organizer Request Received'
-    : 'Welcome to Innovators Hub! 🎉';
+    ? "🎯 Organizer Request Received"
+    : "Welcome to Innovators Hub! 🎉";
 
   try {
     await transporter.sendMail({
@@ -278,9 +280,9 @@ export async function sendWelcomeEmail(
       subject,
       html,
     });
-    console.log('✅ Welcome email sent to:', to);
+    console.log("✅ Welcome email sent to:", to);
   } catch (error) {
-    console.error('❌ Error sending welcome email:', error);
+    console.error("❌ Error sending welcome email:", error);
   }
 }
 
@@ -290,12 +292,12 @@ export async function sendWelcomeEmail(
 export async function sendMembershipEmail(
   to: string,
   userName: string,
-  expiresAt: Date
+  expiresAt: Date,
 ) {
-  const formattedDate = new Date(expiresAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  const formattedDate = new Date(expiresAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   const html = `
@@ -379,12 +381,12 @@ export async function sendMembershipEmail(
     await transporter.sendMail({
       from: `"Innovators Hub" <${FROM_EMAIL}>`,
       to,
-      subject: '⭐ Your Premium Membership is Active!',
+      subject: "⭐ Your Premium Membership is Active!",
       html,
     });
-    console.log('✅ Membership email sent to:', to);
+    console.log("✅ Membership email sent to:", to);
   } catch (error) {
-    console.error('❌ Error sending membership email:', error);
+    console.error("❌ Error sending membership email:", error);
   }
 }
 

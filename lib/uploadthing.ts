@@ -3,7 +3,11 @@
  * Handles event images and other media
  */
 
-import { generateComponents, generateUploadButton, generateUploadDropzone } from "@uploadthing/react";
+import {
+  generateComponents,
+  generateUploadButton,
+  generateUploadDropzone,
+} from "@uploadthing/react";
 import { generateReactHelpers } from "@uploadthing/react";
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
@@ -19,4 +23,3 @@ export const { UploadButton, UploadDropzone, Uploader } =
  * Use useUploadThing hook for programmatic uploads
  */
 export const { useUploadThing } = generateReactHelpers<OurFileRouter>();
-

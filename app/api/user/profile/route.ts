@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@/lib/db';
-import User from '@/models/User';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
 
 /**
  * Update user profile
@@ -15,7 +15,7 @@ export async function PUT(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
     const { name, email } = await req.json();
@@ -23,25 +23,22 @@ export async function PUT(req: Request) {
     // Validation
     if (!name || !email) {
       return NextResponse.json(
-        { error: 'Nombre y email son requeridos' },
-        { status: 400 }
+        { error: "Nombre y email son requeridos" },
+        { status: 400 },
       );
     }
 
     if (name.trim().length < 2) {
       return NextResponse.json(
-        { error: 'El nombre debe tener al menos 2 caracteres' },
-        { status: 400 }
+        { error: "El nombre debe tener al menos 2 caracteres" },
+        { status: 400 },
       );
     }
 
     // Email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Email inválido' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email inválido" }, { status: 400 });
     }
 
     await connectDB();
@@ -51,8 +48,8 @@ export async function PUT(req: Request) {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return NextResponse.json(
-          { error: 'Este email ya está en uso por otra cuenta' },
-          { status: 400 }
+          { error: "Este email ya está en uso por otra cuenta" },
+          { status: 400 },
         );
       }
     }
@@ -64,17 +61,17 @@ export async function PUT(req: Request) {
         name: name.trim(),
         email: email.toLowerCase().trim(),
       },
-      { new: true }
+      { new: true },
     );
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Usuario no encontrado' },
-        { status: 404 }
+        { error: "Usuario no encontrado" },
+        { status: 404 },
       );
     }
 
-    console.log('✅ Profile updated:', {
+    console.log("✅ Profile updated:", {
       userId: user._id,
       name: user.name,
       email: user.email,
@@ -82,7 +79,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Perfil actualizado correctamente',
+      message: "Perfil actualizado correctamente",
       user: {
         name: user.name,
         email: user.email,
@@ -92,11 +89,10 @@ export async function PUT(req: Request) {
       },
     });
   } catch (error) {
-    console.error('Profile update error:', error);
+    console.error("Profile update error:", error);
     return NextResponse.json(
-      { error: 'Error al actualizar el perfil' },
-      { status: 500 }
+      { error: "Error al actualizar el perfil" },
+      { status: 500 },
     );
   }
 }
-

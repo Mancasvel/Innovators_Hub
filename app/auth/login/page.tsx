@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Suspense, useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { Suspense, useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
 /**
  * Login page
@@ -14,20 +14,20 @@ import { motion } from 'framer-motion';
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const callbackUrl = searchParams.get('callbackUrl') || '/user';
+  const callbackUrl = searchParams.get("callbackUrl") || "/user";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
@@ -40,14 +40,14 @@ function LoginContent() {
         router.refresh();
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl });
+    signIn("google", { callbackUrl });
   };
 
   return (
@@ -58,7 +58,10 @@ function LoginContent() {
         className="max-w-md w-full"
       >
         <div className="text-center mb-6 sm:mb-8">
-          <Link href="/" className="text-2xl sm:text-3xl font-bold text-seville-orange hover:text-orange-600 transition-colors">
+          <Link
+            href="/"
+            className="text-2xl sm:text-3xl font-bold text-seville-orange hover:text-orange-600 transition-colors"
+          >
             Innovators Hub
           </Link>
           <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900">
@@ -120,14 +123,30 @@ function LoginContent() {
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Signing in...
                 </span>
               ) : (
-                'Sign in'
+                "Sign in"
               )}
             </button>
           </form>
@@ -151,7 +170,10 @@ function LoginContent() {
                   onClick={handleGoogleSignIn}
                   className="mt-6 w-full btn btn-secondary flex items-center justify-center text-sm sm:text-base py-3 sm:py-3.5"
                 >
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24">
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       fill="currentColor"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -176,7 +198,7 @@ function LoginContent() {
           )}
 
           <p className="mt-6 text-center text-xs sm:text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <Link
               href="/auth/register"
               className="font-medium text-seville-orange hover:text-orange-600 transition-colors"
@@ -193,11 +215,19 @@ function LoginContent() {
           transition={{ delay: 0.3 }}
           className="mt-6 sm:mt-8 text-center space-y-2"
         >
-          <p className="text-xs sm:text-sm text-gray-600">Join our community of innovators</p>
+          <p className="text-xs sm:text-sm text-gray-600">
+            Join our community of innovators
+          </p>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700">
-            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">🎪 Events</span>
-            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">🤝 Networking</span>
-            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">⭐ Membership</span>
+            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">
+              🎪 Events
+            </span>
+            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">
+              🤝 Networking
+            </span>
+            <span className="bg-white px-3 py-1.5 rounded-full shadow-sm">
+              ⭐ Membership
+            </span>
           </div>
         </motion.div>
       </motion.div>
@@ -207,16 +237,18 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-light-gray">
-        <div className="max-w-md w-full text-center card">
-          <div className="text-6xl mb-4">⏳</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Loading...
-          </h1>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-light-gray">
+          <div className="max-w-md w-full text-center card">
+            <div className="text-6xl mb-4">⏳</div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Loading...
+            </h1>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <LoginContent />
     </Suspense>
   );

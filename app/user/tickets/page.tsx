@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { createEvent as createICSEvent } from 'ics';
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { createEvent as createICSEvent } from "ics";
 
 /**
  * User tickets page
@@ -33,63 +33,81 @@ interface Ticket {
 function TicketsContent() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const searchParams = useSearchParams();
 
   useEffect(() => {
     fetchTickets();
 
     // Check for success/error messages
-    const success = searchParams.get('success');
-    const error = searchParams.get('error');
+    const success = searchParams.get("success");
+    const error = searchParams.get("error");
 
-    if (success === 'true') {
-      setMessage({ type: 'success', text: '🎉 ¡Entrada reclamada con éxito! Tu código QR está listo.' });
+    if (success === "true") {
+      setMessage({
+        type: "success",
+        text: "🎉 ¡Entrada reclamada con éxito! Tu código QR está listo.",
+      });
       setTimeout(() => setMessage(null), 5000);
-    } else if (error === 'already-claimed') {
-      setMessage({ type: 'error', text: '⚠️ Ya tienes una entrada para este evento.' });
+    } else if (error === "already-claimed") {
+      setMessage({
+        type: "error",
+        text: "⚠️ Ya tienes una entrada para este evento.",
+      });
       setTimeout(() => setMessage(null), 5000);
-    } else if (error === 'sold-out') {
-      setMessage({ type: 'error', text: '😔 Este evento ha alcanzado su capacidad máxima. No hay más entradas disponibles.' });
+    } else if (error === "sold-out") {
+      setMessage({
+        type: "error",
+        text: "😔 Este evento ha alcanzado su capacidad máxima. No hay más entradas disponibles.",
+      });
       setTimeout(() => setMessage(null), 5000);
-    } else if (error === 'not-free') {
-      setMessage({ type: 'error', text: '⚠️ Este evento no es gratuito para miembros.' });
+    } else if (error === "not-free") {
+      setMessage({
+        type: "error",
+        text: "⚠️ Este evento no es gratuito para miembros.",
+      });
       setTimeout(() => setMessage(null), 5000);
-    } else if (error === 'claim-failed') {
-      setMessage({ type: 'error', text: '❌ Error al reclamar la entrada. Por favor, inténtalo de nuevo.' });
+    } else if (error === "claim-failed") {
+      setMessage({
+        type: "error",
+        text: "❌ Error al reclamar la entrada. Por favor, inténtalo de nuevo.",
+      });
       setTimeout(() => setMessage(null), 5000);
     }
   }, [searchParams]);
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch('/api/user/tickets');
+      const response = await fetch("/api/user/tickets");
       const data = await response.json();
       setTickets(data.tickets);
     } catch (error) {
-      console.error('Error fetching tickets:', error);
+      console.error("Error fetching tickets:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const upcomingTickets = tickets.filter(
-    (t) => new Date(t.eventId.date) > new Date()
+    (t) => new Date(t.eventId.date) > new Date(),
   );
 
   const pastTickets = tickets.filter(
-    (t) => new Date(t.eventId.date) <= new Date()
+    (t) => new Date(t.eventId.date) <= new Date(),
   );
 
   const addToCalendar = (ticket: Ticket) => {
@@ -109,30 +127,30 @@ function TicketsContent() {
         ] as [number, number, number, number, number],
         duration: { hours: 2 }, // Default 2 hours duration
         location: ticket.eventId.location,
-        organizer: { name: 'Innovators Hub', email: 'hello@innovatorshub.com' },
+        organizer: { name: "Innovators Hub", email: "hello@innovatorshub.com" },
       };
 
       createICSEvent(icsEvent, (error, value) => {
         if (error) {
-          console.error('Error creating calendar event:', error);
-          alert('Failed to create calendar event');
+          console.error("Error creating calendar event:", error);
+          alert("Failed to create calendar event");
           return;
         }
 
         // Create download link for .ics file
-        const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
+        const blob = new Blob([value], { type: "text/calendar;charset=utf-8" });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = `event-${ticket.eventId.title.replace(/\s+/g, '-')}.ics`;
+        a.download = `event-${ticket.eventId.title.replace(/\s+/g, "-")}.ics`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       });
     } catch (error) {
-      console.error('Error adding to calendar:', error);
-      alert('Failed to add event to calendar');
+      console.error("Error adding to calendar:", error);
+      alert("Failed to add event to calendar");
     }
   };
 
@@ -148,7 +166,9 @@ function TicketsContent() {
             className="max-w-6xl mx-auto"
           >
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Tickets</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                My Tickets
+              </h1>
               <p className="text-gray-600">
                 Manage your event tickets and add events to your calendar
               </p>
@@ -161,9 +181,9 @@ function TicketsContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className={`mb-6 p-4 rounded-lg ${
-                    message.type === 'success'
-                      ? 'bg-green-50 border-2 border-green-500 text-green-800'
-                      : 'bg-red-50 border-2 border-red-500 text-red-800'
+                    message.type === "success"
+                      ? "bg-green-50 border-2 border-green-500 text-green-800"
+                      : "bg-red-50 border-2 border-red-500 text-red-800"
                   }`}
                 >
                   <p className="font-semibold">{message.text}</p>
@@ -196,7 +216,11 @@ function TicketsContent() {
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                       {upcomingTickets.map((ticket, index) => (
-                        <TicketCard key={ticket._id} ticket={ticket} index={index} />
+                        <TicketCard
+                          key={ticket._id}
+                          ticket={ticket}
+                          index={index}
+                        />
                       ))}
                     </div>
                   </div>
@@ -210,7 +234,12 @@ function TicketsContent() {
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                       {pastTickets.map((ticket, index) => (
-                        <TicketCard key={ticket._id} ticket={ticket} index={index} isPast />
+                        <TicketCard
+                          key={ticket._id}
+                          ticket={ticket}
+                          index={index}
+                          isPast
+                        />
                       ))}
                     </div>
                   </div>
@@ -228,15 +257,17 @@ function TicketsContent() {
 
 export default function UserTicketsPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow bg-light-gray flex items-center justify-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-seville-orange"></div>
-        </main>
-        <Footer />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow bg-light-gray flex items-center justify-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-seville-orange"></div>
+          </main>
+          <Footer />
+        </div>
+      }
+    >
       <TicketsContent />
     </Suspense>
   );
@@ -254,37 +285,37 @@ function TicketCard({
   const [showQR, setShowQR] = useState(false);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'valid':
-        return 'bg-green-100 text-green-800';
-      case 'used':
-        return 'bg-gray-100 text-gray-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
+      case "valid":
+        return "bg-green-100 text-green-800";
+      case "used":
+        return "bg-gray-100 text-gray-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'valid':
-        return '✅ VALID';
-      case 'used':
-        return '✓ USED';
-      case 'cancelled':
-        return '❌ CANCELLED';
+      case "valid":
+        return "✅ VALID";
+      case "used":
+        return "✓ USED";
+      case "cancelled":
+        return "❌ CANCELLED";
       default:
         return status.toUpperCase();
     }
@@ -295,16 +326,16 @@ function TicketCard({
       const response = await fetch(`/api/qr?code=${ticket.qrCode}`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `ticket-${ticket.eventId.title.replace(/\s+/g, '-')}.png`;
+      a.download = `ticket-${ticket.eventId.title.replace(/\s+/g, "-")}.png`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Error downloading QR:', error);
-      alert('Failed to download QR code');
+      console.error("Error downloading QR:", error);
+      alert("Failed to download QR code");
     }
   };
 
@@ -325,30 +356,30 @@ function TicketCard({
         ] as [number, number, number, number, number],
         duration: { hours: 2 }, // Default 2 hours duration
         location: ticket.eventId.location,
-        organizer: { name: 'Innovators Hub', email: 'hello@innovatorshub.com' },
+        organizer: { name: "Innovators Hub", email: "hello@innovatorshub.com" },
       };
 
       createICSEvent(icsEvent, (error, value) => {
         if (error) {
-          console.error('Error creating calendar event:', error);
-          alert('Failed to create calendar event');
+          console.error("Error creating calendar event:", error);
+          alert("Failed to create calendar event");
           return;
         }
 
         // Create download link for .ics file
-        const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
+        const blob = new Blob([value], { type: "text/calendar;charset=utf-8" });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = `event-${ticket.eventId.title.replace(/\s+/g, '-')}.ics`;
+        a.download = `event-${ticket.eventId.title.replace(/\s+/g, "-")}.ics`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       });
     } catch (error) {
-      console.error('Error adding to calendar:', error);
-      alert('Failed to add event to calendar');
+      console.error("Error adding to calendar:", error);
+      alert("Failed to add event to calendar");
     }
   };
 
@@ -357,7 +388,7 @@ function TicketCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className={`card hover:scale-105 transition-transform duration-300 h-full flex flex-col ${isPast ? 'opacity-60' : ''}`}
+      className={`card hover:scale-105 transition-transform duration-300 h-full flex flex-col ${isPast ? "opacity-60" : ""}`}
     >
       {/* Event Images */}
       {ticket.eventId.images && ticket.eventId.images.length > 0 && (
@@ -378,7 +409,7 @@ function TicketCard({
         <div className="mb-4 flex items-center justify-between">
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-              ticket.status
+              ticket.status,
             )}`}
           >
             {getStatusText(ticket.status)}
@@ -397,7 +428,9 @@ function TicketCard({
         <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-gray-600">
           <p className="flex items-start md:items-center">
             <span className="mr-2 flex-shrink-0">📅</span>
-            <span className="line-clamp-2">{formatDate(ticket.eventId.date)}</span>
+            <span className="line-clamp-2">
+              {formatDate(ticket.eventId.date)}
+            </span>
           </p>
           <p className="flex items-start md:items-center">
             <span className="mr-2 flex-shrink-0">📍</span>
@@ -406,14 +439,16 @@ function TicketCard({
           {ticket.usedAt && (
             <p className="flex items-start md:items-center text-gray-500">
               <span className="mr-2 flex-shrink-0">✓</span>
-              <span className="line-clamp-2">Used on {ticket.usedAt ? formatDate(ticket.usedAt) : ''}</span>
+              <span className="line-clamp-2">
+                Used on {ticket.usedAt ? formatDate(ticket.usedAt) : ""}
+              </span>
             </p>
           )}
         </div>
       </div>
 
       <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        {ticket.status === 'valid' && !isPast ? (
+        {ticket.status === "valid" && !isPast ? (
           !showQR ? (
             <div className="flex flex-col sm:flex-row gap-2 w-full">
               <button
@@ -465,7 +500,9 @@ function TicketCard({
               className="w-24 h-24 mx-auto opacity-50 mb-2"
             />
             <p className="text-xs text-gray-500 mb-3">
-              {ticket.status === 'used' ? 'This ticket has been used' : 'Event has passed'}
+              {ticket.status === "used"
+                ? "This ticket has been used"
+                : "Event has passed"}
             </p>
             <button
               onClick={addToCalendar}

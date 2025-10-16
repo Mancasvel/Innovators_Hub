@@ -111,6 +111,7 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 ### Verificar Dominio (Opcional para Desarrollo)
 
 Para desarrollo, puedes usar el dominio onboarding de Resend:
+
 - From: `onboarding@resend.dev`
 
 Para producción:
@@ -265,21 +266,25 @@ Abre http://localhost:3000
 ## Troubleshooting
 
 ### Error: "Please define MONGODB_URI"
+
 - Verifica que el archivo .env existe en la raíz
 - Asegura que la variable está correctamente escrita
 - Reinicia el servidor de desarrollo
 
 ### Error: "Failed to connect to MongoDB"
+
 - Verifica tu IP en Network Access de MongoDB
 - Comprueba usuario y contraseña
 - Asegura que el cluster está activo
 
 ### Webhook no recibe eventos
+
 - En desarrollo, usa Stripe CLI
 - En producción, verifica que la URL es accesible
 - Comprueba el signing secret
 
 ### QR Scanner no funciona
+
 - Permite permisos de cámara en el navegador
 - En desarrollo, usa HTTPS o localhost
 - Prueba con "Manual Entry" como alternativa
@@ -298,6 +303,7 @@ Abre http://localhost:3000
 ## Soporte
 
 ¿Problemas? Revisa:
+
 - Logs en la terminal
 - Console del navegador
 - Dashboard de Stripe para eventos de webhook
@@ -306,6 +312,3 @@ Abre http://localhost:3000
 ---
 
 ¡Buena suerte con tu Innovators Hub! 🚀
-
-
-

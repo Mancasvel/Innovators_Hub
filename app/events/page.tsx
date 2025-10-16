@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 /**
  * Events listing page
@@ -24,7 +24,7 @@ interface Event {
   category?: string;
   ticketsSold: number;
   capacity: number; // Now required
-  status: 'draft' | 'published' | 'cancelled';
+  status: "draft" | "published" | "cancelled";
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -33,12 +33,12 @@ interface Event {
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     membershipFree: false,
-    category: '',
-    dateFrom: '',
-    dateTo: '',
+    category: "",
+    dateFrom: "",
+    dateTo: "",
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -51,26 +51,26 @@ export default function EventsPage() {
     setLoading(true);
     try {
       // Build query params
-      const params = new URLSearchParams({ upcoming: 'true' });
-      
+      const params = new URLSearchParams({ upcoming: "true" });
+
       if (filters.membershipFree) {
-        params.append('membershipFree', 'true');
+        params.append("membershipFree", "true");
       }
       if (filters.category) {
-        params.append('category', filters.category);
+        params.append("category", filters.category);
       }
       if (filters.dateFrom) {
-        params.append('dateFrom', filters.dateFrom);
+        params.append("dateFrom", filters.dateFrom);
       }
       if (filters.dateTo) {
-        params.append('dateTo', filters.dateTo);
+        params.append("dateTo", filters.dateTo);
       }
 
       const response = await fetch(`/api/events?${params.toString()}`);
       const data = await response.json();
       setEvents(data.events);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error("Error fetching events:", error);
     } finally {
       setLoading(false);
     }
@@ -94,27 +94,27 @@ export default function EventsPage() {
   const clearFilters = () => {
     setFilters({
       membershipFree: false,
-      category: '',
-      dateFrom: '',
-      dateTo: '',
+      category: "",
+      dateFrom: "",
+      dateTo: "",
     });
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
-  const activeFiltersCount = 
+  const activeFiltersCount =
     (filters.membershipFree ? 1 : 0) +
     (filters.category ? 1 : 0) +
     (filters.dateFrom ? 1 : 0) +
     (filters.dateTo ? 1 : 0);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -163,7 +163,7 @@ export default function EventsPage() {
                 </span>
                 {searchQuery && (
                   <button
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => setSearchQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     ✕
@@ -172,7 +172,7 @@ export default function EventsPage() {
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`btn ${showFilters ? 'btn-primary' : 'btn-outline'} whitespace-nowrap relative`}
+                className={`btn ${showFilters ? "btn-primary" : "btn-outline"} whitespace-nowrap relative`}
               >
                 🎛️ Filters
                 {activeFiltersCount > 0 && (
@@ -187,7 +187,7 @@ export default function EventsPage() {
             {showFilters && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 className="bg-white rounded-lg shadow-lg p-6 mb-4"
               >
@@ -210,7 +210,9 @@ export default function EventsPage() {
                       <input
                         type="checkbox"
                         checked={filters.membershipFree}
-                        onChange={(e) => handleFilterChange('membershipFree', e.target.checked)}
+                        onChange={(e) =>
+                          handleFilterChange("membershipFree", e.target.checked)
+                        }
                         className="w-5 h-5 text-seville-orange rounded focus:ring-seville-orange"
                       />
                       <span className="text-sm font-medium">
@@ -224,7 +226,9 @@ export default function EventsPage() {
                     <label className="label text-sm mb-1">Category</label>
                     <select
                       value={filters.category}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
+                      onChange={(e) =>
+                        handleFilterChange("category", e.target.value)
+                      }
                       className="input text-sm"
                     >
                       <option value="">All</option>
@@ -244,7 +248,9 @@ export default function EventsPage() {
                         <input
                           type="date"
                           value={filters.dateFrom}
-                          onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                          onChange={(e) =>
+                            handleFilterChange("dateFrom", e.target.value)
+                          }
                           className="input text-sm"
                         />
                       </div>
@@ -253,7 +259,9 @@ export default function EventsPage() {
                         <input
                           type="date"
                           value={filters.dateTo}
-                          onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                          onChange={(e) =>
+                            handleFilterChange("dateTo", e.target.value)
+                          }
                           className="input text-sm"
                         />
                       </div>
@@ -267,11 +275,15 @@ export default function EventsPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm text-gray-600">
               <p>
                 {loading ? (
-                  'Loading events...'
+                  "Loading events..."
                 ) : (
                   <>
-                    Showing <span className="font-semibold text-seville-orange">{filteredEvents.length}</span> of{' '}
-                    <span className="font-semibold">{events.length}</span> events
+                    Showing{" "}
+                    <span className="font-semibold text-seville-orange">
+                      {filteredEvents.length}
+                    </span>{" "}
+                    of <span className="font-semibold">{events.length}</span>{" "}
+                    events
                   </>
                 )}
               </p>
@@ -295,14 +307,11 @@ export default function EventsPage() {
               <div className="text-6xl mb-4">🔍</div>
               <p className="text-gray-600 text-lg mb-2">
                 {searchQuery || activeFiltersCount > 0
-                  ? 'No events found with the selected criteria'
-                  : 'No upcoming events at the moment'}
+                  ? "No events found with the selected criteria"
+                  : "No upcoming events at the moment"}
               </p>
               {(searchQuery || activeFiltersCount > 0) && (
-                <button
-                  onClick={clearFilters}
-                  className="btn btn-primary mt-4"
-                >
+                <button onClick={clearFilters} className="btn btn-primary mt-4">
                   View all events
                 </button>
               )}
@@ -349,11 +358,15 @@ export default function EventsPage() {
                         <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-gray-600">
                           <p className="flex items-start md:items-center">
                             <span className="mr-2 flex-shrink-0">📅</span>
-                            <span className="line-clamp-2">{formatDate(event.date)}</span>
+                            <span className="line-clamp-2">
+                              {formatDate(event.date)}
+                            </span>
                           </p>
                           <p className="flex items-start md:items-center">
                             <span className="mr-2 flex-shrink-0">📍</span>
-                            <span className="line-clamp-1">{event.location}</span>
+                            <span className="line-clamp-1">
+                              {event.location}
+                            </span>
                           </p>
                         </div>
                       </div>
@@ -398,6 +411,3 @@ export default function EventsPage() {
     </div>
   );
 }
-
-
-

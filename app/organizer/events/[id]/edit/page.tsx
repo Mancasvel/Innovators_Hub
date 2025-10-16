@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import ImageUpload from '@/components/ImageUpload';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ImageUpload from "@/components/ImageUpload";
 
 /**
  * Edit event page for organizers
@@ -24,7 +24,7 @@ interface Event {
   category?: string;
   ticketsSold: number;
   capacity?: number;
-  status: 'draft' | 'published' | 'cancelled';
+  status: "draft" | "published" | "cancelled";
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -36,19 +36,19 @@ export default function EditEventPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [event, setEvent] = useState<Event | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    date: '',
-    location: '',
-    price: '',
+    title: "",
+    description: "",
+    date: "",
+    location: "",
+    price: "",
     membershipFree: false,
-    capacity: '',
-    category: 'other',
+    capacity: "",
+    category: "other",
     images: [] as string[],
-    status: 'published',
+    status: "published",
   });
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function EditEventPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch event');
+        throw new Error(data.error || "Failed to fetch event");
       }
 
       const evt = data.event;
@@ -69,25 +69,27 @@ export default function EditEventPage() {
 
       // Convert date to datetime-local format
       const dateObj = new Date(evt.date);
-      const localDateTime = new Date(dateObj.getTime() - dateObj.getTimezoneOffset() * 60000)
+      const localDateTime = new Date(
+        dateObj.getTime() - dateObj.getTimezoneOffset() * 60000,
+      )
         .toISOString()
         .slice(0, 16);
 
       // Populate form
       setFormData({
-        title: evt.title || '',
-        description: evt.description || '',
+        title: evt.title || "",
+        description: evt.description || "",
         date: localDateTime,
-        location: evt.location || '',
+        location: evt.location || "",
         price: evt.price.toString(), // Price is already in euros
         membershipFree: evt.membershipFree || false,
-        capacity: evt.capacity?.toString() || '',
-        category: evt.category || 'other',
+        capacity: evt.capacity?.toString() || "",
+        category: evt.category || "other",
         images: evt.images || [],
-        status: evt.status || 'published',
+        status: evt.status || "published",
       });
     } catch (err: any) {
-      console.error('Error fetching event:', err);
+      console.error("Error fetching event:", err);
       setError(err.message);
     } finally {
       setFetching(false);
@@ -96,7 +98,7 @@ export default function EditEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
@@ -105,37 +107,45 @@ export default function EditEventPage() {
 
       // Build update payload (only changed fields)
       const updates: any = {};
-      
+
       if (formData.title !== event?.title) updates.title = formData.title;
-      if (formData.description !== event?.description) updates.description = formData.description;
+      if (formData.description !== event?.description)
+        updates.description = formData.description;
       if (formData.date) {
         const newDate = new Date(formData.date).toISOString();
-        const oldDate = new Date(event?.date || '').toISOString();
+        const oldDate = new Date(event?.date || "").toISOString();
         if (newDate !== oldDate) updates.date = newDate;
       }
-      if (formData.location !== event?.location) updates.location = formData.location;
+      if (formData.location !== event?.location)
+        updates.location = formData.location;
       if (price !== event?.price) updates.price = price;
-      if (formData.membershipFree !== event?.membershipFree) updates.membershipFree = formData.membershipFree;
-      if (formData.capacity && parseInt(formData.capacity) !== event?.capacity) {
+      if (formData.membershipFree !== event?.membershipFree)
+        updates.membershipFree = formData.membershipFree;
+      if (
+        formData.capacity &&
+        parseInt(formData.capacity) !== event?.capacity
+      ) {
         updates.capacity = parseInt(formData.capacity);
       }
-      if (formData.category !== event?.category) updates.category = formData.category;
-      if (JSON.stringify(formData.images) !== JSON.stringify(event?.images)) updates.images = formData.images;
+      if (formData.category !== event?.category)
+        updates.category = formData.category;
+      if (JSON.stringify(formData.images) !== JSON.stringify(event?.images))
+        updates.images = formData.images;
       if (formData.status !== event?.status) updates.status = formData.status;
 
       const response = await fetch(`/api/events/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update event');
+        throw new Error(data.error || "Failed to update event");
       }
 
-      router.push('/organizer/events');
+      router.push("/organizer/events");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -162,10 +172,7 @@ export default function EditEventPage() {
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <button
-              onClick={() => router.back()}
-              className="btn btn-secondary"
-            >
+            <button onClick={() => router.back()} className="btn btn-secondary">
               Go Back
             </button>
           </div>
@@ -188,13 +195,15 @@ export default function EditEventPage() {
           >
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-4xl font-bold">Edit Event</h1>
-              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                formData.status === 'published' 
-                  ? 'bg-green-100 text-green-800'
-                  : formData.status === 'draft'
-                  ? 'bg-gray-100 text-gray-800'
-                  : 'bg-red-100 text-red-800'
-              }`}>
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  formData.status === "published"
+                    ? "bg-green-100 text-green-800"
+                    : formData.status === "draft"
+                      ? "bg-gray-100 text-gray-800"
+                      : "bg-red-100 text-red-800"
+                }`}
+              >
                 {formData.status}
               </span>
             </div>
@@ -335,7 +344,9 @@ export default function EditEventPage() {
                   </label>
                   <ImageUpload
                     value={formData.images}
-                    onChange={(urls: string | string[]) => setFormData({ ...formData, images: urls as string[] })}
+                    onChange={(urls: string | string[]) =>
+                      setFormData({ ...formData, images: urls as string[] })
+                    }
                     disabled={loading}
                     multiple={true}
                     maxImages={10}
@@ -373,19 +384,22 @@ export default function EditEventPage() {
                       })
                     }
                     className={`w-4 h-4 text-seville-orange border-gray-300 rounded focus:ring-seville-orange ${
-                      parseFloat(formData.price) === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                      parseFloat(formData.price) === 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
                     }`}
                   />
                   <label
                     htmlFor="membershipFree"
                     className={`ml-2 text-sm ${
-                      parseFloat(formData.price) === 0 ? 'text-gray-500' : 'text-gray-700'
+                      parseFloat(formData.price) === 0
+                        ? "text-gray-500"
+                        : "text-gray-700"
                     }`}
                   >
                     {parseFloat(formData.price) === 0
-                      ? 'Free for everyone (automatically enabled when price is €0)'
-                      : 'Free for premium members'
-                    }
+                      ? "Free for everyone (automatically enabled when price is €0)"
+                      : "Free for premium members"}
                   </label>
                 </div>
 
@@ -395,7 +409,7 @@ export default function EditEventPage() {
                     disabled={loading}
                     className="flex-1 btn btn-primary"
                   >
-                    {loading ? 'Saving...' : 'Save Changes'}
+                    {loading ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     type="button"
@@ -415,4 +429,3 @@ export default function EditEventPage() {
     </div>
   );
 }
-
