@@ -93,8 +93,8 @@ const rateLimitStore: RateLimitStore = {};
  */
 export function checkRateLimit(
   identifier: string,
-  maxRequests: number = 10,
-  windowMs: number = 60000,
+  maxRequests = 10,
+  windowMs = 60000,
 ): { allowed: boolean; remaining: number } {
   const now = Date.now();
   const key = identifier;
