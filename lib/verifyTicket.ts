@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Security utilities for ticket QR code generation and verification
@@ -9,9 +9,13 @@ import { v4 as uuidv4 } from 'uuid';
 const SECRET_KEY = process.env.SECRET_TICKET_KEY;
 
 if (!SECRET_KEY) {
-  console.warn('⚠️ SECRET_TICKET_KEY is not defined. Ticket security features will be disabled.');
+  console.warn(
+    "⚠️ SECRET_TICKET_KEY is not defined. Ticket security features will be disabled.",
+  );
 } else if (SECRET_KEY.length < 32) {
-  console.warn('⚠️ SECRET_TICKET_KEY should be at least 32 characters long for security.');
+  console.warn(
+    "⚠️ SECRET_TICKET_KEY should be at least 32 characters long for security.",
+  );
 }
 
 /**
@@ -21,7 +25,7 @@ if (!SECRET_KEY) {
 export function generateSecureQRCode(): { qrCode: string; signature: string } {
   const qrCode = uuidv4();
   const signature = generateHMAC(qrCode);
-  
+
   return { qrCode, signature };
 }
 
@@ -31,12 +35,12 @@ export function generateSecureQRCode(): { qrCode: string; signature: string } {
 export function generateHMAC(qrCode: string): string {
   if (!SECRET_KEY) {
     // Fallback to simple hash if SECRET_KEY is not available
-    return crypto.createHash('sha256').update(qrCode).digest('hex');
+    return crypto.createHash("sha256").update(qrCode).digest("hex");
   }
 
-  const hmac = crypto.createHmac('sha256', SECRET_KEY);
+  const hmac = crypto.createHmac("sha256", SECRET_KEY);
   hmac.update(qrCode);
-  return hmac.digest('hex');
+  return hmac.digest("hex");
 }
 
 /**
@@ -53,16 +57,20 @@ export function verifyHMAC(qrCode: string, signature: string): boolean {
   // Use timing-safe comparison to prevent timing attacks
   return crypto.timingSafeEqual(
     Buffer.from(signature),
-    Buffer.from(expectedSignature)
+    Buffer.from(expectedSignature),
   );
 }
 
 /**
  * Validate ticket structure and signature
  */
-export function validateTicketFormat(qrCode: string, signature: string): boolean {
+export function validateTicketFormat(
+  qrCode: string,
+  signature: string,
+): boolean {
   // Check UUID format
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(qrCode)) {
     return false;
   }
@@ -86,7 +94,7 @@ const rateLimitStore: RateLimitStore = {};
 export function checkRateLimit(
   identifier: string,
   maxRequests: number = 10,
-  windowMs: number = 60000
+  windowMs: number = 60000,
 ): { allowed: boolean; remaining: number } {
   const now = Date.now();
   const key = identifier;
@@ -116,7 +124,7 @@ export function checkRateLimit(
 /**
  * Hash password using bcrypt
  */
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -125,7 +133,10 @@ export async function hashPassword(password: string): Promise<string> {
 /**
  * Compare password with hash
  */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
@@ -135,9 +146,6 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 export function sanitizeInput(input: string): string {
   return input
     .trim()
-    .replace(/[<>]/g, '') // Remove potential HTML tags
+    .replace(/[<>]/g, "") // Remove potential HTML tags
     .slice(0, 1000); // Limit length
 }
-
-
-

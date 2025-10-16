@@ -178,6 +178,7 @@ DEBUG=true
 6. Create a database named `Innovators`
 
 **Important Collections:**
+
 - `users` - User accounts with roles
 - `events` - Event listings with capacity
 - `tickets` - Purchased tickets with QR codes
@@ -202,6 +203,7 @@ DEBUG=true
 ### 5. Set Up Email (SMTP)
 
 #### Option A: Gmail
+
 1. Enable 2-factor authentication on your Google account
 2. Generate an App Password:
    - Go to Google Account Settings
@@ -216,6 +218,7 @@ DEBUG=true
    ```
 
 #### Option B: Other SMTP Providers
+
 - **SendGrid:** smtp.sendgrid.net:587
 - **Mailgun:** smtp.mailgun.org:587
 - **AWS SES:** email-smtp.region.amazonaws.com:587
@@ -260,6 +263,7 @@ npm start
 ## 🎭 User Roles
 
 ### User (Regular User)
+
 - Browse and search public events
 - Purchase tickets via Stripe
 - Manage premium membership subscription
@@ -268,12 +272,14 @@ npm start
 - Edit profile (name, email)
 
 ### Member (Annual Subscriber)
+
 - All user features
 - Free access to membership-free events
 - Priority access to events
 - Special member badge
 
 ### Organizer
+
 - All user features
 - Create and manage events (with images)
 - Set event capacity and pricing
@@ -282,6 +288,7 @@ npm start
 - Access organizer dashboard
 
 ### Admin
+
 - All organizer features
 - Manage any event in the system
 - Export data (CSV)
@@ -291,12 +298,14 @@ npm start
 ## 🔐 Security Features
 
 ### Authentication & Authorization
+
 - **JWT Sessions** with NextAuth signed tokens
 - **Role-Based Access Control** (RBAC) middleware
 - **Protected Routes** based on user roles
 - **Secure Cookies** with httpOnly and secure flags
 
 ### Ticket Security
+
 - **HMAC Signatures** on QR codes to prevent forgery
 - **Unique QR Codes** generated with UUID v4
 - **One-Time Use** validation system
@@ -304,6 +313,7 @@ npm start
 - **Organizer Verification** for scanning
 
 ### API Security
+
 - **Rate Limiting** on critical endpoints (5 req/min for validation)
 - **Input Validation** with Zod schemas
 - **MongoDB Injection Prevention** via Mongoose
@@ -311,6 +321,7 @@ npm start
 - **CSRF Protection** built into NextAuth
 
 ### Data Security
+
 - **Environment Variables** for all secrets
 - **Encrypted Connections** (MongoDB TLS, Stripe HTTPS)
 - **Password Hashing** with NextAuth bcrypt
@@ -321,6 +332,7 @@ npm start
 ### Email Templates (English)
 
 #### 1. Welcome Email
+
 - **Trigger:** User registration
 - **Content:**
   - Welcome message
@@ -329,6 +341,7 @@ npm start
   - Orange button with white text
 
 #### 2. Ticket Email
+
 - **Trigger:** Successful ticket purchase
 - **Content:**
   - Event details (title, date, location)
@@ -340,6 +353,7 @@ npm start
   - Important: Show QR at entrance
 
 #### 3. Membership Email
+
 - **Trigger:** Subscription activation
 - **Content:**
   - Membership confirmation
@@ -349,6 +363,7 @@ npm start
   - Orange button with white text
 
 #### 4. Organizer Pending Email
+
 - **Trigger:** User requests organizer role
 - **Content:**
   - Request confirmation
@@ -358,6 +373,7 @@ npm start
 ### Email Configuration
 
 All emails use:
+
 - **From:** noreply@innovatorshub.com
 - **Brand Color:** #FF6B35 (Seville Orange)
 - **Button Style:** Orange background, white text
@@ -367,6 +383,7 @@ All emails use:
 ## 🎫 Ticket System Flow
 
 ### Purchase Flow
+
 1. **User selects event** → Views details with capacity indicator
 2. **Checks availability** → System shows "X/Y tickets sold"
 3. **Initiates purchase:**
@@ -389,6 +406,7 @@ All emails use:
    - Download option available
 
 ### Free Claim Flow (Members)
+
 1. **Member clicks "Claim Free Ticket"**
 2. **System validates:**
    - User has active membership
@@ -405,6 +423,7 @@ All emails use:
 5. **Redirects:** To /user/tickets after 2 seconds
 
 ### Validation Flow
+
 1. **Organizer opens scanner** → Rear camera activates by default
 2. **Scans QR code** → ZXing library decodes
 3. **System validates:**
@@ -424,6 +443,7 @@ All emails use:
 6. **Scanner pauses** → Manual control to scan next
 
 ### Capacity Control
+
 - **Default capacity:** 50 attendees per event
 - **Required field:** Cannot create event without capacity
 - **Atomic operations:** Race condition prevention
@@ -436,6 +456,7 @@ All emails use:
 ## 🔍 Search & Filter System
 
 ### Search Bar
+
 - **Real-time search** (client-side filtering)
 - **Searches in:**
   - Event titles
@@ -445,23 +466,23 @@ All emails use:
 - **Responsive:** Full width on mobile
 
 ### Filters
+
 - **Membership Free** (checkbox)
   - Shows only events free for members
   - Badge indicator when active
-  
 - **Category** (dropdown)
   - Networking
   - Workshop
   - Talk
   - Social
   - Other
-  
 - **Date Range** (date pickers)
   - From date (inclusive)
   - To date (end of day)
   - Partial ranges supported
 
 ### Filter UI
+
 - **Expandable panel** with animation
 - **Badge counter** shows active filters
 - **Clear all button** when filters active
@@ -475,6 +496,7 @@ All emails use:
 ## 🖼️ Image Upload System
 
 ### Multi-Image Support
+
 - **Event images:** Up to 10 images per event
 - **File size limit:** 4MB per image
 - **Formats supported:** JPEG, PNG, WebP
@@ -483,6 +505,7 @@ All emails use:
 - **Drag and drop:** Upload multiple files at once
 
 ### Upload Flow
+
 1. Select images → Preview shown
 2. Can remove images before final upload
 3. Click upload → Sends to UploadThing
@@ -490,6 +513,7 @@ All emails use:
 5. Images displayed in event gallery
 
 ### Image Display
+
 - **Event cards:** First image as thumbnail
 - **Event detail:** Gallery with responsive grid
   - 1 image: Full width
@@ -501,6 +525,7 @@ All emails use:
 ## 📱 Responsive Design
 
 ### Breakpoints (Tailwind)
+
 - **Mobile:** < 640px (sm)
 - **Tablet:** 640px - 1024px (md)
 - **Desktop:** > 1024px (lg)
@@ -508,20 +533,24 @@ All emails use:
 ### Components
 
 #### Navbar
+
 - **Desktop:** Full menu with links
 - **Mobile:** Hamburger menu with slide-in drawer
 - **User menu:** Dropdown with avatar
 
 #### Event Cards
+
 - **Mobile:** 1 column stack
 - **Tablet:** 2 columns
 - **Desktop:** 3 columns
 
 #### Forms
+
 - **Mobile:** Single column, stacked buttons
 - **Desktop:** Multi-column grids, inline buttons
 
 #### Search & Filters
+
 - **Mobile:**
   - Stack vertically
   - Filters in 1 column
@@ -531,6 +560,7 @@ All emails use:
   - Filters in 4 columns
 
 #### Dashboards
+
 - **Mobile:** Card stack
 - **Tablet:** 2-column grid
 - **Desktop:** 3-column grid
@@ -538,6 +568,7 @@ All emails use:
 ## 🎨 Design System
 
 ### Color Palette
+
 - **Primary:** #FF6B35 (Seville Orange)
 - **Secondary:** #F7931E (Golden Orange)
 - **Background:** #F9FAFB (Light Gray)
@@ -547,12 +578,14 @@ All emails use:
 - **Warning:** #F59E0B (Amber)
 
 ### Typography
+
 - **Font:** Inter (system font fallback)
 - **Headings:** Bold, dark color
 - **Body:** Regular, dark gray
 - **Captions:** Small, medium gray
 
 ### Components
+
 - **Cards:** White background, rounded corners, subtle shadow
 - **Buttons:** Rounded, hover effects, disabled states
 - **Inputs:** Border, focus ring, validation states
@@ -639,11 +672,13 @@ stripe trigger customer.subscription.created
 ### MongoDB Connection Issues
 
 **Problem:** Cannot connect to MongoDB
+
 ```
 Error: MongooseError: Operation timed out
 ```
 
 **Solutions:**
+
 - Verify IP address is whitelisted (or use 0.0.0.0/0)
 - Check username/password are correct
 - Ensure cluster is active (not paused)
@@ -653,11 +688,13 @@ Error: MongooseError: Operation timed out
 ### Stripe Webhook Issues
 
 **Problem:** Webhook not receiving events
+
 ```
 Error: No signatures found matching the expected signature
 ```
 
 **Solutions:**
+
 - Verify STRIPE_WEBHOOK_SECRET is correct
 - Check webhook URL is publicly accessible
 - Ensure you're using the correct environment (test/prod)
@@ -669,6 +706,7 @@ Error: No signatures found matching the expected signature
 **Problem:** Camera won't start
 
 **Solutions:**
+
 - Allow camera permissions in browser
 - **Use HTTPS** (required for getUserMedia)
 - Try different browser (Chrome recommended)
@@ -681,6 +719,7 @@ Error: No signatures found matching the expected signature
 **Problem:** Images not uploading to UploadThing
 
 **Solutions:**
+
 - Verify UPLOADTHING_TOKEN is set correctly
 - Check file size < 4MB
 - Ensure file format is JPEG/PNG/WebP
@@ -693,6 +732,7 @@ Error: No signatures found matching the expected signature
 **Problem:** Emails not being delivered
 
 **Solutions:**
+
 - Verify SMTP credentials are correct
 - Check SMTP_HOST and SMTP_PORT settings
 - For Gmail: Use app-specific password
@@ -706,6 +746,7 @@ Error: No signatures found matching the expected signature
 **Problem:** npm run build fails
 
 **Solutions:**
+
 ```bash
 # Clear cache and reinstall
 rm -rf .next node_modules package-lock.json
@@ -724,6 +765,7 @@ npm update
 **Problem:** Users logged out constantly
 
 **Solutions:**
+
 - Verify NEXTAUTH_SECRET is set (32+ chars)
 - Check NEXTAUTH_URL matches your domain
 - Clear browser cookies
@@ -733,6 +775,7 @@ npm update
 ## 📊 Database Schema
 
 ### Users Collection
+
 ```typescript
 {
   _id: ObjectId,
@@ -750,6 +793,7 @@ npm update
 ```
 
 ### Events Collection
+
 ```typescript
 {
   _id: ObjectId,
@@ -771,6 +815,7 @@ npm update
 ```
 
 ### Tickets Collection
+
 ```typescript
 {
   _id: ObjectId,
@@ -791,6 +836,7 @@ npm update
 ```
 
 ### Indexes for Performance
+
 - Users: email, stripeCustomerId
 - Events: date+status, createdBy, status, membershipFree
 - Tickets: userId, eventId, qrCode
@@ -831,6 +877,7 @@ npm update
 The project includes a robust test suite with **150+ test cases** covering:
 
 #### Test Categories
+
 - ✅ **Unit Tests**: Utility functions (validation, permissions, ticket verification)
 - ✅ **API Route Tests**: Authentication, events, tickets with security checks
 - ✅ **Component Tests**: Navbar, ImageUpload with user interactions
@@ -838,6 +885,7 @@ The project includes a robust test suite with **150+ test cases** covering:
 - ✅ **Integration Tests**: Complete ticket flow and authentication flow
 
 #### Coverage Targets
+
 - **Branches**: 80%+
 - **Functions**: 80%+
 - **Lines**: 80%+
@@ -860,6 +908,7 @@ npm run test:ci
 ```
 
 #### Security Testing
+
 - ✅ Password hashing verification
 - ✅ QR code signature tampering detection
 - ✅ Role-based authorization
@@ -876,13 +925,15 @@ Copyright (c) 2025 Manuel Castillejo
 This software is licensed under a Single Commercial Use License.
 
 This license grants the purchaser:
-  - The right to use this codebase in one (1) commercial or non-commercial project.
-  - The right to modify and deploy the code for that single project.
+
+- The right to use this codebase in one (1) commercial or non-commercial project.
+- The right to modify and deploy the code for that single project.
 
 This license explicitly forbids:
-  - Resale, redistribution, sublicensing, or making the code publicly available.
-  - Using the codebase to build competing templates, generators, or similar products.
-  - Sharing or publishing parts of the source code for others to use.
+
+- Resale, redistribution, sublicensing, or making the code publicly available.
+- Using the codebase to build competing templates, generators, or similar products.
+- Sharing or publishing parts of the source code for others to use.
 
 Violations of this license may result in legal action.
 
@@ -893,6 +944,7 @@ For support or inquiries: hello@innovatorshub.com
 ## 🙏 Acknowledgments
 
 Built with:
+
 - [Next.js](https://nextjs.org/)
 - [MongoDB](https://www.mongodb.com/)
 - [Stripe](https://stripe.com/)

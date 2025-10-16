@@ -1,10 +1,14 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { stripe, createCheckoutSession, createMembershipSession } from '@/lib/stripe';
-import { connectDB } from '@/lib/db';
-import Event from '@/models/Event';
-import User from '@/models/User';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import {
+  stripe,
+  createCheckoutSession,
+  createMembershipSession,
+} from "@/lib/stripe";
+import { connectDB } from "@/lib/db";
+import Event from "@/models/Event";
+import User from "@/models/User";
 
 /**
  * Create Stripe checkout session
@@ -15,31 +19,34 @@ import User from '@/models/User';
 export async function POST(req: Request) {
   try {
     if (!stripe) {
-      return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 });
+      return NextResponse.json(
+        { error: "Stripe not configured" },
+        { status: 500 },
+      );
     }
 
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { eventId, type } = await req.json();
 
     await connectDB();
 
-    if (type === 'membership') {
+    if (type === "membership") {
       // Create membership checkout session
       const user = await User.findOne({ email: session.user.email });
 
       if (!user) {
-        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
       if (user.hasMembership) {
         return NextResponse.json(
-          { error: 'You already have an active membership' },
-          { status: 400 }
+          { error: "You already have an active membership" },
+          { status: 400 },
         );
       }
 
@@ -52,32 +59,32 @@ export async function POST(req: Request) {
       return NextResponse.json(checkout);
     }
 
-    if (type === 'ticket') {
+    if (type === "ticket") {
       // Create ticket checkout session
       if (!eventId) {
         return NextResponse.json(
-          { error: 'Event ID is required' },
-          { status: 400 }
+          { error: "Event ID is required" },
+          { status: 400 },
         );
       }
 
       const event = await Event.findById(eventId);
 
       if (!event) {
-        return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+        return NextResponse.json({ error: "Event not found" }, { status: 404 });
       }
 
       if (new Date(event.date) < new Date()) {
         return NextResponse.json(
-          { error: 'This event has already passed' },
-          { status: 400 }
+          { error: "This event has already passed" },
+          { status: 400 },
         );
       }
 
       if (event.capacity && event.ticketsSold >= event.capacity) {
         return NextResponse.json(
-          { error: 'Event is sold out' },
-          { status: 400 }
+          { error: "Event is sold out" },
+          { status: 400 },
         );
       }
 
@@ -105,15 +112,12 @@ export async function POST(req: Request) {
       return NextResponse.json(checkout);
     }
 
-    return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   } catch (error) {
-    console.error('Checkout error:', error);
+    console.error("Checkout error:", error);
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
-      { status: 500 }
+      { error: "Failed to create checkout session" },
+      { status: 500 },
     );
   }
 }
-
-
-

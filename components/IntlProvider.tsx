@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { NextIntlClientProvider } from 'next-intl';
-import { useLocale } from 'next-intl';
+import { NextIntlClientProvider } from "next-intl";
+import { useLocale } from "next-intl";
 
 export function IntlProvider({
   children,

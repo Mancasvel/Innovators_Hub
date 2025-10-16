@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { createCustomerPortalSession } from '@/lib/stripe';
-import { connectDB } from '@/lib/db';
-import User from '@/models/User';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { createCustomerPortalSession } from "@/lib/stripe";
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
 
 /**
  * Create Stripe customer portal session
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
@@ -25,8 +25,8 @@ export async function POST(req: Request) {
 
     if (!user || !user.stripeCustomerId) {
       return NextResponse.json(
-        { error: 'No active subscription found' },
-        { status: 404 }
+        { error: "No active subscription found" },
+        { status: 404 },
       );
     }
 
@@ -34,13 +34,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: portalUrl });
   } catch (error) {
-    console.error('Portal error:', error);
+    console.error("Portal error:", error);
     return NextResponse.json(
-      { error: 'Failed to create portal session' },
-      { status: 500 }
+      { error: "Failed to create portal session" },
+      { status: 500 },
     );
   }
 }
-
-
-

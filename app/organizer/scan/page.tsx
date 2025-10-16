@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { BrowserMultiFormatReader } from '@zxing/browser';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useState, useEffect, useRef } from "react";
+import { BrowserMultiFormatReader } from "@zxing/browser";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 /**
  * QR Scanner page for organizers
@@ -27,7 +27,9 @@ export default function ScanPage() {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<ValidationResult | null>(null);
   const [validating, setValidating] = useState(false);
-  const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
+  const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>(
+    [],
+  );
   const [selectedCameraIndex, setSelectedCameraIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
@@ -52,7 +54,7 @@ export default function ScanPage() {
     // First try to find by label patterns
     for (let i = 0; i < devices.length; i++) {
       const label = devices[i].label.toLowerCase();
-      if (backCameraPatterns.some(pattern => pattern.test(label))) {
+      if (backCameraPatterns.some((pattern) => pattern.test(label))) {
         return i;
       }
     }
@@ -89,7 +91,12 @@ export default function ScanPage() {
       const codeReader = new BrowserMultiFormatReader();
       codeReaderRef.current = codeReader;
 
-      console.log('📷 Switching to camera:', selectedDevice.label, 'ID:', selectedDevice.deviceId);
+      console.log(
+        "📷 Switching to camera:",
+        selectedDevice.label,
+        "ID:",
+        selectedDevice.deviceId,
+      );
 
       codeReader.decodeFromVideoDevice(
         selectedDevice.deviceId,
@@ -100,11 +107,11 @@ export default function ScanPage() {
             // Validate ticket (this will stop the camera automatically)
             await validateTicket(qrCode);
           }
-        }
+        },
       );
     } catch (error) {
-      console.error('Error switching camera:', error);
-      alert('Failed to switch camera. Please try again.');
+      console.error("Error switching camera:", error);
+      alert("Failed to switch camera. Please try again.");
       setScanning(false);
     }
   };
@@ -117,11 +124,12 @@ export default function ScanPage() {
       const codeReader = new BrowserMultiFormatReader();
       codeReaderRef.current = codeReader;
 
-      const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
+      const videoInputDevices =
+        await BrowserMultiFormatReader.listVideoInputDevices();
       setAvailableCameras(videoInputDevices);
 
       if (videoInputDevices.length === 0) {
-        alert('No camera found on this device');
+        alert("No camera found on this device");
         setScanning(false);
         return;
       }
@@ -133,7 +141,12 @@ export default function ScanPage() {
       }
 
       const selectedDevice = videoInputDevices[selectedCameraIndex];
-      console.log('📷 Selected camera:', selectedDevice.label, 'ID:', selectedDevice.deviceId);
+      console.log(
+        "📷 Selected camera:",
+        selectedDevice.label,
+        "ID:",
+        selectedDevice.deviceId,
+      );
 
       codeReader.decodeFromVideoDevice(
         selectedDevice.deviceId,
@@ -144,11 +157,11 @@ export default function ScanPage() {
             // Validate ticket (this will stop the camera automatically)
             await validateTicket(qrCode);
           }
-        }
+        },
       );
     } catch (error) {
-      console.error('Error starting scanner:', error);
-      alert('Failed to start camera. Please check permissions.');
+      console.error("Error starting scanner:", error);
+      alert("Failed to start camera. Please check permissions.");
       setScanning(false);
     }
   };
@@ -157,7 +170,7 @@ export default function ScanPage() {
     if (videoRef.current) {
       const stream = videoRef.current.srcObject as MediaStream;
       if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       }
       videoRef.current.srcObject = null;
     }
@@ -175,35 +188,35 @@ export default function ScanPage() {
     // Stop the video stream to freeze the camera
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
     }
     setScanning(false);
 
     try {
-      console.log('🎫 Validating ticket with QR:', qrCode);
+      console.log("🎫 Validating ticket with QR:", qrCode);
 
-      const response = await fetch('/api/tickets/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/tickets/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ qrCode }),
       });
 
       const data = await response.json();
 
-      console.log('📡 API Response:', {
+      console.log("📡 API Response:", {
         status: response.status,
         ok: response.ok,
-        data: data
+        data: data,
       });
 
       if (response.ok) {
-        console.log('✅ Ticket validated successfully:', data.ticket);
+        console.log("✅ Ticket validated successfully:", data.ticket);
         setResult({
           success: true,
           ticket: data.ticket,
         });
         // Play success sound (optional)
-        playSound('success');
+        playSound("success");
 
         // For successful validation, show result for 3 seconds before allowing next scan
         if (response.ok) {
@@ -212,47 +225,54 @@ export default function ScanPage() {
           }, 3000);
         }
       } else {
-        console.log('❌ Ticket validation failed:', data.error, 'Code:', data.code);
+        console.log(
+          "❌ Ticket validation failed:",
+          data.error,
+          "Code:",
+          data.code,
+        );
         setResult({
           success: false,
           error: data.error,
           code: data.code,
         });
         // Play error sound (optional)
-        playSound('error');
+        playSound("error");
       }
     } catch (error) {
-      console.error('❌ Validation error:', error);
+      console.error("❌ Validation error:", error);
       setResult({
         success: false,
-        error: 'Failed to validate ticket. Please try again.',
+        error: "Failed to validate ticket. Please try again.",
       });
     } finally {
       setValidating(false);
     }
   };
 
-  const playSound = (type: 'success' | 'error') => {
+  const playSound = (type: "success" | "error") => {
     // Optional: Add audio feedback
-    const audio = new Audio(type === 'success' ? '/sounds/success.mp3' : '/sounds/error.mp3');
+    const audio = new Audio(
+      type === "success" ? "/sounds/success.mp3" : "/sounds/error.mp3",
+    );
     audio.play().catch(() => {});
   };
 
   const handleManualEntry = async () => {
-    const qrCode = prompt('Enter QR code manually:');
+    const qrCode = prompt("Enter QR code manually:");
     if (qrCode) {
       await validateTicket(qrCode);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -279,7 +299,7 @@ export default function ScanPage() {
                     <video
                       ref={videoRef}
                       className="w-full rounded-lg"
-                      style={{ maxHeight: '400px' }}
+                      style={{ maxHeight: "400px" }}
                     />
                     <div className="scanner-overlay"></div>
                     {validating && (
@@ -332,7 +352,8 @@ export default function ScanPage() {
                           onClick={changeCamera}
                           className="flex-1 btn btn-secondary"
                         >
-                          🔄 Change Camera ({selectedCameraIndex + 1}/{availableCameras.length})
+                          🔄 Change Camera ({selectedCameraIndex + 1}/
+                          {availableCameras.length})
                         </button>
                       )}
                     </>
@@ -347,8 +368,8 @@ export default function ScanPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   className={`mt-6 p-6 rounded-lg ${
                     result.success
-                      ? 'bg-green-50 border-2 border-green-500'
-                      : 'bg-red-50 border-2 border-red-500'
+                      ? "bg-green-50 border-2 border-green-500"
+                      : "bg-red-50 border-2 border-red-500"
                   }`}
                 >
                   {result.success ? (
@@ -370,8 +391,9 @@ export default function ScanPage() {
                           <strong>Event:</strong> {result.ticket?.eventTitle}
                         </p>
                         <p>
-                          <strong>Date:</strong>{' '}
-                          {result.ticket?.eventDate && formatDate(result.ticket.eventDate)}
+                          <strong>Date:</strong>{" "}
+                          {result.ticket?.eventDate &&
+                            formatDate(result.ticket.eventDate)}
                         </p>
                       </div>
                     </>
@@ -380,11 +402,11 @@ export default function ScanPage() {
                       <div className="text-center mb-4">
                         <div className="text-6xl mb-2">❌</div>
                         <h3 className="text-2xl font-bold text-red-800">
-                          {result.code === 'ALREADY_USED'
-                            ? 'Already Used'
-                            : result.code === 'NOT_FOUND'
-                            ? 'Not Found'
-                            : 'Invalid Ticket'}
+                          {result.code === "ALREADY_USED"
+                            ? "Already Used"
+                            : result.code === "NOT_FOUND"
+                              ? "Not Found"
+                              : "Invalid Ticket"}
                         </h3>
                       </div>
                       <p className="text-center text-gray-800">
@@ -394,7 +416,8 @@ export default function ScanPage() {
                   )}
                   {result?.success && (
                     <div className="text-center text-sm text-green-600 mt-4">
-                      ✅ Ticket validated successfully! Next scan available in a few seconds...
+                      ✅ Ticket validated successfully! Next scan available in a
+                      few seconds...
                     </div>
                   )}
                   <button
@@ -404,7 +427,9 @@ export default function ScanPage() {
                       // Small delay to allow UI to update
                       setTimeout(() => {
                         if (availableCameras.length > 0) {
-                          startScanningWithCamera(availableCameras[selectedCameraIndex]);
+                          startScanningWithCamera(
+                            availableCameras[selectedCameraIndex],
+                          );
                         } else {
                           startScanning();
                         }
@@ -413,7 +438,7 @@ export default function ScanPage() {
                     className="mt-6 w-full btn btn-primary"
                     disabled={result?.success}
                   >
-                    {result?.success ? 'Please Wait...' : 'Scan Next Ticket'}
+                    {result?.success ? "Please Wait..." : "Scan Next Ticket"}
                   </button>
                 </motion.div>
               )}
@@ -428,7 +453,9 @@ export default function ScanPage() {
                   <li>The ticket will be validated automatically</li>
                   <li>Green = Valid, Red = Invalid or already used</li>
                   <li>Use "Manual Entry" if camera doesn't work</li>
-                  <li>Use "🔄 Change Camera" to switch between front/back cameras</li>
+                  <li>
+                    Use "🔄 Change Camera" to switch between front/back cameras
+                  </li>
                 </ul>
               </div>
             </div>
@@ -440,6 +467,3 @@ export default function ScanPage() {
     </div>
   );
 }
-
-
-

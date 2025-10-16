@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 /**
  * Organizer events management page
@@ -23,7 +23,7 @@ interface Event {
   category?: string;
   ticketsSold: number;
   capacity: number; // Now required
-  status: 'draft' | 'published' | 'cancelled';
+  status: "draft" | "published" | "cancelled";
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -39,44 +39,44 @@ export default function OrganizerEventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/events');
+      const response = await fetch("/api/events");
       const data = await response.json();
       // Filter to show only current user's events (done by API)
       setEvents(data.events);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error("Error fetching events:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (eventId: string) => {
-    if (!confirm('Are you sure you want to cancel this event?')) {
+    if (!confirm("Are you sure you want to cancel this event?")) {
       return;
     }
 
     try {
       const response = await fetch(`/api/events/${eventId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
         setEvents(events.filter((e) => e._id !== eventId));
-        alert('Event cancelled successfully');
+        alert("Event cancelled successfully");
       }
     } catch (error) {
-      console.error('Error deleting event:', error);
-      alert('Failed to cancel event');
+      console.error("Error deleting event:", error);
+      alert("Failed to cancel event");
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -111,7 +111,10 @@ export default function OrganizerEventsPage() {
                 <p className="text-gray-600 text-lg mb-4">
                   You haven't created any events yet
                 </p>
-                <Link href="/organizer/events/create" className="btn btn-primary">
+                <Link
+                  href="/organizer/events/create"
+                  className="btn btn-primary"
+                >
                   Create Your First Event
                 </Link>
               </div>
@@ -131,11 +134,11 @@ export default function OrganizerEventsPage() {
                           <h3 className="text-2xl font-bold">{event.title}</h3>
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              event.status === 'published'
-                                ? 'bg-green-100 text-green-800'
-                                : event.status === 'draft'
-                                ? 'bg-gray-100 text-gray-800'
-                                : 'bg-red-100 text-red-800'
+                              event.status === "published"
+                                ? "bg-green-100 text-green-800"
+                                : event.status === "draft"
+                                  ? "bg-gray-100 text-gray-800"
+                                  : "bg-red-100 text-red-800"
                             }`}
                           >
                             {event.status}
@@ -148,7 +151,10 @@ export default function OrganizerEventsPage() {
                           <span>📅 {formatDate(event.date)}</span>
                           <span>📍 {event.location}</span>
                           <span>
-                            💰 {event.price === 0 ? 'Free for everyone' : `€${formatPrice(event.price)}${event.membershipFree ? ' (Free for members)' : ''}`}
+                            💰{" "}
+                            {event.price === 0
+                              ? "Free for everyone"
+                              : `€${formatPrice(event.price)}${event.membershipFree ? " (Free for members)" : ""}`}
                           </span>
                           <span>
                             🎟️ {event.ticketsSold}/{event.capacity} sold
@@ -189,6 +195,3 @@ export default function OrganizerEventsPage() {
     </div>
   );
 }
-
-
-

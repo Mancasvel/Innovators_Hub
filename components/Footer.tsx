@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 
 /**
  * Footer component with brand information
@@ -17,7 +17,8 @@ export default function Footer() {
               Innovators Hub
             </h3>
             <p className="text-gray-400">
-              Your community for digital nomads and innovators in Seville, Spain.
+              Your community for digital nomads and innovators in Seville,
+              Spain.
             </p>
           </div>
 
@@ -64,12 +65,12 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} Innovators Hub. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Innovators Hub. All rights
+            reserved.
+          </p>
         </div>
       </div>
     </footer>
   );
 }
-
-
-

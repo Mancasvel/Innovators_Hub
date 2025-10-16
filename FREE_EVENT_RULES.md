@@ -9,9 +9,10 @@ Se ha implementado completamente la regla de que **el precio gratuito prevalece 
 ### 1. Modelo de Datos (models/Event.ts)
 
 **Middleware agregado:**
+
 ```typescript
 // Pre-save middleware to enforce free event logic
-EventSchema.pre('save', function(next) {
+EventSchema.pre("save", function (next) {
   // If price is 0, event is automatically free for everyone
   // This overrides any membershipFree setting
   if (this.price === 0) {
@@ -21,7 +22,7 @@ EventSchema.pre('save', function(next) {
 });
 
 // Pre-update middleware for findOneAndUpdate operations
-EventSchema.pre('findOneAndUpdate', function(next) {
+EventSchema.pre("findOneAndUpdate", function (next) {
   const update = this.getUpdate() as any;
 
   // If price is being set to 0, automatically set membershipFree to true
@@ -38,6 +39,7 @@ EventSchema.pre('findOneAndUpdate', function(next) {
 ### 2. API de Actualización (app/api/events/[id]/route.ts)
 
 **Lógica adicional en PATCH:**
+
 ```typescript
 // Apply free event logic: if price is 0, automatically set membershipFree to true
 if (sanitizedData.price === 0) {
@@ -50,6 +52,7 @@ if (sanitizedData.price === 0) {
 ### 3. Formulario de Creación (app/organizer/events/create/page.tsx)
 
 **UI mejorada:**
+
 ```typescript
 <input
   id="membershipFree"
@@ -77,16 +80,22 @@ if (sanitizedData.price === 0) {
 ### 5. API de Reclamo de Entradas (app/api/tickets/free-claim/route.ts)
 
 **Nueva lógica de autorización:**
+
 ```typescript
 // Check if event is free for everyone (price = 0) or free for members
 const isFreeEvent = event.price === 0;
 const isFreeForMember = event.membershipFree && user.hasMembership;
 
 if (!isFreeEvent && !isFreeForMember) {
-  return NextResponse.json({
-    error: isFreeForMember ? 'Este evento no es gratuito para miembros' : 'Se requiere membresía activa para reclamar esta entrada',
-    code: isFreeForMember ? 'NOT_FREE' : 'NO_MEMBERSHIP'
-  }, { status: 400 });
+  return NextResponse.json(
+    {
+      error: isFreeForMember
+        ? "Este evento no es gratuito para miembros"
+        : "Se requiere membresía activa para reclamar esta entrada",
+      code: isFreeForMember ? "NOT_FREE" : "NO_MEMBERSHIP",
+    },
+    { status: 400 },
+  );
 }
 ```
 
@@ -95,6 +104,7 @@ if (!isFreeEvent && !isFreeForMember) {
 ### 6. Página de Evento (app/events/[id]/page.tsx)
 
 **Lógica de precios efectivos actualizada:**
+
 ```typescript
 // Determine effective price: free if price is 0 OR if membership-free event and user is member
 const isFreeEvent = event.price === 0;
@@ -103,6 +113,7 @@ const effectivePrice = isFreeEvent || isFreeForMember ? 0 : event.price;
 ```
 
 **UI mejorada:**
+
 ```typescript
 {isFreeEvent ? (
   <p className="text-sm text-gray-600">
@@ -118,6 +129,7 @@ const effectivePrice = isFreeEvent || isFreeForMember ? 0 : event.price;
 ### 7. Lista de Eventos (app/events/page.tsx)
 
 **Indicadores visuales mejorados:**
+
 ```typescript
 {event.price === 0 ? (
   <div>
@@ -145,6 +157,7 @@ const effectivePrice = isFreeEvent || isFreeForMember ? 0 : event.price;
 ### 8. Página de Eventos del Organizador (app/organizer/events/page.tsx)
 
 **Indicadores mejorados:**
+
 ```typescript
 💰 {event.price === 0 ? 'Free for everyone' : `€${formatPrice(event.price)}${event.membershipFree ? ' (Free for members)' : ''}`}
 ```
@@ -188,6 +201,7 @@ npm run build  # ✅ Compilación exitosa
 ```
 
 Todas las reglas se aplican correctamente en:
+
 - ✅ Creación de eventos
 - ✅ Actualización de eventos
 - ✅ Reclamo de entradas gratuitas
@@ -197,4 +211,3 @@ Todas las reglas se aplican correctamente en:
 ## 🚀 Próximos Pasos
 
 La implementación está completa y funcional. Los usuarios ahora pueden crear eventos gratuitos que sean accesibles para todos, con una experiencia de usuario clara y consistente.
-

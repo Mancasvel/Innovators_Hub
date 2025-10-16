@@ -3,18 +3,18 @@
  */
 
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   color?: string;
 }
 
 export default function LoadingSpinner({
-  size = 'md',
-  color = 'border-seville-orange',
+  size = "md",
+  color = "border-seville-orange",
 }: LoadingSpinnerProps) {
   const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-12 w-12',
-    lg: 'h-16 w-16',
+    sm: "h-6 w-6",
+    md: "h-12 w-12",
+    lg: "h-16 w-16",
   };
 
   return (
@@ -25,6 +25,3 @@ export default function LoadingSpinner({
     </div>
   );
 }
-
-
-

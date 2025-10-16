@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 /**
  * Membership management page
@@ -22,10 +22,10 @@ export default function MembershipPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'membership' }),
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "membership" }),
       });
 
       const data = await response.json();
@@ -34,8 +34,8 @@ export default function MembershipPage() {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error('Error creating checkout:', error);
-      alert('Failed to process subscription. Please try again.');
+      console.error("Error creating checkout:", error);
+      alert("Failed to process subscription. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -45,9 +45,9 @@ export default function MembershipPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/stripe/portal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
 
       const data = await response.json();
@@ -56,8 +56,8 @@ export default function MembershipPage() {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error('Error opening portal:', error);
-      alert('Failed to open customer portal. Please try again.');
+      console.error("Error opening portal:", error);
+      alert("Failed to open customer portal. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ export default function MembershipPage() {
                     disabled={loading}
                     className="btn bg-white text-seville-orange hover:bg-gray-100"
                   >
-                    {loading ? 'Loading...' : 'Manage Subscription'}
+                    {loading ? "Loading..." : "Manage Subscription"}
                   </button>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function MembershipPage() {
                   disabled={loading}
                   className="mt-6 btn bg-white text-seville-orange hover:bg-gray-100"
                 >
-                  {loading ? 'Processing...' : 'Subscribe Now'}
+                  {loading ? "Processing..." : "Subscribe Now"}
                 </button>
               </div>
             )}
@@ -126,7 +126,8 @@ export default function MembershipPage() {
                 <div className="text-4xl mb-4">🎟️</div>
                 <h3 className="text-xl font-bold mb-2">Free Event Access</h3>
                 <p className="text-gray-600">
-                  Attend selected workshops, talks, and networking events at no extra cost
+                  Attend selected workshops, talks, and networking events at no
+                  extra cost
                 </p>
               </div>
 
@@ -162,6 +163,3 @@ export default function MembershipPage() {
     </div>
   );
 }
-
-
-
