@@ -259,7 +259,7 @@ export default function CreateEventPage() {
                       setFormData({ ...formData, images: urls as string[] })
                     }
                     disabled={loading}
-                    multiple={true}
+                    multiple
                     maxImages={10}
                   />
                 </div>

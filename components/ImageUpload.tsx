@@ -384,8 +384,7 @@ export default function ImageUpload({
                   placeholder="https://example.com/image.jpg"
                   onChange={(e) => {
                     if (
-                      e.target.value &&
-                      e.target.value.match(
+                      e.target.value?.match(
                         /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i,
                       )
                     ) {
