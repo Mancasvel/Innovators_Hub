@@ -197,7 +197,7 @@ export default function ScanPage() {
       });
 
       if (response.ok) {
-        console.log('✅ Ticket validated successfully:', data.ticket);
+        console.log('✅ Ticket validated successfully');
         setResult({
           success: true,
           ticket: data.ticket,
@@ -212,7 +212,7 @@ export default function ScanPage() {
           }, 3000);
         }
       } else {
-        console.log('❌ Ticket validation failed:', data.error, 'Code:', data.code);
+        console.log('❌ Ticket validation failed');
         setResult({
           success: false,
           error: data.error,
