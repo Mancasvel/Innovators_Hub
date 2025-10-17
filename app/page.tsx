@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import Link from "next/link";
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 /**
  * Homepage - Landing page for Innovators Hub
@@ -27,13 +27,20 @@ export default function HomePage() {
               Welcome to Innovators Hub
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-white/90">
-              Your community for digital nomads and innovators in beautiful Seville, Spain
+              Your community for digital nomads and innovators in beautiful
+              Seville, Spain
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/events" className="btn bg-white text-seville-orange hover:bg-gray-100">
+              <Link
+                href="/events"
+                className="btn bg-white text-seville-orange hover:bg-gray-100"
+              >
                 Explore Events
               </Link>
-              <Link href="/auth/register" className="btn btn-outline border-white text-white hover:bg-white hover:text-seville-orange">
+              <Link
+                href="/auth/register"
+                className="btn btn-outline border-white text-white hover:bg-white hover:text-seville-orange"
+              >
                 Join Community
               </Link>
             </div>
@@ -56,19 +63,22 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: '🌍',
-                title: 'Global Community',
-                description: 'Connect with digital nomads and innovators from around the world',
+                icon: "🌍",
+                title: "Global Community",
+                description:
+                  "Connect with digital nomads and innovators from around the world",
               },
               {
-                icon: '🎟️',
-                title: 'Exclusive Events',
-                description: 'Access workshops, networking events, and talks by industry leaders',
+                icon: "🎟️",
+                title: "Exclusive Events",
+                description:
+                  "Access workshops, networking events, and talks by industry leaders",
               },
               {
-                icon: '⭐',
-                title: 'Premium Membership',
-                description: 'Get free access to selected events with our annual membership',
+                icon: "⭐",
+                title: "Premium Membership",
+                description:
+                  "Get free access to selected events with our annual membership",
               },
             ].map((feature, index) => (
               <motion.div
@@ -93,7 +103,8 @@ export default function HomePage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join hundreds of innovators and be part of Seville's thriving digital community
+            Join hundreds of innovators and be part of Seville's thriving
+            digital community
           </p>
           <Link href="/auth/register" className="btn btn-primary text-lg">
             Create Free Account
@@ -105,6 +116,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
-

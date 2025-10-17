@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+import Stripe from "stripe";
 
 /**
  * Stripe configuration for payment processing
@@ -6,12 +6,14 @@ import Stripe from 'stripe';
  */
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('⚠️ STRIPE_SECRET_KEY is not defined. Stripe functionality will be disabled.');
+  console.warn(
+    "⚠️ STRIPE_SECRET_KEY is not defined. Stripe functionality will be disabled.",
+  );
 }
 
 export const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-02-24.acacia',
+      apiVersion: "2025-02-24.acacia",
       typescript: true,
     })
   : null;
@@ -45,18 +47,18 @@ export async function createCheckoutSession({
   }
 
   if (!stripe) {
-    throw new Error('Stripe not configured');
+    throw new Error("Stripe not configured");
   }
 
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
+    payment_method_types: ["card"],
     line_items: [
       {
         price_data: {
-          currency: 'eur',
+          currency: "eur",
           product_data: {
             name: eventTitle,
-            description: 'Event ticket for Innovators Hub',
+            description: "Event ticket for Innovators Hub",
             images: [`${process.env.NEXT_PUBLIC_APP_URL}/logo.png`],
           },
           unit_amount: finalPrice,
@@ -64,14 +66,14 @@ export async function createCheckoutSession({
         quantity: 1,
       },
     ],
-    mode: 'payment',
+    mode: "payment",
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/user/tickets?success=true`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/events/${eventId}?cancelled=true`,
     customer_email: userEmail,
     metadata: {
       eventId,
       userId,
-      type: 'ticket',
+      type: "ticket",
     },
   });
 
@@ -96,23 +98,23 @@ export async function createMembershipSession({
   const priceId = process.env.STRIPE_MEMBERSHIP_PRICE_ID;
 
   if (!priceId) {
-    throw new Error('STRIPE_MEMBERSHIP_PRICE_ID is not configured');
+    throw new Error("STRIPE_MEMBERSHIP_PRICE_ID is not configured");
   }
 
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
-    payment_method_types: ['card'],
+    payment_method_types: ["card"],
     line_items: [
       {
         price: priceId,
         quantity: 1,
       },
     ],
-    mode: 'subscription',
+    mode: "subscription",
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/user/membership?success=true`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/user/membership?cancelled=true`,
     metadata: {
       userId,
-      type: 'membership',
+      type: "membership",
     },
   };
 
@@ -124,7 +126,7 @@ export async function createMembershipSession({
   }
 
   if (!stripe) {
-    throw new Error('Stripe not configured');
+    throw new Error("Stripe not configured");
   }
 
   const session = await stripe.checkout.sessions.create(sessionParams);
@@ -140,7 +142,7 @@ export async function createMembershipSession({
  */
 export async function createCustomerPortalSession(stripeCustomerId: string) {
   if (!stripe) {
-    throw new Error('Stripe not configured');
+    throw new Error("Stripe not configured");
   }
 
   const session = await stripe.billingPortal.sessions.create({
@@ -152,6 +154,3 @@ export async function createCustomerPortalSession(stripeCustomerId: string) {
 }
 
 export default stripe;
-
-
-

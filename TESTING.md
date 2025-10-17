@@ -9,6 +9,7 @@ This project includes comprehensive test coverage for all critical functionality
 ### Unit Tests
 
 #### Utility Functions (`__tests__/lib/`)
+
 - **validation.test.ts**: Tests for Zod schemas and input validation
   - Registration, login, event creation schemas
   - Query parameter validation
@@ -29,6 +30,7 @@ This project includes comprehensive test coverage for all critical functionality
 ### API Route Tests (`__tests__/api/`)
 
 #### Authentication
+
 - **auth/register.test.ts**: User registration flow
   - Successful registration
   - Duplicate email prevention
@@ -38,6 +40,7 @@ This project includes comprehensive test coverage for all critical functionality
   - Security checks
 
 #### Events
+
 - **events/route.test.ts**: Event CRUD operations
   - Event creation with proper authorization
   - Event listing with filters
@@ -47,6 +50,7 @@ This project includes comprehensive test coverage for all critical functionality
   - Default values
 
 #### Tickets
+
 - **tickets/validate.test.ts**: Ticket validation
   - Valid ticket scanning
   - Authentication requirements
@@ -85,6 +89,7 @@ This project includes comprehensive test coverage for all critical functionality
 ### Model Tests (`__tests__/models/`)
 
 #### User Model
+
 - **User.test.ts**: User schema validation
   - Required fields
   - Email uniqueness
@@ -95,6 +100,7 @@ This project includes comprehensive test coverage for all critical functionality
   - Stripe integration
 
 #### Event Model
+
 - **Event.test.ts**: Event schema validation
   - Required fields
   - Default values (capacity: 50, status: published)
@@ -105,6 +111,7 @@ This project includes comprehensive test coverage for all critical functionality
   - Creator reference
 
 #### Ticket Model
+
 - **Ticket.test.ts**: Ticket schema validation
   - Required fields
   - Status types (valid, used, cancelled, refunded)
@@ -117,6 +124,7 @@ This project includes comprehensive test coverage for all critical functionality
 ### Integration Tests (`__tests__/integration/`)
 
 #### Ticket Flow
+
 - **ticket-flow.test.ts**: End-to-end ticket operations
   - Free event ticket claiming
   - Member-free event access
@@ -126,6 +134,7 @@ This project includes comprehensive test coverage for all critical functionality
   - Security checks (QR reuse prevention, signature integrity)
 
 #### Authentication Flow
+
 - **auth-flow.test.ts**: End-to-end auth operations
   - User registration with all roles
   - Email uniqueness enforcement
@@ -138,21 +147,25 @@ This project includes comprehensive test coverage for all critical functionality
 ## Running Tests
 
 ### All Tests with Coverage
+
 ```bash
 npm test
 ```
 
 ### Watch Mode (Development)
+
 ```bash
 npm run test:watch
 ```
 
 ### CI Mode
+
 ```bash
 npm run test:ci
 ```
 
 ### Coverage Report
+
 Coverage reports are generated in the `coverage/` directory after running tests.
 
 ```bash
@@ -172,6 +185,7 @@ The project enforces minimum coverage thresholds:
 ## Test Categories
 
 ### Security Tests
+
 - Password hashing (bcrypt)
 - QR code signature verification
 - HMAC tamper detection
@@ -181,6 +195,7 @@ The project enforces minimum coverage thresholds:
 - Capacity race conditions (atomic operations)
 
 ### Edge Cases
+
 - Empty/null/undefined values
 - Boundary conditions (min/max)
 - Invalid data types
@@ -191,6 +206,7 @@ The project enforces minimum coverage thresholds:
 - Concurrent operations
 
 ### Regular Cases
+
 - Standard user flows
 - CRUD operations
 - Authentication/authorization
@@ -202,6 +218,7 @@ The project enforces minimum coverage thresholds:
 ## Mocking Strategy
 
 ### External Services
+
 - **next-auth**: Session management
 - **next/navigation**: Router and navigation hooks
 - **framer-motion**: Animation components
@@ -209,11 +226,14 @@ The project enforces minimum coverage thresholds:
 - **uploadthing**: File uploads (in component tests)
 
 ### Database
+
 Tests use actual MongoDB connections with test database for:
+
 - Model validation tests
 - Integration tests
 
 ### Environment Variables
+
 All required environment variables are mocked in `jest.setup.js`
 
 ## Best Practices
@@ -241,6 +261,7 @@ When adding new features:
 ## Continuous Integration
 
 Tests run automatically on:
+
 - Pull requests
 - Commits to main branch
 - Pre-deployment checks
@@ -250,16 +271,21 @@ CI configuration uses `npm run test:ci` for optimal performance.
 ## Troubleshooting
 
 ### MongoDB Connection Issues
+
 Ensure MongoDB is running locally or set `MONGODB_URI` in test environment.
 
 ### Timeout Errors
+
 Increase Jest timeout in test file:
+
 ```javascript
-jest.setTimeout(10000) // 10 seconds
+jest.setTimeout(10000); // 10 seconds
 ```
 
 ### Coverage Not Meeting Threshold
+
 Run with verbose coverage:
+
 ```bash
 npm test -- --coverage --verbose
 ```
@@ -287,4 +313,3 @@ npm test -- --coverage --verbose
 - [ ] API contract testing
 - [ ] Mutation testing
 - [ ] Accessibility testing
-

@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@/lib/db';
-import Event from '@/models/Event';
-import Ticket from '@/models/Ticket';
-import User from '@/models/User';
-import { generateSecureQRCode } from '@/lib/verifyTicket';
-import { sendTicketEmail } from '@/lib/email';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
+import Event from "@/models/Event";
+import Ticket from "@/models/Ticket";
+import User from "@/models/User";
+import { generateSecureQRCode } from "@/lib/verifyTicket";
+import { sendTicketEmail } from "@/lib/email";
 
 /**
  * Claim a free ticket (for members)
@@ -19,18 +19,18 @@ export async function GET(req: Request) {
 
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'No autorizado', code: 'UNAUTHORIZED' },
-        { status: 401 }
+        { error: "No autorizado", code: "UNAUTHORIZED" },
+        { status: 401 },
       );
     }
 
     const { searchParams } = new URL(req.url);
-    const eventId = searchParams.get('eventId');
+    const eventId = searchParams.get("eventId");
 
     if (!eventId) {
       return NextResponse.json(
-        { error: 'ID de evento requerido', code: 'INVALID_REQUEST' },
-        { status: 400 }
+        { error: "ID de evento requerido", code: "INVALID_REQUEST" },
+        { status: 400 },
       );
     }
 
@@ -39,16 +39,16 @@ export async function GET(req: Request) {
     const event = await Event.findById(eventId);
     if (!event) {
       return NextResponse.json(
-        { error: 'Evento no encontrado', code: 'NOT_FOUND' },
-        { status: 404 }
+        { error: "Evento no encontrado", code: "NOT_FOUND" },
+        { status: 404 },
       );
     }
 
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json(
-        { error: 'Usuario no encontrado', code: 'USER_NOT_FOUND' },
-        { status: 404 }
+        { error: "Usuario no encontrado", code: "USER_NOT_FOUND" },
+        { status: 404 },
       );
     }
 
@@ -57,17 +57,25 @@ export async function GET(req: Request) {
     const isFreeForMember = event.membershipFree && user.hasMembership;
 
     if (!isFreeEvent && !isFreeForMember) {
-      return NextResponse.json({
-        error: isFreeForMember ? 'Este evento no es gratuito para miembros' : 'Se requiere membresía activa para reclamar esta entrada',
-        code: isFreeForMember ? 'NOT_FREE' : 'NO_MEMBERSHIP'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: isFreeForMember
+            ? "Este evento no es gratuito para miembros"
+            : "Se requiere membresía activa para reclamar esta entrada",
+          code: isFreeForMember ? "NOT_FREE" : "NO_MEMBERSHIP",
+        },
+        { status: 400 },
+      );
     }
 
     // Check if event has reached capacity
     if (event.capacity && event.ticketsSold >= event.capacity) {
       return NextResponse.json(
-        { error: 'Este evento ha alcanzado su capacidad máxima', code: 'SOLD_OUT' },
-        { status: 400 }
+        {
+          error: "Este evento ha alcanzado su capacidad máxima",
+          code: "SOLD_OUT",
+        },
+        { status: 400 },
       );
     }
 
@@ -79,8 +87,11 @@ export async function GET(req: Request) {
 
     if (existingTicket) {
       return NextResponse.json(
-        { error: 'Ya tienes una entrada para este evento', code: 'ALREADY_CLAIMED' },
-        { status: 400 }
+        {
+          error: "Ya tienes una entrada para este evento",
+          code: "ALREADY_CLAIMED",
+        },
+        { status: 400 },
       );
     }
 
@@ -89,24 +100,27 @@ export async function GET(req: Request) {
 
     // Create free ticket (atomic operation with capacity check)
     const updatedEvent = await Event.findOneAndUpdate(
-      { 
+      {
         _id: eventId,
         $expr: {
           $or: [
-            { $eq: ['$capacity', null] }, // No capacity limit
-            { $lt: ['$ticketsSold', '$capacity'] } // Still has capacity
-          ]
-        }
+            { $eq: ["$capacity", null] }, // No capacity limit
+            { $lt: ["$ticketsSold", "$capacity"] }, // Still has capacity
+          ],
+        },
       },
       { $inc: { ticketsSold: 1 } },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedEvent) {
       // Race condition: event sold out between checks
       return NextResponse.json(
-        { error: 'El evento se agotó mientras procesábamos tu solicitud', code: 'SOLD_OUT' },
-        { status: 400 }
+        {
+          error: "El evento se agotó mientras procesábamos tu solicitud",
+          code: "SOLD_OUT",
+        },
+        { status: 400 },
       );
     }
 
@@ -116,13 +130,13 @@ export async function GET(req: Request) {
       eventId: event._id,
       qrCode,
       qrSignature: signature,
-      status: 'valid',
-      paymentId: 'free-membership',
+      status: "valid",
+      paymentId: "free-membership",
       purchasePrice: 0,
       purchasedWithMembership: true,
     });
 
-    console.log('✅ Free ticket claimed:', {
+    console.log("✅ Free ticket claimed:", {
       userId: user._id,
       eventId: event._id,
       ticketId: ticket._id,
@@ -133,17 +147,18 @@ export async function GET(req: Request) {
 
     // Send ticket email with updated event data (includes the new ticket count)
     try {
-      console.log('📧 Attempting to send ticket email to:', user.email);
+      console.log("📧 Attempting to send ticket email to:", user.email);
       await sendTicketEmail(user.email, user.name, updatedEvent, ticket);
-      console.log('✅ Ticket email sent successfully');
+      console.log("✅ Ticket email sent successfully");
     } catch (emailError) {
-      console.error('❌ Error sending ticket email:', emailError);
+      console.error("❌ Error sending ticket email:", emailError);
       // Don't block the user flow if email fails
     }
 
     return NextResponse.json({
       success: true,
-      message: '¡Entrada reclamada con éxito! Revisa tu email para el código QR.',
+      message:
+        "¡Entrada reclamada con éxito! Revisa tu email para el código QR.",
       ticket: {
         id: ticket._id,
         qrCode: ticket.qrCode,
@@ -151,13 +166,13 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error('Free claim error:', error);
+    console.error("Free claim error:", error);
     return NextResponse.json(
-      { error: 'Error al procesar la solicitud. Por favor, inténtalo de nuevo.', code: 'INTERNAL_ERROR' },
-      { status: 500 }
+      {
+        error: "Error al procesar la solicitud. Por favor, inténtalo de nuevo.",
+        code: "INTERNAL_ERROR",
+      },
+      { status: 500 },
     );
   }
 }
-
-
-

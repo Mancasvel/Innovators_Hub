@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-export type TicketStatus = 'valid' | 'used' | 'cancelled' | 'refunded';
+export type TicketStatus = "valid" | "used" | "cancelled" | "refunded";
 
 export interface ITicket extends Document {
   _id: string;
@@ -23,13 +23,13 @@ const TicketSchema = new Schema<ITicket>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
     eventId: {
       type: Schema.Types.ObjectId,
-      ref: 'Event',
+      ref: "Event",
       required: true,
       index: true,
     },
@@ -50,8 +50,8 @@ const TicketSchema = new Schema<ITicket>(
     },
     status: {
       type: String,
-      enum: ['valid', 'used', 'cancelled', 'refunded'],
-      default: 'valid',
+      enum: ["valid", "used", "cancelled", "refunded"],
+      default: "valid",
       index: true,
     },
     paymentId: {
@@ -72,12 +72,12 @@ const TicketSchema = new Schema<ITicket>(
     },
     usedBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Compound indexes for common queries
@@ -85,9 +85,7 @@ TicketSchema.index({ userId: 1, eventId: 1 });
 TicketSchema.index({ qrCode: 1, status: 1 });
 TicketSchema.index({ eventId: 1, status: 1 });
 
-const Ticket: Model<ITicket> = mongoose.models.Ticket || mongoose.model<ITicket>('Ticket', TicketSchema);
+const Ticket: Model<ITicket> =
+  mongoose.models.Ticket || mongoose.model<ITicket>("Ticket", TicketSchema);
 
 export default Ticket;
-
-
-

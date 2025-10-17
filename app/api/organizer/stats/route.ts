@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@/lib/db';
-import Event from '@/models/Event';
-import Ticket from '@/models/Ticket';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
+import Event from "@/models/Event";
+import Ticket from "@/models/Ticket";
 
 /**
  * Organizer statistics API
@@ -15,15 +15,12 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
-    if (userRole !== 'organizer' && userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Organizers only' },
-        { status: 403 }
-      );
+    if (userRole !== "organizer" && userRole !== "admin") {
+      return NextResponse.json({ error: "Organizers only" }, { status: 403 });
     }
 
     await connectDB();
@@ -39,25 +36,26 @@ export async function GET() {
 
     const usedTickets = await Ticket.countDocuments({
       eventId: { $in: eventIds },
-      status: 'used',
+      status: "used",
     });
 
     const validTickets = await Ticket.countDocuments({
       eventId: { $in: eventIds },
-      status: 'valid',
+      status: "valid",
     });
 
     // Calculate revenue
     const tickets = await Ticket.find({
       eventId: { $in: eventIds },
-    }).select('purchasePrice');
+    }).select("purchasePrice");
 
     const totalRevenue = tickets.reduce((sum, t) => sum + t.purchasePrice, 0);
 
     return NextResponse.json({
       stats: {
         totalEvents: events.length,
-        upcomingEvents: events.filter((e) => new Date(e.date) > new Date()).length,
+        upcomingEvents: events.filter((e) => new Date(e.date) > new Date())
+          .length,
         totalTickets,
         usedTickets,
         validTickets,
@@ -65,10 +63,10 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error fetching stats:', error);
-    return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
+    console.error("Error fetching stats:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch stats" },
+      { status: 500 },
+    );
   }
 }
-
-
-

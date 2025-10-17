@@ -32,7 +32,7 @@ Guía paso a paso para configurar el envío de emails con **Gmail SMTP** en Inno
 **NO uses tu contraseña normal de Gmail** - Usa una contraseña específica para apps.
 
 1. Ve a: https://myaccount.google.com/apppasswords
-   
+
    > Si no ves esta opción, asegúrate de que 2FA esté activada primero.
 
 2. Puede pedirte que inicies sesión de nuevo
@@ -47,6 +47,7 @@ Guía paso a paso para configurar el envío de emails con **Gmail SMTP** en Inno
 5. Click en **"Generar"**
 
 6. Google te mostrará una **contraseña de 16 caracteres** como:
+
    ```
    abcd efgh ijkl mnop
    ```
@@ -71,6 +72,7 @@ SMTP_FROM=noreply@unsent.app
 ```
 
 **Reemplaza:**
+
 - `tu-email@gmail.com` → Tu email de Gmail real
 - `abcdefghijklmnop` → La contraseña de 16 caracteres que copiaste
 
@@ -110,6 +112,7 @@ Si ves un error, revisa tus credenciales.
 ### Test 1: Email de Bienvenida
 
 1. Registra un nuevo usuario:
+
    ```
    http://localhost:3000/auth/register
    ```
@@ -142,6 +145,7 @@ Si ves un error, revisa tus credenciales.
 **Causa:** Contraseña incorrecta o no es una contraseña de aplicación
 
 **Solución:**
+
 1. Verifica que 2FA esté activa
 2. Genera una **nueva** contraseña de aplicación
 3. Cópiala SIN espacios
@@ -160,7 +164,7 @@ En `lib/email.ts`, cambia la configuración:
 
 ```typescript
 const SMTP_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
@@ -168,8 +172,8 @@ const SMTP_CONFIG = {
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false // Solo para desarrollo
-  }
+    rejectUnauthorized: false, // Solo para desarrollo
+  },
 };
 ```
 
@@ -212,12 +216,14 @@ const SMTP_CONFIG = {
 ### ⚠️ Gmail NO es recomendado para producción
 
 Para producción, usa un servicio profesional como:
+
 - **Resend** ⭐ (recomendado)
 - **SendGrid**
 - **Mailgun**
 - **Amazon SES**
 
 **¿Por qué?**
+
 - ❌ Gmail tiene límite de 500 emails/día
 - ❌ Puede bloquear tu cuenta por "actividad sospechosa"
 - ❌ No tiene analytics (opens, clicks, bounces)
@@ -236,17 +242,17 @@ Para producción, usa un servicio profesional como:
 
 ## 📊 Comparación: Gmail vs Servicios Profesionales
 
-| Característica | Gmail SMTP | Resend API | SendGrid |
-|----------------|-----------|------------|----------|
-| **Costo** | Gratis | $0-$20/mes | $0-$20/mes |
-| **Límite diario** | 500 | 3,000 (free) | 100 (free) |
-| **Límite mensual** | 15,000 | 3,000 (free) | 3,000 (free) |
-| **Setup** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Deliverability** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Analytics** | ❌ | ✅ | ✅ |
-| **Templates** | ❌ | ✅ | ✅ |
-| **Webhooks** | ❌ | ✅ | ✅ |
-| **Recomendado para** | Testing | Producción ⭐ | Producción |
+| Característica       | Gmail SMTP | Resend API    | SendGrid     |
+| -------------------- | ---------- | ------------- | ------------ |
+| **Costo**            | Gratis     | $0-$20/mes    | $0-$20/mes   |
+| **Límite diario**    | 500        | 3,000 (free)  | 100 (free)   |
+| **Límite mensual**   | 15,000     | 3,000 (free)  | 3,000 (free) |
+| **Setup**            | ⭐⭐⭐     | ⭐⭐⭐⭐⭐    | ⭐⭐⭐       |
+| **Deliverability**   | ⭐⭐⭐     | ⭐⭐⭐⭐⭐    | ⭐⭐⭐⭐     |
+| **Analytics**        | ❌         | ✅            | ✅           |
+| **Templates**        | ❌         | ✅            | ✅           |
+| **Webhooks**         | ❌         | ✅            | ✅           |
+| **Recomendado para** | Testing    | Producción ⭐ | Producción   |
 
 ---
 
@@ -271,7 +277,7 @@ async function sendEmailWithRetry(emailFn: Function, maxRetries = 3) {
       return await emailFn();
     } catch (error) {
       if (i === maxRetries - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
     }
   }
 }
@@ -287,7 +293,7 @@ export async function sendEmail(...args) {
     console.error('Gmail daily limit reached!');
     return;
   }
-  
+
   await transporter.sendMail(...);
   emailsSentToday++;
 }
@@ -313,14 +319,16 @@ transporter.sendMail({...}, (error, info) => {
 Tu proyecto ya tiene estos 3 emails listos:
 
 ### 1. 🎟️ Email de Entrada (Ticket)
+
 - **Trigger:** Después de compra exitosa
-- **Incluye:** 
+- **Incluye:**
   - Detalles del evento
   - Código QR embebido
   - Link a la entrada online
   - Diseño responsive
 
 ### 2. 👋 Email de Bienvenida
+
 - **Trigger:** Registro de nuevo usuario
 - **Incluye:**
   - Mensaje de bienvenida
@@ -328,6 +336,7 @@ Tu proyecto ya tiene estos 3 emails listos:
   - Link a eventos
 
 ### 3. ⭐ Email de Membresía
+
 - **Trigger:** Activación de membresía premium
 - **Incluye:**
   - Confirmación de membresía
@@ -371,6 +380,7 @@ Los emails están en español. Para cambiar a inglés, edita los strings en `lib
 ## ✅ Estado Actual
 
 **Tu proyecto ya tiene:**
+
 - ✅ Gmail SMTP configurado
 - ✅ 3 tipos de emails implementados
 - ✅ Templates HTML responsive y modernos
@@ -379,6 +389,7 @@ Los emails están en español. Para cambiar a inglés, edita los strings en `lib
 - ✅ Emails en español
 
 **Solo necesitas:**
+
 1. ✅ Habilitar 2FA en Gmail
 2. ✅ Generar contraseña de aplicación
 3. ✅ Configurar `.env`
@@ -404,5 +415,3 @@ Si tienes problemas:
 **Método actual:** Gmail SMTP ✅  
 **Código listo:** `lib/email.ts`  
 **Siguiente paso:** Configurar tus credenciales de Gmail 🚀
-
-

@@ -1,38 +1,38 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@/lib/db';
-import Ticket from '@/models/Ticket';
-import { validateTicketFormat, checkRateLimit } from '@/lib/verifyTicket';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
+import Ticket from "@/models/Ticket";
+import { validateTicketFormat, checkRateLimit } from "@/lib/verifyTicket";
 
 /**
  * Validate and mark ticket as used
  * POST /api/tickets/validate
  * Body: { qrCode: string }
- * 
+ *
  * Only accessible by organizers and admins
  */
 
 export async function POST(req: Request) {
   try {
-    console.log('🎫 Ticket validation request received');
-    
+    console.log("🎫 Ticket validation request received");
+
     const session = await getServerSession(authOptions);
 
     // Check authentication and authorization
     if (!session?.user) {
-      console.log('❌ No session found');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.log("❌ No session found");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
-    console.log('👤 User role:', userRole);
-    
-    if (userRole !== 'organizer' && userRole !== 'admin') {
-      console.log('❌ User is not organizer or admin');
+    console.log("👤 User role:", userRole);
+
+    if (userRole !== "organizer" && userRole !== "admin") {
+      console.log("❌ User is not organizer or admin");
       return NextResponse.json(
-        { error: 'Only organizers can validate tickets' },
-        { status: 403 }
+        { error: "Only organizers can validate tickets" },
+        { status: 403 },
       );
     }
 
@@ -41,21 +41,21 @@ export async function POST(req: Request) {
     const { allowed, remaining } = checkRateLimit(identifier, 50, 60000); // 50 requests per minute
 
     if (!allowed) {
-      console.log('❌ Rate limit exceeded');
+      console.log("❌ Rate limit exceeded");
       return NextResponse.json(
-        { error: 'Too many requests. Please wait before scanning again.' },
-        { status: 429 }
+        { error: "Too many requests. Please wait before scanning again." },
+        { status: 429 },
       );
     }
 
     const { qrCode } = await req.json();
-    console.log('🔍 Looking for ticket with QR code:', qrCode);
+    console.log("🔍 Looking for ticket with QR code:", qrCode);
 
     if (!qrCode) {
-      console.log('❌ No QR code provided');
+      console.log("❌ No QR code provided");
       return NextResponse.json(
-        { error: 'QR code is required' },
-        { status: 400 }
+        { error: "QR code is required" },
+        { status: 400 },
       );
     }
 
@@ -63,18 +63,18 @@ export async function POST(req: Request) {
 
     // Find ticket by QR code
     const ticket = await Ticket.findOne({ qrCode })
-      .populate('userId', 'name email')
-      .populate('eventId', 'title date location');
+      .populate("userId", "name email")
+      .populate("eventId", "title date location");
 
     if (!ticket) {
-      console.log('❌ Ticket not found in database');
+      console.log("❌ Ticket not found in database");
       return NextResponse.json(
-        { error: 'Ticket not found', code: 'NOT_FOUND' },
-        { status: 404 }
+        { error: "Ticket not found", code: "NOT_FOUND" },
+        { status: 404 },
       );
     }
 
-    console.log('✅ Ticket found:', {
+    console.log("✅ Ticket found:", {
       ticketId: ticket._id,
       status: ticket.status,
       userId: ticket.userId,
@@ -84,54 +84,57 @@ export async function POST(req: Request) {
     // Validate ticket format and signature
     if (!validateTicketFormat(ticket.qrCode, ticket.qrSignature)) {
       return NextResponse.json(
-        { error: 'Invalid ticket signature', code: 'INVALID_SIGNATURE' },
-        { status: 400 }
+        { error: "Invalid ticket signature", code: "INVALID_SIGNATURE" },
+        { status: 400 },
       );
     }
 
     // Check if already used
-    if (ticket.status === 'used') {
+    if (ticket.status === "used") {
       return NextResponse.json(
         {
-          error: 'Ticket already used',
-          code: 'ALREADY_USED',
+          error: "Ticket already used",
+          code: "ALREADY_USED",
           usedAt: ticket.usedAt,
           usedBy: ticket.usedBy,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     // Check if cancelled or refunded
-    if (ticket.status === 'cancelled' || ticket.status === 'refunded') {
+    if (ticket.status === "cancelled" || ticket.status === "refunded") {
       return NextResponse.json(
-        { error: 'Ticket is not valid', code: 'INVALID_STATUS' },
-        { status: 400 }
+        { error: "Ticket is not valid", code: "INVALID_STATUS" },
+        { status: 400 },
       );
     }
 
     // Mark ticket as used (atomic update with status check)
     const updatedTicket = await Ticket.findOneAndUpdate(
-      { _id: ticket._id, status: 'valid' },
+      { _id: ticket._id, status: "valid" },
       {
-        status: 'used',
+        status: "used",
         usedAt: new Date(),
         usedBy: session.user.id,
       },
-      { new: true }
+      { new: true },
     )
-      .populate('userId', 'name email')
-      .populate('eventId', 'title date location');
+      .populate("userId", "name email")
+      .populate("eventId", "title date location");
 
     if (!updatedTicket) {
       return NextResponse.json(
-        { error: 'Ticket validation failed. It may have been used concurrently.' },
-        { status: 409 }
+        {
+          error:
+            "Ticket validation failed. It may have been used concurrently.",
+        },
+        { status: 409 },
       );
     }
 
     // Log validation attempt
-    console.log('✅ Ticket validated:', {
+    console.log("✅ Ticket validated:", {
       ticketId: updatedTicket._id,
       userId: updatedTicket.userId,
       eventId: updatedTicket.eventId,
@@ -151,17 +154,14 @@ export async function POST(req: Request) {
       },
     };
 
-    console.log('📤 Sending success response:', responsePayload);
+    console.log("📤 Sending success response:", responsePayload);
 
     return NextResponse.json(responsePayload);
   } catch (error) {
-    console.error('Ticket validation error:', error);
+    console.error("Ticket validation error:", error);
     return NextResponse.json(
-      { error: 'Validation failed. Please try again.' },
-      { status: 500 }
+      { error: "Validation failed. Please try again." },
+      { status: 500 },
     );
   }
 }
-
-
-

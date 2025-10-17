@@ -1,9 +1,9 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import { connectDB } from './db';
-import User from '@/models/User';
-import { verifyPassword } from './verifyTicket';
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { connectDB } from "./db";
+import User from "@/models/User";
+import { verifyPassword } from "./verifyTicket";
 
 /**
  * NextAuth configuration with JWT and role-based access
@@ -13,28 +13,33 @@ import { verifyPassword } from './verifyTicket';
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Please enter email and password');
+          throw new Error("Please enter email and password");
         }
 
         await connectDB();
 
-        const user = await User.findOne({ email: credentials.email }).select('+password');
+        const user = await User.findOne({ email: credentials.email }).select(
+          "+password",
+        );
 
         if (!user || !user.password) {
-          throw new Error('Invalid email or password');
+          throw new Error("Invalid email or password");
         }
 
-        const isValid = await verifyPassword(credentials.password, user.password);
+        const isValid = await verifyPassword(
+          credentials.password,
+          user.password,
+        );
 
         if (!isValid) {
-          throw new Error('Invalid email or password');
+          throw new Error("Invalid email or password");
         }
 
         return {
@@ -57,28 +62,28 @@ export const authOptions: NextAuthOptions = {
       : []),
   ],
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    signIn: '/auth/login',
-    error: '/auth/error',
+    signIn: "/auth/login",
+    error: "/auth/error",
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (account?.provider === 'google') {
+      if (account?.provider === "google") {
         await connectDB();
-        
+
         // Find or create user
         const existingUser = await User.findOne({ email: user.email });
-        
+
         if (!existingUser) {
           await User.create({
             name: user.name,
             email: user.email,
             image: user.image,
             emailVerified: new Date(),
-            role: 'user',
+            role: "user",
           });
         }
       }
@@ -88,11 +93,11 @@ export const authOptions: NextAuthOptions = {
       // Initial sign in
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || 'user';
+        token.role = (user as any).role || "user";
       }
 
       // Update session (e.g., when role changes)
-      if (trigger === 'update' && session) {
+      if (trigger === "update" && session) {
         token.role = session.role;
       }
 
@@ -120,8 +125,5 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === "development",
 };
-
-
-

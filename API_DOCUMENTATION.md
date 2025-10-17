@@ -29,16 +29,16 @@ All authenticated endpoints require a valid session cookie from NextAuth.
 
 #### Query Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `membershipFree` | boolean | - | Filter events free for members |
-| `upcoming` | boolean | - | Show only future events |
-| `status` | string | `published` | Filter by status: `draft`, `published`, `cancelled` |
-| `category` | string | - | Filter by category: `networking`, `workshop`, `talk`, `social`, `other` |
-| `page` | number | `1` | Page number (min: 1) |
-| `limit` | number | `20` | Results per page (min: 1, max: 100) |
-| `sortBy` | string | `date` | Sort field: `date`, `createdAt`, `title`, `price` |
-| `sortOrder` | string | `asc` | Sort order: `asc`, `desc` |
+| Parameter        | Type    | Default     | Description                                                             |
+| ---------------- | ------- | ----------- | ----------------------------------------------------------------------- |
+| `membershipFree` | boolean | -           | Filter events free for members                                          |
+| `upcoming`       | boolean | -           | Show only future events                                                 |
+| `status`         | string  | `published` | Filter by status: `draft`, `published`, `cancelled`                     |
+| `category`       | string  | -           | Filter by category: `networking`, `workshop`, `talk`, `social`, `other` |
+| `page`           | number  | `1`         | Page number (min: 1)                                                    |
+| `limit`          | number  | `20`        | Results per page (min: 1, max: 100)                                     |
+| `sortBy`         | string  | `date`      | Sort field: `date`, `createdAt`, `title`, `price`                       |
+| `sortOrder`      | string  | `asc`       | Sort order: `asc`, `desc`                                               |
 
 #### Response 200
 
@@ -251,8 +251,8 @@ Partial update - all fields optional:
 
 #### Query Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Parameter | Type    | Description                            |
+| --------- | ------- | -------------------------------------- |
 | `cascade` | boolean | If `true`, also cancel related tickets |
 
 #### Behavior
@@ -375,9 +375,9 @@ curl -X DELETE 'http://localhost:3000/api/events/507f1f77bcf86cd799439011?cascad
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `eventId` | string | Yes | Event ID to claim ticket for |
+| Parameter | Type   | Required | Description                  |
+| --------- | ------ | -------- | ---------------------------- |
+| `eventId` | string | Yes      | Event ID to claim ticket for |
 
 #### Response
 
@@ -521,9 +521,9 @@ Or for membership:
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `code` | string | Yes | UUID code to encode |
+| Parameter | Type   | Required | Description         |
+| --------- | ------ | -------- | ------------------- |
+| `code`    | string | Yes      | UUID code to encode |
 
 #### Response
 
@@ -539,16 +539,16 @@ PNG image (binary)
 
 ## 🔒 Error Codes Reference
 
-| Code | Message | Description |
-|------|---------|-------------|
-| 400 | Bad Request | Invalid request format or parameters |
-| 401 | Unauthorized | No valid session/authentication |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Resource doesn't exist |
-| 409 | Conflict | Resource conflict (e.g., ticket already used) |
-| 422 | Unprocessable Entity | Validation failed |
-| 429 | Too Many Requests | Rate limit exceeded |
-| 500 | Internal Server Error | Unexpected server error |
+| Code | Message               | Description                                   |
+| ---- | --------------------- | --------------------------------------------- |
+| 400  | Bad Request           | Invalid request format or parameters          |
+| 401  | Unauthorized          | No valid session/authentication               |
+| 403  | Forbidden             | Insufficient permissions                      |
+| 404  | Not Found             | Resource doesn't exist                        |
+| 409  | Conflict              | Resource conflict (e.g., ticket already used) |
+| 422  | Unprocessable Entity  | Validation failed                             |
+| 429  | Too Many Requests     | Rate limit exceeded                           |
+| 500  | Internal Server Error | Unexpected server error                       |
 
 ---
 
@@ -582,9 +582,9 @@ All errors follow this format:
 ```javascript
 // Client-side pagination helper
 async function fetchEvents(page = 1, limit = 20) {
-  const params = new URLSearchParams({ 
-    page: page.toString(), 
-    limit: limit.toString() 
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
   });
   const response = await fetch(`/api/events?${params}`);
   return response.json();
@@ -596,4 +596,3 @@ async function fetchEvents(page = 1, limit = 20) {
 **Last Updated:** January 2025  
 **API Version:** 1.0.0  
 **Base Framework:** Next.js 15 App Router
-

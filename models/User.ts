@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 /**
  * User roles in the system
@@ -6,7 +6,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
  * - organizer: can create events and scan tickets
  * - admin: full access to all features
  */
-export type UserRole = 'user' | 'organizer' | 'admin';
+export type UserRole = "user" | "organizer" | "admin";
 
 export interface IUser extends Document {
   _id: string;
@@ -27,27 +27,27 @@ const UserSchema = new Schema<IUser>(
   {
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, "Name is required"],
       trim: true,
-      maxlength: [100, 'Name cannot exceed 100 characters'],
+      maxlength: [100, "Name cannot exceed 100 characters"],
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email'],
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
     },
     password: {
       type: String,
-      minlength: [8, 'Password must be at least 8 characters'],
+      minlength: [8, "Password must be at least 8 characters"],
       select: false, // Don't include password by default in queries
     },
     role: {
       type: String,
-      enum: ['user', 'organizer', 'admin'],
-      default: 'user',
+      enum: ["user", "organizer", "admin"],
+      default: "user",
     },
     image: {
       type: String,
@@ -71,16 +71,14 @@ const UserSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Indexes are already created via unique: true and index: true in schema
 // No need to add duplicate indexes here
 
 // Prevent model recompilation in Next.js hot reload
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;
-
-
-

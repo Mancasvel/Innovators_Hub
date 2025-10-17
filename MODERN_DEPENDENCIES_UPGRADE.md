@@ -10,15 +10,15 @@ Se actualizó el proyecto **Innovators Hub** para usar dependencias modernas y c
 
 ### Principales Cambios
 
-| Paquete | Versión Anterior | Versión Nueva | Razón |
-|---------|-----------------|---------------|--------|
-| `@zxing/library` | 0.20.0 | **0.21.3** | Resolver conflicto con @zxing/browser |
-| `@zxing/browser` | 0.1.4 | **0.1.5** | Versión compatible con @zxing/library 0.21+ |
-| `stripe` | 14.8.0 | **17.3.1** | API moderna con TypeScript mejorado |
-| `nodemailer` | N/A | **6.9.14** | Reemplazo de Resend para Gmail SMTP |
-| `@types/nodemailer` | N/A | **6.4.16** | Tipos TypeScript para nodemailer |
-| `uploadthing` | 6.3.0 | **6.13.3** | Versión moderna con mejor TypeScript |
-| `@uploadthing/react` | N/A | **6.7.2** | **NUEVA** - Faltaba en el proyecto |
+| Paquete              | Versión Anterior | Versión Nueva | Razón                                       |
+| -------------------- | ---------------- | ------------- | ------------------------------------------- |
+| `@zxing/library`     | 0.20.0           | **0.21.3**    | Resolver conflicto con @zxing/browser       |
+| `@zxing/browser`     | 0.1.4            | **0.1.5**     | Versión compatible con @zxing/library 0.21+ |
+| `stripe`             | 14.8.0           | **17.3.1**    | API moderna con TypeScript mejorado         |
+| `nodemailer`         | N/A              | **6.9.14**    | Reemplazo de Resend para Gmail SMTP         |
+| `@types/nodemailer`  | N/A              | **6.4.16**    | Tipos TypeScript para nodemailer            |
+| `uploadthing`        | 6.3.0            | **6.13.3**    | Versión moderna con mejor TypeScript        |
+| `@uploadthing/react` | N/A              | **6.7.2**     | **NUEVA** - Faltaba en el proyecto          |
 
 ### Dependencias Eliminadas
 
@@ -122,6 +122,7 @@ await sendTicketEmail(user.email, user.name, event, ticket); ✅
 ```
 
 **Archivos afectados:**
+
 - `lib/email.ts` - Completamente reescrito con nodemailer
 - `app/api/stripe/webhook/route.ts`
 - `app/api/tickets/free-claim/route.ts`
@@ -172,12 +173,14 @@ if (videoRef.current) {
 ## ✅ Verificación
 
 ### Type Check
+
 ```bash
 npm run type-check
 # ✅ Sin errores
 ```
 
 ### Dev Server
+
 ```bash
 npm run dev
 # ✅ Compila correctamente
@@ -247,6 +250,7 @@ npm run dev
 Ver documentación completa en: **`GMAIL_SMTP_SETUP.md`**
 
 **Configuración requerida:**
+
 ```env
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -266,7 +270,7 @@ La versión `2025-02-24.acacia` es la **más reciente** de Stripe. Si en el futu
 ```typescript
 // lib/stripe.ts
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: 'YYYY-MM-DD.acacia', // Actualizar aquí
+  apiVersion: "YYYY-MM-DD.acacia", // Actualizar aquí
   typescript: true,
 });
 ```
@@ -303,5 +307,3 @@ const headersList = headers(); // Error!
 **Node version:** >= 18.0.0  
 **npm version:** >= 9.0.0  
 **TypeScript:** 5.3.3
-
-

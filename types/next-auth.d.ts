@@ -1,10 +1,10 @@
-import 'next-auth';
-import { UserRole } from '@/models/User';
+import "next-auth";
+import { UserRole } from "@/models/User";
 
 /**
  * Extend NextAuth types to include custom user properties
  */
-declare module 'next-auth' {
+declare module "next-auth" {
   interface User {
     id: string;
     role: UserRole;
@@ -25,7 +25,7 @@ declare module 'next-auth' {
   }
 }
 
-declare module 'next-auth/jwt' {
+declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: UserRole;
@@ -33,6 +33,3 @@ declare module 'next-auth/jwt' {
     stripeCustomerId?: string;
   }
 }
-
-
-

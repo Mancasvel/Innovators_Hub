@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
 /**
  * Authentication error page
@@ -11,15 +11,15 @@ import { motion } from 'framer-motion';
  */
 
 const errorMessages: Record<string, string> = {
-  Configuration: 'There is a problem with the server configuration.',
-  AccessDenied: 'You do not have permission to sign in.',
-  Verification: 'The verification link is invalid or has expired.',
-  Default: 'An error occurred during authentication.',
+  Configuration: "There is a problem with the server configuration.",
+  AccessDenied: "You do not have permission to sign in.",
+  Verification: "The verification link is invalid or has expired.",
+  Default: "An error occurred during authentication.",
 };
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error') || 'Default';
+  const error = searchParams.get("error") || "Default";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-light-gray">
@@ -50,16 +50,18 @@ function AuthErrorContent() {
 
 export default function AuthErrorPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-light-gray">
-        <div className="max-w-md w-full text-center card">
-          <div className="text-6xl mb-4">⏳</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Loading...
-          </h1>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-light-gray">
+          <div className="max-w-md w-full text-center card">
+            <div className="text-6xl mb-4">⏳</div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Loading...
+            </h1>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <AuthErrorContent />
     </Suspense>
   );

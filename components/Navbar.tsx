@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * Main navigation bar
@@ -47,7 +47,7 @@ export default function Navbar() {
               Events
             </Link>
 
-            {status === 'authenticated' ? (
+            {status === "authenticated" ? (
               <>
                 {/* User Dashboard */}
                 <Link
@@ -58,7 +58,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Organizer Dashboard */}
-                {(user?.role === 'organizer' || user?.role === 'admin') && (
+                {(user?.role === "organizer" || user?.role === "admin") && (
                   <Link
                     href="/organizer"
                     className="text-gray-700 hover:text-seville-orange transition-colors"
@@ -76,7 +76,7 @@ export default function Navbar() {
                     Profile
                   </Link>
                   <button
-                    onClick={() => signOut({ callbackUrl: '/' })}
+                    onClick={() => signOut({ callbackUrl: "/" })}
                     className="text-sm text-gray-700 hover:text-red-600 transition-colors"
                   >
                     Logout
@@ -137,7 +137,7 @@ export default function Navbar() {
           {isMobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
               className="md:hidden border-t border-gray-200 bg-white"
@@ -151,7 +151,7 @@ export default function Navbar() {
                   Events
                 </Link>
 
-                {status === 'authenticated' ? (
+                {status === "authenticated" ? (
                   <>
                     <Link
                       href="/user"
@@ -161,7 +161,7 @@ export default function Navbar() {
                       My Dashboard
                     </Link>
 
-                    {(user?.role === 'organizer' || user?.role === 'admin') && (
+                    {(user?.role === "organizer" || user?.role === "admin") && (
                       <Link
                         href="/organizer"
                         className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-seville-orange hover:bg-gray-50 rounded-md transition-colors"
@@ -178,7 +178,9 @@ export default function Navbar() {
                             {user?.name || user?.email}
                           </p>
                           {user?.hasMembership && (
-                            <span className="text-xs text-yellow-600">⭐ Member</span>
+                            <span className="text-xs text-yellow-600">
+                              ⭐ Member
+                            </span>
                           )}
                         </div>
                       </div>
@@ -186,7 +188,7 @@ export default function Navbar() {
 
                     <button
                       onClick={() => {
-                        signOut({ callbackUrl: '/' });
+                        signOut({ callbackUrl: "/" });
                         setIsMobileMenuOpen(false);
                       }}
                       className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-md transition-colors"
@@ -220,6 +222,3 @@ export default function Navbar() {
     </motion.nav>
   );
 }
-
-
-

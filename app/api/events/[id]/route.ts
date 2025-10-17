@@ -1,20 +1,20 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@/lib/db';
-import Event from '@/models/Event';
-import Ticket from '@/models/Ticket';
-import { 
-  updateEventSchema, 
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
+import Event from "@/models/Event";
+import Ticket from "@/models/Ticket";
+import {
+  updateEventSchema,
   formatZodErrors,
-  sanitizeObject 
-} from '@/lib/validation';
-import { 
-  canModifyResource, 
-  isOrganizerOrAdmin, 
-  AuthErrors 
-} from '@/lib/permissions';
-import mongoose from 'mongoose';
+  sanitizeObject,
+} from "@/lib/validation";
+import {
+  canModifyResource,
+  isOrganizerOrAdmin,
+  AuthErrors,
+} from "@/lib/permissions";
+import mongoose from "mongoose";
 
 /**
  * Single event API
@@ -26,13 +26,13 @@ import mongoose from 'mongoose';
 /**
  * GET /api/events/[id] - Get single event details
  * Public endpoint - no authentication required
- * 
+ *
  * Response: Event object with populated createdBy
  * Errors: 404 Not Found, 500 Internal Server Error
  */
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await connectDB();
@@ -42,28 +42,25 @@ export async function GET(
     // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { error: 'Invalid event ID format' },
-        { status: 400 }
+        { error: "Invalid event ID format" },
+        { status: 400 },
       );
     }
 
     const event = await Event.findById(id)
-      .populate('createdBy', 'name email image')
+      .populate("createdBy", "name email image")
       .lean();
 
     if (!event) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     return NextResponse.json({ event });
   } catch (error) {
-    console.error('❌ Error fetching event:', error);
+    console.error("❌ Error fetching event:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch event' },
-      { status: 500 }
+      { error: "Failed to fetch event" },
+      { status: 500 },
     );
   }
 }
@@ -71,7 +68,7 @@ export async function GET(
 /**
  * PATCH /api/events/[id] - Update event
  * Requires authentication: organizer (owner) or admin role
- * 
+ *
  * Request body: Partial<UpdateEventInput> (validated with Zod)
  * Authorization: Users can only update their own events, admins can update any
  * Response: 200 OK with updated event object
@@ -79,25 +76,19 @@ export async function GET(
  */
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json(
-        AuthErrors.UNAUTHORIZED,
-        { status: 401 }
-      );
+      return NextResponse.json(AuthErrors.UNAUTHORIZED, { status: 401 });
     }
 
     // Check authorization (organizer or admin only)
     if (!isOrganizerOrAdmin(session)) {
-      return NextResponse.json(
-        AuthErrors.INVALID_ROLE,
-        { status: 403 }
-      );
+      return NextResponse.json(AuthErrors.INVALID_ROLE, { status: 403 });
     }
 
     const { id } = await params;
@@ -105,8 +96,8 @@ export async function PATCH(
     // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { error: 'Invalid event ID format' },
-        { status: 400 }
+        { error: "Invalid event ID format" },
+        { status: 400 },
       );
     }
 
@@ -116,31 +107,22 @@ export async function PATCH(
     const event = await Event.findById(id);
 
     if (!event) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     // Check ownership (organizers can only edit their own events)
     if (!canModifyResource(session, event.createdBy.toString())) {
-      return NextResponse.json(
-        AuthErrors.NOT_OWNER,
-        { status: 403 }
-      );
+      return NextResponse.json(AuthErrors.NOT_OWNER, { status: 403 });
     }
 
     // Parse and validate request body
     const body = await req.json();
-    
+
     let validatedData;
     try {
       validatedData = updateEventSchema.parse(body);
     } catch (error) {
-      return NextResponse.json(
-        formatZodErrors(error as any),
-        { status: 422 }
-      );
+      return NextResponse.json(formatZodErrors(error as any), { status: 422 });
     }
 
     // Sanitize input
@@ -152,46 +134,46 @@ export async function PATCH(
     }
 
     // Prevent updating protected fields
-    const protectedFields = ['createdBy', 'ticketsSold', '_id'];
-    protectedFields.forEach(field => delete (sanitizedData as any)[field]);
+    const protectedFields = ["createdBy", "ticketsSold", "_id"];
+    protectedFields.forEach((field) => delete (sanitizedData as any)[field]);
 
     // Update event
     const updatedEvent = await Event.findByIdAndUpdate(
       id,
       { $set: sanitizedData },
-      { 
-        new: true, 
+      {
+        new: true,
         runValidators: true,
-      }
-    ).populate('createdBy', 'name email');
+      },
+    ).populate("createdBy", "name email");
 
-    console.log('✅ Event updated:', updatedEvent?._id);
+    console.log("✅ Event updated:", updatedEvent?._id);
 
     return NextResponse.json({
       success: true,
       event: updatedEvent,
-      message: 'Event updated successfully',
+      message: "Event updated successfully",
     });
   } catch (error) {
-    console.error('❌ Error updating event:', error);
+    console.error("❌ Error updating event:", error);
 
     // Handle validation errors from Mongoose
-    if ((error as any).name === 'ValidationError') {
+    if ((error as any).name === "ValidationError") {
       return NextResponse.json(
-        { 
-          error: 'Validation failed',
+        {
+          error: "Validation failed",
           details: Object.values((error as any).errors).map((err: any) => ({
             field: err.path,
             message: err.message,
           })),
         },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to update event. Please try again.' },
-      { status: 500 }
+      { error: "Failed to update event. Please try again." },
+      { status: 500 },
     );
   }
 }
@@ -199,7 +181,7 @@ export async function PATCH(
 /**
  * DELETE /api/events/[id] - Delete event
  * Requires authentication: organizer (owner) or admin role
- * 
+ *
  * Authorization: Users can only delete their own events, admins can delete any
  * Behavior: Soft delete (sets status to 'cancelled')
  * Optional: Can cascade delete related tickets with ?cascade=true
@@ -208,25 +190,19 @@ export async function PATCH(
  */
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json(
-        AuthErrors.UNAUTHORIZED,
-        { status: 401 }
-      );
+      return NextResponse.json(AuthErrors.UNAUTHORIZED, { status: 401 });
     }
 
     // Check authorization (organizer or admin only)
     if (!isOrganizerOrAdmin(session)) {
-      return NextResponse.json(
-        AuthErrors.INVALID_ROLE,
-        { status: 403 }
-      );
+      return NextResponse.json(AuthErrors.INVALID_ROLE, { status: 403 });
     }
 
     const { id } = await params;
@@ -234,8 +210,8 @@ export async function DELETE(
     // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { error: 'Invalid event ID format' },
-        { status: 400 }
+        { error: "Invalid event ID format" },
+        { status: 400 },
       );
     }
 
@@ -245,38 +221,32 @@ export async function DELETE(
     const event = await Event.findById(id);
 
     if (!event) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     // Check ownership (organizers can only delete their own events)
     if (!canModifyResource(session, event.createdBy.toString())) {
-      return NextResponse.json(
-        AuthErrors.NOT_OWNER,
-        { status: 403 }
-      );
+      return NextResponse.json(AuthErrors.NOT_OWNER, { status: 403 });
     }
 
     // Check if cascade delete is requested
     const { searchParams } = new URL(req.url);
-    const cascade = searchParams.get('cascade') === 'true';
+    const cascade = searchParams.get("cascade") === "true";
 
     // Soft delete event (set status to cancelled)
-    await Event.findByIdAndUpdate(id, { 
-      status: 'cancelled',
+    await Event.findByIdAndUpdate(id, {
+      status: "cancelled",
       updatedAt: new Date(),
     });
 
     // Optional: cascade delete related tickets
     if (cascade) {
       const result = await Ticket.updateMany(
-        { eventId: id, status: 'valid' },
-        { 
-          status: 'cancelled',
+        { eventId: id, status: "valid" },
+        {
+          status: "cancelled",
           updatedAt: new Date(),
-        }
+        },
       );
       console.log(`✅ Cancelled ${result.modifiedCount} related tickets`);
     }
@@ -284,21 +254,18 @@ export async function DELETE(
     // Get ticket count for logging
     const ticketCount = await Ticket.countDocuments({ eventId: id });
 
-    console.log('✅ Event cancelled:', id, `(${ticketCount} tickets)`);
+    console.log("✅ Event cancelled:", id, `(${ticketCount} tickets)`);
 
     return NextResponse.json({
       success: true,
-      message: 'Event cancelled successfully',
+      message: "Event cancelled successfully",
       ticketsAffected: cascade ? ticketCount : 0,
     });
   } catch (error) {
-    console.error('❌ Error deleting event:', error);
+    console.error("❌ Error deleting event:", error);
     return NextResponse.json(
-      { error: 'Failed to delete event. Please try again.' },
-      { status: 500 }
+      { error: "Failed to delete event. Please try again." },
+      { status: 500 },
     );
   }
 }
-
-
-

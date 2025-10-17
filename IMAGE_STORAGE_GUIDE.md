@@ -5,6 +5,7 @@ Guía completa para manejar imágenes en la plataforma.
 ## 🎯 Solución Elegida: Uploadthing
 
 **Uploadthing** es la solución recomendada por ser:
+
 - ✅ Específicamente diseñada para Next.js
 - ✅ Hosting automático en CDN global
 - ✅ Optimización automática de imágenes
@@ -23,6 +24,7 @@ Guía completa para manejar imágenes en la plataforma.
 ### 2. Obtener credenciales
 
 En el dashboard de Uploadthing:
+
 1. Ve a "API Keys"
 2. **Nuevo método (recomendado):** Copia el `UPLOADTHING_TOKEN` (empieza con `ut_token_...`)
 3. **Método legacy (obsoleto):** Si usas versión antigua, necesitas `UPLOADTHING_SECRET` y `UPLOADTHING_APP_ID`
@@ -64,17 +66,13 @@ lib/
 ### En cualquier formulario:
 
 ```tsx
-import ImageUpload from '@/components/ImageUpload';
+import ImageUpload from "@/components/ImageUpload";
 
 function MyForm() {
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState("");
 
   return (
-    <ImageUpload
-      value={imageUrl}
-      onChange={setImageUrl}
-      disabled={loading}
-    />
+    <ImageUpload value={imageUrl} onChange={setImageUrl} disabled={loading} />
   );
 }
 ```
@@ -100,7 +98,7 @@ function MyForm() {
 
 .middleware(async () => {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
@@ -149,6 +147,7 @@ https://utfs.io/f/abc123...xyz.jpg
 ```
 
 Características:
+
 - ✅ HTTPS seguro
 - ✅ CDN global (ultra-rápido)
 - ✅ Optimización automática
@@ -158,7 +157,7 @@ Características:
 ## 🖼️ Uso con Next.js Image
 
 ```tsx
-import Image from 'next/image';
+import Image from "next/image";
 
 <Image
   src={event.image}
@@ -166,7 +165,7 @@ import Image from 'next/image';
   width={800}
   height={400}
   className="object-cover"
-/>
+/>;
 ```
 
 No olvides añadir el dominio en `next.config.js`:
@@ -176,11 +175,11 @@ No olvides añadir el dominio en `next.config.js`:
 module.exports = {
   images: {
     domains: [
-      'lh3.googleusercontent.com',
-      'utfs.io', // Uploadthing CDN
+      "lh3.googleusercontent.com",
+      "utfs.io", // Uploadthing CDN
     ],
   },
-}
+};
 ```
 
 ## 🔄 Alternativas (si prefieres otras soluciones)
@@ -223,20 +222,21 @@ npm install @supabase/supabase-js
 
 ## 📊 Comparación de Soluciones
 
-| Característica | Uploadthing | Cloudinary | Vercel Blob | AWS S3 |
-|----------------|-------------|------------|-------------|--------|
-| **Setup** | ⭐⭐⭐⭐⭐ Muy fácil | ⭐⭐⭐ Medio | ⭐⭐⭐⭐ Fácil | ⭐⭐ Difícil |
-| **Free Tier** | 2GB storage | 25GB storage | ❌ Pago | 5GB storage |
-| **CDN** | ✅ Global | ✅ Global | ✅ Global | ✅ Global |
-| **Next.js** | ✅ Nativo | ✅ Compatible | ✅ Nativo | ⚠️ Manual |
-| **Optimización** | ✅ Auto | ✅ Avanzada | ✅ Auto | ❌ Manual |
-| **Costo** | $10/mes (10GB) | $0-99/mes | $0.03/GB | $0.023/GB |
+| Característica   | Uploadthing          | Cloudinary    | Vercel Blob    | AWS S3       |
+| ---------------- | -------------------- | ------------- | -------------- | ------------ |
+| **Setup**        | ⭐⭐⭐⭐⭐ Muy fácil | ⭐⭐⭐ Medio  | ⭐⭐⭐⭐ Fácil | ⭐⭐ Difícil |
+| **Free Tier**    | 2GB storage          | 25GB storage  | ❌ Pago        | 5GB storage  |
+| **CDN**          | ✅ Global            | ✅ Global     | ✅ Global      | ✅ Global    |
+| **Next.js**      | ✅ Nativo            | ✅ Compatible | ✅ Nativo      | ⚠️ Manual    |
+| **Optimización** | ✅ Auto              | ✅ Avanzada   | ✅ Auto        | ❌ Manual    |
+| **Costo**        | $10/mes (10GB)       | $0-99/mes     | $0.03/GB       | $0.023/GB    |
 
 ## 💡 Recomendación
 
 Para **Innovators Hub**:
 
 **Usar Uploadthing** porque:
+
 1. Setup ultra-rápido (5 minutos)
 2. Perfecto para Next.js + Vercel
 3. Free tier suficiente para empezar
@@ -245,6 +245,7 @@ Para **Innovators Hub**:
 6. Seguridad incorporada
 
 **Migrar a Cloudinary** solo si:
+
 - Necesitas transformaciones avanzadas (filtros, watermarks)
 - Vas a manejar video
 - Necesitas más de 25GB de storage gratis
@@ -252,15 +253,19 @@ Para **Innovators Hub**:
 ## 🔧 Troubleshooting
 
 ### Error: "Unauthorized"
+
 → Verifica que el usuario tiene sesión activa y rol correcto
 
 ### Error: "File too large"
+
 → Imagen excede 4MB, comprime antes de subir
 
 ### Imagen no carga
+
 → Verifica que el dominio `utfs.io` está en `next.config.js`
 
 ### Upload muy lento
+
 → Uploadthing usa CDN, pero archivos muy grandes tardan. Comprime imágenes.
 
 ## 📱 Optimización de Imágenes
@@ -278,11 +283,11 @@ Uploadthing optimiza automáticamente, pero puedes configurar:
 
 ```typescript
 // core.ts
-eventImage: f({ 
-  image: { 
+eventImage: f({
+  image: {
     maxFileSize: "4MB",
     maxFileCount: 1,
-  } 
+  }
 })
 .middleware(...)
 .onUploadComplete(async ({ file }) => {
@@ -301,6 +306,7 @@ eventImage: f({
 ### Otros hosts
 
 Uploadthing funciona en cualquier host que soporte Next.js:
+
 - Railway
 - Render
 - Netlify
@@ -327,4 +333,3 @@ Solo asegúrate de configurar las variables de entorno.
 **Última actualización:** Enero 2025  
 **Versión:** 1.0.0  
 **Solución:** Uploadthing + Next.js 15
-
